@@ -8,6 +8,8 @@ function dataBase() {
       <ul>
         <Link to="/classes"><li>Classes</li></Link>
         <Link to="/equipmentsCategories"><li>Equipamentos</li></Link>
+        <Link to="/races"><li>Raças</li></Link>
+        <Link to="/monster"><li>Monstros</li></Link>
       </ul>
     </div>
   );
