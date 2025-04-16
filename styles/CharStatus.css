@@ -1,0 +1,9 @@
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    background-color: #292929;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  

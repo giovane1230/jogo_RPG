@@ -1,0 +1,48 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 220px;
+  background-color: #222;
+  color: #fff;
+  padding: 20px;
+  z-index: 100;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+  transition: 0.3s;
+}
+
+.sidebar .fechar {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  float: right;
+  cursor: pointer;
+}
+
+.sidebar .fechar:hover {
+  background-color: #444;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 20px 0 0 0;
+}
+
+.sidebar li {
+  padding: 12px 0;
+  cursor: pointer;
+  transition: 0.4s;
+}
+
+.sidebar li:hover {
+  background-color: #444;
+  padding-left: 10px;
+  font-size: 18px;
+}
+
+.sidebar a {
+  color: #fff;
+  text-decoration: none;
+}
