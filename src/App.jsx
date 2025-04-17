@@ -10,6 +10,8 @@ import DataBasePage from "./pages/DataBasePage";
 import EquipmentsCategoriesPage from "./pages/EquipmentsCategoriesPage";
 import RacesPage from "./pages/RacesPage";
 import MonstersPage from "./pages/MonstersPage";
+import SpellsPage from "./pages/SpellPage";
+import SkillsPage from "./pages/SkillsPage";
 
 function App() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -30,7 +32,9 @@ function App() {
           <Route path="/classes" element={<ClassesPage />} />
           <Route path="/equipmentsCategories" element={<EquipmentsCategoriesPage />} />
           <Route path="/races" element={<RacesPage />} />
-          <Route path="/monster" element={<MonstersPage />} />
+          <Route path="/monsters" element={<MonstersPage />} />
+          <Route path="/spells" element={<SpellsPage />} />
+          <Route path="/skills" element={<SkillsPage />} />
         </Routes>
       </div>
     </>

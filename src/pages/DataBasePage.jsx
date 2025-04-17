@@ -9,7 +9,9 @@ function dataBase() {
         <Link to="/classes"><li>Classes</li></Link>
         <Link to="/equipmentsCategories"><li>Equipamentos</li></Link>
         <Link to="/races"><li>Raças</li></Link>
-        <Link to="/monster"><li>Monstros</li></Link>
+        <Link to="/monsters"><li>Monstros</li></Link>
+        <Link to="/skills"><li>Habilidades</li></Link>
+        <Link to="/spells"><li>Magias</li></Link>
       </ul>
     </div>
   );
