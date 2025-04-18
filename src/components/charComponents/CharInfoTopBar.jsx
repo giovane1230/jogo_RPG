@@ -1,6 +1,6 @@
 import React from "react";
 
-function CharInfo() {
+function CharInfoTopBar() {
   return (
     <div>
       <img src="src\assets\cavaleiroIMG.png" alt="Avatar" className="avatar" />
@@ -12,4 +12,4 @@ function CharInfo() {
   );
 }
 
-export default CharInfo;
+export default CharInfoTopBar;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../styles/TopBar.css";
+import "../../styles/components/topBar.css";
 import Sidebar from "./SideBar";
 
 function Topbar() {

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 function MonsterDetalhes({ dados }) {
   if (!dados) return null;
@@ -9,9 +10,9 @@ function MonsterDetalhes({ dados }) {
       <p><strong>Tamanho:</strong> {dados.size}</p>
       <p><strong>Tipo:</strong> {dados.type}</p>
       <p><strong>Alinhamento:</strong> {dados.alignment}</p>
-      <p><strong>Classe de Armadura:</strong> {dados.armor_class.valeu}</p>
+      <p><strong>Classe de Armadura:</strong> {dados.armor_class?.valeu}</p>
       <p><strong>Vida Fixo: </strong>{dados.hit_points} - <strong>Rolagem de vida: </strong>({dados.hit_points_roll})</p>
-      <p><strong>Velocidade:</strong> {Object.entries(dados.speed).map(([tipo, valor]) => `${tipo}: ${valor}`).join(', ')}</p>
+      <p><strong>Velocidade:</strong> {dados.speed ? Object.entries(dados.speed).map(([tipo, valor]) => `${tipo}: ${valor}`).join(', ') : 'N/A'}</p>
 
       <h4>Atributos</h4>
       <ul>
@@ -39,16 +40,16 @@ function MonsterDetalhes({ dados }) {
         </>
       )}
 
-      {dados.damage_vulnerabilities.length > 0 && (
+      {dados.damage_vulnerabilities?.length > 0 && (
         <p><strong>Vulnerabilidades:</strong> {dados.damage_vulnerabilities.join(', ')}</p>
       )}
-      {dados.damage_resistances.length > 0 && (
+      {dados.damage_resistances?.length > 0 && (
         <p><strong>Resistências:</strong> {dados.damage_resistances.join(', ')}</p>
       )}
-      {dados.damage_immunities.length > 0 && (
+      {dados.damage_immunities?.length > 0 && (
         <p><strong>Imunidades a Dano:</strong> {dados.damage_immunities.join(', ')}</p>
       )}
-      {dados.condition_immunities.length > 0 && (
+      {dados.condition_immunities?.length > 0 && (
         <p><strong>Imunidades a Condição:</strong> {dados.condition_immunities.map(ci => ci.name).join(', ')}</p>
       )}
 
@@ -93,5 +94,61 @@ function MonsterDetalhes({ dados }) {
     </div>
   );
 }
+MonsterDetalhes.propTypes = {
+  dados: PropTypes.shape({
+    name: PropTypes.string,
+    size: PropTypes.string,
+    type: PropTypes.string,
+    alignment: PropTypes.string,
+    armor_class: PropTypes.shape({
+      valeu: PropTypes.number,
+    }),
+    hit_points: PropTypes.number,
+    hit_points_roll: PropTypes.string,
+    speed: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+    strength: PropTypes.number,
+    dexterity: PropTypes.number,
+    constitution: PropTypes.number,
+    intelligence: PropTypes.number,
+    wisdom: PropTypes.number,
+    charisma: PropTypes.number,
+    proficiencies: PropTypes.arrayOf(
+      PropTypes.shape({
+        proficiency: PropTypes.shape({
+          name: PropTypes.string,
+        }),
+        value: PropTypes.number,
+      })
+    ),
+    xp: PropTypes.number,
+    challenge_rating: PropTypes.number,
+    damage_vulnerabilities: PropTypes.arrayOf(PropTypes.string),
+    damage_resistances: PropTypes.arrayOf(PropTypes.string),
+    damage_immunities: PropTypes.arrayOf(PropTypes.string),
+    condition_immunities: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+      })
+    ),
+    special_abilities: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        desc: PropTypes.string,
+      })
+    ),
+    actions: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        desc: PropTypes.string,
+      })
+    ),
+    legendary_actions: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        desc: PropTypes.string,
+      })
+    ),
+  }),
+};
 
 export default MonsterDetalhes;

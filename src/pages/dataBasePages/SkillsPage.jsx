@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import SkillsDetalhes from "../components/SkillsDetalhes";
+import SkillsDetalhes from  "../../components/dataBaseComponents/SkillsDetalhesDB";
+import BtnVoltarDB from "../../components/dataBaseComponents/BtnVoltarDB";
 
 function SkillsPage() {
   const [skills, setSkills] = useState([]);
@@ -43,6 +44,7 @@ function SkillsPage() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <BtnVoltarDB /><br />
       <h1>Skills</h1>
       <select onChange={handleSkillChange} value={selectedSkill}>
         <option value="">-- Selecione uma Skill --</option>

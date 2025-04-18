@@ -1,16 +1,16 @@
 import React from "react";
-import CharInfo from "../components/CharInfo";
-import CharStats from "../components/CharStatus";
-import CharActions from "../components/CharActions";
-import "../../styles/CharPage.css";
-import CharBag from "../components/CharBag";
+import CharInfoTopBar from "../../components/charComponents/CharInfoTopBar";
+import CharStats from "../../components/charComponents/CharStatus";
+import CharActions from "../../components/charComponents/CharActions";
+import CharBag from "../../components/charComponents/CharBag";
+import "../../../styles/charCss/CharPage.css"
 
 function CharPage() {
   return (
     <div className="character-page">
       <div className="top-section">
       <div className="left-panel">
-        <CharInfo />
+        <CharInfoTopBar />
         <CharStats />
         <CharActions />
       </div>

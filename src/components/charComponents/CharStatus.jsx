@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/CharStatus.css";
+import "../../../styles/charCss/CharStatus.css";
 
 function CharStats() {
   return (

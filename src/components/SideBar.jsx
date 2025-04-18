@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../../styles/Sidebar.css";
+import "../../styles/components/SideBar.css";
+import PropTypes from "prop-types";
 
 function Sidebar({ fecharMenu }) {
   return (
@@ -22,5 +23,8 @@ function Sidebar({ fecharMenu }) {
     </div>
   );
 }
+Sidebar.propTypes = {
+  fecharMenu: PropTypes.func.isRequired,
+};
 
 export default Sidebar;

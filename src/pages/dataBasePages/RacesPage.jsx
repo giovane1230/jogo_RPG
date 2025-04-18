@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import RacesDetalhes from "../components/RacesDetalhes";
+import RacesDetalhes from  "../../components/dataBaseComponents/RacesDetalhesDB";
+import BtnVoltarDB from "../../components/dataBaseComponents/BtnVoltarDB";
 
 function RacesPage() {
   const [races, setRaces] = useState([]);
@@ -44,6 +45,7 @@ function RacesPage() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <BtnVoltarDB /><br />
       <h1>Races</h1>
       <select onChange={handleRaceChange} value={selectedRace} style={{ marginBottom: "20px" }}>
         <option value="">-- Selecione uma Race --</option>

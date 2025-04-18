@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import MonsterDetalhes from "../components/MonsterDetalhes";
+import MonsterDetalhes from  "../../components/dataBaseComponents/MonsterDetalhesDB";
+import BtnVoltarDB from "../../components/dataBaseComponents/BtnVoltarDB";
 
 function MonstersPage() {
   const [monsters, setMonsters] = useState([]);
@@ -38,6 +39,7 @@ function MonstersPage() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <BtnVoltarDB /><br />
       <h1>Monstros</h1>
       <select onChange={e => setSelectedMonster(e.target.value)} value={selectedMonster}>
         <option value="">-- Selecione um Monstro --</option>

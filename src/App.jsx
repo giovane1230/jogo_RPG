@@ -4,14 +4,16 @@ import { Routes, Route } from "react-router-dom";
 import Sidebar from "./components/SideBar";
 import Topbar from "./components/TopBar";
 import Home from "./pages/Home";
-import CharPage from "./pages/CharPage";
-import ClassesPage from "./pages/ClassesPage";
-import DataBasePage from "./pages/DataBasePage";
-import EquipmentsCategoriesPage from "./pages/EquipmentsCategoriesPage";
-import RacesPage from "./pages/RacesPage";
-import MonstersPage from "./pages/MonstersPage";
-import SpellsPage from "./pages/SpellPage";
-import SkillsPage from "./pages/SkillsPage";
+import CharPage from "./pages/charPages/CharPage";
+import ClassesPage from "./pages/dataBasePages/ClassesPage";
+import DataBasePage from "./pages/dataBasePages/DataBasePage";
+import EquipmentsCategoriesPage from "./pages/dataBasePages/EquipmentsCategoriesPage";
+import RacesPage from "./pages/dataBasePages/RacesPage";
+import MonstersPage from "./pages/dataBasePages/MonstersPage";
+import SpellsPage from "./pages/dataBasePages/SpellPage";
+import SkillsPage from "./pages/dataBasePages/SkillsPage";
+import CharCreate from "./pages/charPages/CharCreate";
+import CharCreatePtns from "./pages/charPages/CharCreatePtns";
 
 function App() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -35,6 +37,8 @@ function App() {
           <Route path="/monsters" element={<MonstersPage />} />
           <Route path="/spells" element={<SpellsPage />} />
           <Route path="/skills" element={<SkillsPage />} />
+          <Route path="/charcreate" element={<CharCreate />} />
+          <Route path="/charcreateptns" element={<CharCreatePtns />} />
         </Routes>
       </div>
     </>

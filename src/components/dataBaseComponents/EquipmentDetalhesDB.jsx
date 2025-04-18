@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 function EquipmentDetalhes({ dados }) {
   const [selectedEquipmentUrl, setSelectedEquipmentUrl] = useState("");
@@ -122,5 +123,16 @@ function EquipmentDetalhes({ dados }) {
     </div>
   );
 }
+EquipmentDetalhes.propTypes = {
+  dados: PropTypes.shape({
+    equipment: PropTypes.arrayOf(
+      PropTypes.shape({
+        index: PropTypes.string.isRequired,
+        url: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      })
+    ),
+  }),
+};
 
 export default EquipmentDetalhes;

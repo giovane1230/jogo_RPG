@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import ClasseDetalhes from "../components/ClasseDetalhes";
+import ClasseDetalhes from "../../components/dataBaseComponents/ClasseDetalhesDB";
+import BtnVoltarDB from "../../components/dataBaseComponents/BtnVoltarDB";
 
 function ClassesPage() {
   const [classes, setClasses] = useState([]);
@@ -44,6 +45,7 @@ function ClassesPage() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <BtnVoltarDB /><br />
       <h1>Classes</h1>
       <select onChange={handleClassChange} value={selectedClass} style={{ marginBottom: "20px" }}>
         <option value="">-- Selecione uma Classe --</option>

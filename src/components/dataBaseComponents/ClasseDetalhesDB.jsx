@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 function ClasseDetalhes({ dados }) {
   if (!dados) return null;
@@ -57,5 +58,50 @@ function ClasseDetalhes({ dados }) {
     </div>
   );
 }
+ClasseDetalhes.propTypes = {
+  dados: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    hit_die: PropTypes.number.isRequired,
+    proficiency_choices: PropTypes.arrayOf(
+      PropTypes.shape({
+        desc: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+    proficiencies: PropTypes.arrayOf(
+      PropTypes.shape({
+        index: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+    starting_equipment: PropTypes.arrayOf(
+      PropTypes.shape({
+        equipment: PropTypes.shape({
+          index: PropTypes.string.isRequired,
+          name: PropTypes.string.isRequired,
+        }).isRequired,
+        quantity: PropTypes.number.isRequired,
+      })
+    ).isRequired,
+    starting_equipment_options: PropTypes.arrayOf(
+      PropTypes.shape({
+        desc: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+    subclasses: PropTypes.arrayOf(
+      PropTypes.shape({
+        index: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+    spellcasting: PropTypes.shape({
+      info: PropTypes.arrayOf(
+        PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          desc: PropTypes.string.isRequired,
+        })
+      ),
+    }),
+  }).isRequired,
+};
 
 export default ClasseDetalhes;

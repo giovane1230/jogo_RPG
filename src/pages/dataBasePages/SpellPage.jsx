@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import SpellsDetalhes from "../components/SpellsDetalhes";
+import SpellsDetalhes from  "../../components/dataBaseComponents/SpellsDetalhesDB";
+import BtnVoltarDB from "../../components/dataBaseComponents/BtnVoltarDB";
 
 function SpellsPage() {
   const [spells, setSpells] = useState([]);
@@ -43,6 +44,7 @@ function SpellsPage() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <BtnVoltarDB /><br />
       <h1>Spells</h1>
       <select onChange={handleSpellChange} value={selectedSpell}>
         <option value="">-- Selecione uma Spell --</option>

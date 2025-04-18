@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import EquipmentDetalhes from "../components/EquipmentDetalhes.jsx";
+import EquipmentDetalhes from  "../../components/dataBaseComponents/EquipmentDetalhesDB";
+import BtnVoltarDB from "../../components/dataBaseComponents/BtnVoltarDB";
 
 function EquipmentCategoriesPage() {
   const [equipmentCategories, setEquipmentCategories] = useState([]);
@@ -44,6 +45,7 @@ function EquipmentCategoriesPage() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <BtnVoltarDB /><br />
       <h1>Categorias de Equipamento:</h1>
       <select onChange={handleCategoryChange} value={selectedCategory} style={{ marginBottom: "20px" }}>
         <option value="">-- Selecione uma categoria --</option>

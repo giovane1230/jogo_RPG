@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 function SpellsDetalhes({ dados }) {
@@ -75,5 +76,43 @@ function SpellsDetalhes({ dados }) {
     </div>
   );
 }
+SpellsDetalhes.propTypes = {
+  dados: PropTypes.shape({
+    name: PropTypes.string,
+    level: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    school: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    range: PropTypes.string,
+    casting_time: PropTypes.string,
+    duration: PropTypes.string,
+    components: PropTypes.arrayOf(PropTypes.string),
+    ritual: PropTypes.bool,
+    classes: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+      })
+    ),
+    damage: PropTypes.shape({
+      damage_at_slot_level: PropTypes.objectOf(PropTypes.string),
+      damage_type: PropTypes.shape({
+        name: PropTypes.string,
+      }),
+    }),
+    dc: PropTypes.shape({
+      dc_type: PropTypes.shape({
+        name: PropTypes.string,
+      }),
+      dc_success: PropTypes.string,
+    }),
+    area_of_effect: PropTypes.shape({
+      type: PropTypes.string,
+      size: PropTypes.number,
+    }),
+    higher_level: PropTypes.arrayOf(PropTypes.string),
+    desc: PropTypes.arrayOf(PropTypes.string),
+    index: PropTypes.string,
+  }),
+};
 
 export default SpellsDetalhes;

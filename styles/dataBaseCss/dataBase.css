@@ -1,0 +1,19 @@
+.dataBase {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    background-color: #f5f2f2;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.dataBase a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.dataBase a:hover {
+  color: #007BFF;
+}
