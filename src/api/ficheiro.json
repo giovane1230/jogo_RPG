@@ -1,0 +1,370 @@
+{
+    "race": "Gnome",
+    "raceDetails": {
+        "index": "halfling",
+        "name": "Halfling",
+        "speed": 25,
+        "ability_bonuses": [
+            {
+                "ability_score": {
+                    "index": "dex",
+                    "name": "DEX",
+                    "url": "/api/2014/ability-scores/dex"
+                },
+                "bonus": 2
+            }
+        ],
+        "age": "A halfling reaches adulthood at the age of 20 and generally lives into the middle of his or her second century.",
+        "alignment": "Most halflings are lawful good. As a rule, they are good-hearted and kind, hate to see others in pain, and have no tolerance for oppression. They are also very orderly and traditional, leaning heavily on the support of their community and the comfort of their old ways.",
+        "size": "Small",
+        "size_description": "Halflings average about 3 feet tall and weigh about 40 pounds. Your size is Small.",
+        "starting_proficiencies": [],
+        "languages": [
+            {
+                "index": "common",
+                "name": "Common",
+                "url": "/api/2014/languages/common"
+            },
+            {
+                "index": "halfling",
+                "name": "Halfling",
+                "url": "/api/2014/languages/halfling"
+            }
+        ],
+        "language_desc": "You can speak, read, and write Common and Halfling. The Halfling language isn't secret, but halflings are loath to share it with others. They write very little, so they don't have a rich body of literature. Their oral tradition, however, is very strong. Almost all halflings speak Common to converse with the people in whose lands they dwell or through which they are traveling.",
+        "traits": [
+            {
+                "index": "brave",
+                "name": "Brave",
+                "url": "/api/2014/traits/brave"
+            },
+            {
+                "index": "halfling-nimbleness",
+                "name": "Halfling Nimbleness",
+                "url": "/api/2014/traits/halfling-nimbleness"
+            },
+            {
+                "index": "lucky",
+                "name": "Lucky",
+                "url": "/api/2014/traits/lucky"
+            }
+        ],
+        "subraces": [
+            {
+                "index": "lightfoot-halfling",
+                "name": "Lightfoot Halfling",
+                "url": "/api/2014/subraces/lightfoot-halfling"
+            }
+        ],
+        "url": "/api/2014/races/halfling",
+        "updated_at": "2025-04-08T21:14:12.834Z"
+    },
+    "attributes": {
+        "str": 8,
+        "dex": 10,
+        "con": 8,
+        "int": 10,
+        "wis": 8,
+        "cha": 8
+    },
+    "spells": [
+        {
+            "index": "cure-wounds",
+            "name": "Cure Wounds",
+            "desc": [
+                "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier. This spell has no effect on undead or constructs."
+            ],
+            "higher_level": [
+                "When you cast this spell using a spell slot of 2nd level or higher, the healing increases by 1d8 for each slot level above 1st."
+            ],
+            "range": "Touch",
+            "components": [
+                "V",
+                "S"
+            ],
+            "ritual": false,
+            "duration": "Instantaneous",
+            "concentration": false,
+            "casting_time": "1 action",
+            "level": 1,
+            "heal_at_slot_level": {
+                "1": "1d8 + MOD",
+                "2": "2d8 + MOD",
+                "3": "3d8 + MOD",
+                "4": "4d8 + MOD",
+                "5": "5d8 + MOD",
+                "6": "6d8 + MOD",
+                "7": "7d8 + MOD",
+                "8": "8d8 + MOD",
+                "9": "9d8 + MOD"
+            },
+            "school": {
+                "index": "evocation",
+                "name": "Evocation",
+                "url": "/api/2014/magic-schools/evocation"
+            },
+            "classes": [
+                {
+                    "index": "bard",
+                    "name": "Bard",
+                    "url": "/api/2014/classes/bard"
+                },
+                {
+                    "index": "cleric",
+                    "name": "Cleric",
+                    "url": "/api/2014/classes/cleric"
+                },
+                {
+                    "index": "druid",
+                    "name": "Druid",
+                    "url": "/api/2014/classes/druid"
+                },
+                {
+                    "index": "paladin",
+                    "name": "Paladin",
+                    "url": "/api/2014/classes/paladin"
+                },
+                {
+                    "index": "ranger",
+                    "name": "Ranger",
+                    "url": "/api/2014/classes/ranger"
+                }
+            ],
+            "subclasses": [
+                {
+                    "index": "lore",
+                    "name": "Lore",
+                    "url": "/api/2014/subclasses/lore"
+                },
+                {
+                    "index": "life",
+                    "name": "Life",
+                    "url": "/api/2014/subclasses/life"
+                }
+            ],
+            "url": "/api/2014/spells/cure-wounds",
+            "updated_at": "2025-04-08T21:14:16.147Z"
+        },
+        {
+            "higher_level": [],
+            "index": "detect-magic",
+            "name": "Detect Magic",
+            "desc": [
+                "For the duration, you sense the presence of magic within 30 feet of you. If you sense magic in this way, you can use your action to see a faint aura around any visible creature or object in the area that bears magic, and you learn its school of magic, if any.",
+                "The spell can penetrate most barriers, but it is blocked by 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt."
+            ],
+            "range": "Self",
+            "components": [
+                "V",
+                "S"
+            ],
+            "ritual": true,
+            "duration": "Up to 10 minutes",
+            "concentration": true,
+            "casting_time": "1 action",
+            "level": 1,
+            "area_of_effect": {
+                "type": "sphere",
+                "size": 30
+            },
+            "school": {
+                "index": "divination",
+                "name": "Divination",
+                "url": "/api/2014/magic-schools/divination"
+            },
+            "classes": [
+                {
+                    "index": "bard",
+                    "name": "Bard",
+                    "url": "/api/2014/classes/bard"
+                },
+                {
+                    "index": "cleric",
+                    "name": "Cleric",
+                    "url": "/api/2014/classes/cleric"
+                },
+                {
+                    "index": "druid",
+                    "name": "Druid",
+                    "url": "/api/2014/classes/druid"
+                },
+                {
+                    "index": "paladin",
+                    "name": "Paladin",
+                    "url": "/api/2014/classes/paladin"
+                },
+                {
+                    "index": "ranger",
+                    "name": "Ranger",
+                    "url": "/api/2014/classes/ranger"
+                },
+                {
+                    "index": "sorcerer",
+                    "name": "Sorcerer",
+                    "url": "/api/2014/classes/sorcerer"
+                },
+                {
+                    "index": "wizard",
+                    "name": "Wizard",
+                    "url": "/api/2014/classes/wizard"
+                }
+            ],
+            "subclasses": [
+                {
+                    "index": "lore",
+                    "name": "Lore",
+                    "url": "/api/2014/subclasses/lore"
+                }
+            ],
+            "url": "/api/2014/spells/detect-magic",
+            "updated_at": "2025-04-08T21:14:16.147Z"
+        },
+        {
+            "higher_level": [],
+            "index": "disguise-self",
+            "name": "Disguise Self",
+            "desc": [
+                "You make yourself--including your clothing, armor, weapons, and other belongings on your person--look different until the spell ends or until you use your action to dismiss it. You can seem 1 foot shorter or taller and can appear thin, fat, or in between. You can't change your body type, so you must adopt a form that has the same basic arrangement of limbs. Otherwise, the extent of the illusion is up to you.",
+                "The changes wrought by this spell fail to hold up to physical inspection. For example, if you use this spell to add a hat to your outfit, objects pass through the hat, and anyone who touches it would feel nothing or would feel your head and hair. If you use this spell to appear thinner than you are, the hand of someone who reaches out to touch you would bump into you while it was seemingly still in midair.",
+                "To discern that you are disguised, a creature can use its action to inspect your appearance and must succeed on an Intelligence (Investigation) check against your spell save DC."
+            ],
+            "range": "Self",
+            "components": [
+                "V",
+                "S"
+            ],
+            "ritual": false,
+            "duration": "1 hour",
+            "concentration": false,
+            "casting_time": "1 action",
+            "level": 1,
+            "school": {
+                "index": "illusion",
+                "name": "Illusion",
+                "url": "/api/2014/magic-schools/illusion"
+            },
+            "classes": [
+                {
+                    "index": "bard",
+                    "name": "Bard",
+                    "url": "/api/2014/classes/bard"
+                },
+                {
+                    "index": "sorcerer",
+                    "name": "Sorcerer",
+                    "url": "/api/2014/classes/sorcerer"
+                },
+                {
+                    "index": "wizard",
+                    "name": "Wizard",
+                    "url": "/api/2014/classes/wizard"
+                }
+            ],
+            "subclasses": [
+                {
+                    "index": "lore",
+                    "name": "Lore",
+                    "url": "/api/2014/subclasses/lore"
+                }
+            ],
+            "url": "/api/2014/spells/disguise-self",
+            "updated_at": "2025-04-08T21:14:16.147Z"
+        },
+        {
+            "higher_level": [],
+            "index": "speak-with-animals",
+            "name": "Speak with Animals",
+            "desc": [
+                "You gain the ability to comprehend and verbally communicate with beasts for the duration. The knowledge and awareness of many beasts is limited by their intelligence, but at a minimum, beasts can give you information about nearby locations and monsters, including whatever they can perceive or have perceived within the past day. You might be able to persuade a beast to perform a small favor for you, at the GM's discretion."
+            ],
+            "range": "Self",
+            "components": [
+                "V",
+                "S"
+            ],
+            "ritual": true,
+            "duration": "10 minutes",
+            "concentration": false,
+            "casting_time": "1 action",
+            "level": 1,
+            "school": {
+                "index": "divination",
+                "name": "Divination",
+                "url": "/api/2014/magic-schools/divination"
+            },
+            "classes": [
+                {
+                    "index": "bard",
+                    "name": "Bard",
+                    "url": "/api/2014/classes/bard"
+                },
+                {
+                    "index": "druid",
+                    "name": "Druid",
+                    "url": "/api/2014/classes/druid"
+                },
+                {
+                    "index": "ranger",
+                    "name": "Ranger",
+                    "url": "/api/2014/classes/ranger"
+                }
+            ],
+            "subclasses": [
+                {
+                    "index": "lore",
+                    "name": "Lore",
+                    "url": "/api/2014/subclasses/lore"
+                }
+            ],
+            "url": "/api/2014/spells/speak-with-animals",
+            "updated_at": "2025-04-08T21:14:16.147Z"
+        }
+    ],
+    "name": "",
+    "background": "AAAAAAAAAAAA@@@@@@@@@@@@@@@@@@@@",
+    "class": {
+        "index": "cleric",
+        "name": "Cleric"
+    },
+    "proficiencies": [
+        {
+            "index": "light-armor",
+            "name": "Light Armor",
+            "url": "/api/2014/proficiencies/light-armor"
+        },
+        {
+            "index": "medium-armor",
+            "name": "Medium Armor",
+            "url": "/api/2014/proficiencies/medium-armor"
+        },
+        {
+            "index": "shields",
+            "name": "Shields",
+            "url": "/api/2014/proficiencies/shields"
+        },
+        {
+            "index": "simple-weapons",
+            "name": "Simple Weapons",
+            "url": "/api/2014/proficiencies/simple-weapons"
+        },
+        {
+            "index": "saving-throw-wis",
+            "name": "Saving Throw: WIS",
+            "url": "/api/2014/proficiencies/saving-throw-wis"
+        },
+        {
+            "index": "saving-throw-cha",
+            "name": "Saving Throw: CHA",
+            "url": "/api/2014/proficiencies/saving-throw-cha"
+        }
+    ],
+    "selectedProficiencies": {},
+    "selectedEquipments": {
+        "0": [],
+        "1": [],
+        "2": [],
+        "3": [],
+        "4": []
+    },
+    "alignment": "Neutral"
+}

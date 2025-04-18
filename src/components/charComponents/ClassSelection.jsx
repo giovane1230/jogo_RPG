@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // necessário para navegação
 import RaceSelection from './RaceSelection'; // Só mantenha se for usar aqui
+import { useCharacter } from '../../context/CharacterContext';
 
 const ClassSelection = () => {
   const navigate = useNavigate();
@@ -12,7 +13,8 @@ const ClassSelection = () => {
   const [selectedEquipments, setSelectedEquipments] = useState({});
   const [proficiencyChoices, setProficiencyChoices] = useState([]);
   const [selectedProficiencies, setSelectedProficiencies] = useState({});
-
+  const { updateCharacter } = useCharacter();
+  
   useEffect(() => {
     fetch('https://www.dnd5eapi.co/api/2014/classes')
       .then(res => res.json())
@@ -118,21 +120,32 @@ const ClassSelection = () => {
       return { ...prev, [choiceIdx]: next };
     });
   };
-
+  
   const handleAvancar = () => {
-    const dadosSalvos = JSON.parse(localStorage.getItem('charData')) || {};
-
-    const novosDados = {
-      ...dadosSalvos,
-      class: selectedClass,
+    const selectedClassData = classes.find(c => c.index === selectedClass);
+  
+    const updatedData = {
+      class: {
+        index: selectedClassData.index,
+        name: selectedClassData.name,
+      },
       proficiencies,
       selectedProficiencies,
       selectedEquipments,
     };
-
-    localStorage.setItem('charData', JSON.stringify(novosDados));
-    navigate('/distribuir-atributos'); // altere para a próxima página
+  
+    updateCharacter(updatedData);
+  
+    // Salva no localStorage junto com o que já tiver salvo
+    const existingData = JSON.parse(localStorage.getItem('charData')) || {};
+    const newCharData = { ...existingData, ...updatedData };
+    localStorage.setItem('charData', JSON.stringify(newCharData));
+  
+    navigate('/charcreateptns');
   };
+  
+  
+  
 
   return (
     <div style={{ padding: 20 }}>
@@ -193,7 +206,7 @@ const ClassSelection = () => {
                 <div key={idx}>
                   <p><strong>{choice.desc}</strong> (Escolher {choice.choose})</p>
                   {choice.from.options.map(opt => {
-                    const name = opt.item.name;
+                    const name = opt.item?.name;
                     const selected = selectedProficiencies[idx] || [];
                     return (
                       <label key={name} style={{ display: 'block' }}>
@@ -212,6 +225,20 @@ const ClassSelection = () => {
             </div>
           )}
           <RaceSelection />
+          <button
+            onClick={handleAvancar}
+            // disabled={
+            //   !selectedClass ||
+            //   proficiencyChoices.some((choice, idx) => 
+            //     (selectedProficiencies[idx] || []).length < choice.choose
+            //   ) ||
+            //   equipmentOptions.some((option, idx) => 
+            //     (selectedEquipments[idx] || []).length < option.choose
+            //   )
+            // }
+          >
+            Avançar
+          </button>
         </>
       )}
     </div>

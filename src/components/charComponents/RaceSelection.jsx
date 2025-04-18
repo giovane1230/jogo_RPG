@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { getAllRaces, getRaceDetails } from '../../api/racesApi';
 import { useCharacter } from '../../context/CharacterContext';
 
@@ -25,9 +24,15 @@ const RaceSelection = () => {
       setRaceDetails(details);
 
       // Salva raça e bônus no contexto global
+      const minimalRace = {
+        name: details.name,
+        starting_proficiencies: details.starting_proficiencies,
+        ability_bonuses: details.ability_bonuses,
+      };
+      
       setCharacter(prev => ({
         ...prev,
-        race: details,
+        race: minimalRace,
         attributes: {
           ...prev.attributes,
           ...details.ability_bonuses.reduce((acc, bonus) => {
@@ -37,6 +42,7 @@ const RaceSelection = () => {
           }, {})
         }
       }));
+      
     }
   };
 
@@ -79,12 +85,6 @@ const RaceSelection = () => {
             ))}
           </ul>
         </div>
-      )}
-
-      {selectedRaceIndex && (
-        <Link to="/charcreateptns">
-          <button style={{ marginTop: 20 }}>Avançar</button>
-        </Link>
       )}
     </div>
   );
