@@ -1,42 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getAllRaces, getRaceDetails } from '../../api/racesApi';
+import { useCharacter } from '../../context/CharacterContext';
 
-const RaceSelection = ({ selectedClass }) => {
+const RaceSelection = () => {
   const [races, setRaces] = useState([]);
-  const [selectedRace, setSelectedRace] = useState('');
+  const [selectedRaceIndex, setSelectedRaceIndex] = useState('');
   const [raceDetails, setRaceDetails] = useState(null);
 
-  // Buscar lista de raças
+  const { character, setCharacter } = useCharacter();
+
+  // Carrega todas as raças disponíveis
   useEffect(() => {
-    fetch('https://www.dnd5eapi.co/api/races')
-      .then(res => res.json())
-      .then(data => setRaces(data.results))
-      .catch(err => console.error('Erro ao buscar raças:', err));
+    getAllRaces().then(setRaces);
   }, []);
 
-  // Buscar detalhes da raça ao selecionar
+  // Quando o usuário escolhe uma raça, busca os detalhes e salva no contexto
   const handleRaceChange = async (e) => {
-    const raceIndex = e.target.value;
-    setSelectedRace(raceIndex);
+    const index = e.target.value;
+    setSelectedRaceIndex(index);
 
-    if (raceIndex) {
-      try {
-        const res = await fetch(`https://www.dnd5eapi.co/api/races/${raceIndex}`);
-        const data = await res.json();
-        setRaceDetails(data);
+    if (index) {
+      const details = await getRaceDetails(index);
+      setRaceDetails(details);
 
-        const charData = JSON.parse(localStorage.getItem('charData')) || {};
-        localStorage.setItem('charData', JSON.stringify({ ...charData, race: raceIndex, raceDetails: data }));
-      } catch (err) {
-        console.error('Erro ao buscar detalhes da raça:', err);
-      }
+      // Salva raça e bônus no contexto global
+      setCharacter(prev => ({
+        ...prev,
+        race: details,
+        attributes: {
+          ...prev.attributes,
+          ...details.ability_bonuses.reduce((acc, bonus) => {
+            const key = mapAbilityNameToKey(bonus.ability_score.name);
+            acc[key] = (prev.attributes?.[key] || 8) + bonus.bonus;
+            return acc;
+          }, {})
+        }
+      }));
     }
+  };
+
+  // Mapeia "Strength" para "str", etc.
+  const mapAbilityNameToKey = (name) => {
+    const map = {
+      Strength: 'str',
+      Dexterity: 'dex',
+      Constitution: 'con',
+      Intelligence: 'int',
+      Wisdom: 'wis',
+      Charisma: 'cha',
+    };
+    return map[name] || name.toLowerCase();
   };
 
   return (
     <div>
       <h3>Escolha sua raça:</h3>
-      <select value={selectedRace} onChange={handleRaceChange}>
+      <select value={selectedRaceIndex} onChange={handleRaceChange}>
         <option value="">-- escolha --</option>
         {races.map((race) => (
           <option key={race.index} value={race.index}>
@@ -61,12 +81,9 @@ const RaceSelection = ({ selectedClass }) => {
         </div>
       )}
 
-      {/* Só mostra o botão se tiver classe e raça escolhidas */}
-      {selectedRace && (
-        <Link to={"/charcreateptns"}>
-        <button>
-          Avançar
-        </button>
+      {selectedRaceIndex && (
+        <Link to="/charcreateptns">
+          <button style={{ marginTop: 20 }}>Avançar</button>
         </Link>
       )}
     </div>
