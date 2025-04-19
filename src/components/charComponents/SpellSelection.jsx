@@ -87,7 +87,11 @@ const SpellSelection = () => {
   
 
   if (loading) return <p>Carregando magias...</p>;
-  if (!loading && spells.length === 0) return <p>Nenhuma magia disponível ou classe não definida.</p>;
+  if (!loading && spells.length === 0) return       <button onClick={handleFinish} 
+  // disabled={selectedSpells.length !== maxSpells || selectedSpells === 0}
+  >
+    Finalizar Criação (Não possui magias)
+  </button>;
 
   return (
     <div style={{ padding: 20 }}>

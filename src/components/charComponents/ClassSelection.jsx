@@ -13,6 +13,7 @@ const ClassSelection = () => {
   const [selectedEquipments, setSelectedEquipments] = useState({});
   const [proficiencyChoices, setProficiencyChoices] = useState([]);
   const [selectedProficiencies, setSelectedProficiencies] = useState({});
+  const [ vidaInicial, setVidaInicial ] = useState('');
   const { updateCharacter } = useCharacter();
   
   useEffect(() => {
@@ -29,6 +30,7 @@ const ClassSelection = () => {
       .then(async data => {
         setProficiencies(data.proficiencies || []);
         setProficiencyChoices(data.proficiency_choices || []);
+        setVidaInicial(data.hit_die || {});
 
         const processed = await Promise.all(
           (data.starting_equipment_options || []).map(async (choice) => {
@@ -123,12 +125,15 @@ const ClassSelection = () => {
   
   const handleAvancar = () => {
     const selectedClassData = classes.find(c => c.index === selectedClass);
+    console.log("vida inicial: ", vidaInicial);
   
     const updatedData = {
       class: {
         index: selectedClassData.index,
         name: selectedClassData.name,
+        vida: selectedClassData.hit_die,
       },
+      vidaInicial,
       proficiencies,
       selectedProficiencies,
       selectedEquipments,
@@ -168,6 +173,7 @@ const ClassSelection = () => {
       {selectedClass && (
         <>
           <div style={{ marginBottom: 20 }}>
+        <h3>Vida inicial da classe: {vidaInicial} (+ mod)</h3>
             <h3>Proficiencias:</h3>
             <ul>
               {proficiencies.map((prof, idx) => (

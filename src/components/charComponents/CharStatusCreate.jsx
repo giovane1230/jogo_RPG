@@ -94,38 +94,43 @@ const CharStatusCreate = () => {
     }));
   }, [baseAttributes, setCharacter]);
 
-  const handleFinalizar = () => {
-    const base = baseAttributes;
-    const bonus = racialBonuses;
+  // const handleFinalizar = () => {
+  //   const base = baseAttributes;
+  //   const bonus = racialBonuses;
 
-    const finalAttributes = Object.keys(base).reduce((acc, key) => {
-      acc[key] = base[key] + (bonus[key] || 0);
-      return acc;
-    }, {});
+  //   const finalAttributes = Object.keys(base).reduce((acc, key) => {
+  //     acc[key] = base[key] + (bonus[key] || 0);
+  //     return acc;
+  //   }, {});
 
-    // 🔥 Apenas os dados essenciais:
-    const filteredCharacter = {
-      name: character.name,
-      alignment: character.alignment,
-      background: character.background,
-      finalAttributes,
-      race: character.race ? {
-        index: character.race.index,
-        name: character.race.name,
-      } : null,
-      class: character.class ? {
-        index: character.class.index,
-        name: character.class.name,
-      } : null,
-      selectedProficiencies: character.selectedProficiencies || {},
-      selectedEquipments: character.selectedEquipments || {},
-      spells: character.spells || [], // opcional
-    };
+  //   // Apenas os dados essenciais:
+  //   // const filteredCharacter = {
+  //   //   name: character.name,
+  //   //   alignment: character.alignment,
+  //   //   background: character.background,
+  //   //   finalAttributes,
+  //   //   race: character.race ? {
+  //   //   index: character.race.index,
+  //   //   name: character.race.name,
+  //   //   } : null,
+  //   //   class: character.class ? {
+  //   //   index: character.class.index,
+  //   //   name: character.class.name,
+  //   //   } : null,
+  //   //   selectedProficiencies: character.selectedProficiencies || {},
+  //   //   selectedEquipments: character.selectedEquipments || {},
+  //   //   vidaInicial: {
+  //   //   ...character.vidaInicial,
+  //   //   total: (character.vidaInicial || 0) + getModifier(finalAttributes.con),
+  //   //   modCon: getModifier(finalAttributes.con)
+  //   //   },
+  //   //   spells: character.spells || [], // opcional
+  //   // };
 
-    localStorage.setItem('charData', JSON.stringify(filteredCharacter, null, 2));
-    console.log('Personagem salvo:', filteredCharacter);
-    alert('Personagem criado e salvo com sucesso!');
-  };
+  //   // localStorage.setItem('charData', JSON.stringify(filteredCharacter, null, 2));
+  //   // console.log('Personagem salvo:', filteredCharacter);
+  //   // alert('Personagem criado e salvo com sucesso!');
+  // };
 
   return (
     <div>
@@ -181,12 +186,12 @@ const CharStatusCreate = () => {
 
       <SpellSelection />
 
-      <button
+      {/* <button
         onClick={handleFinalizar}
         style={{ marginTop: '20px', padding: '10px 20px', fontWeight: 'bold' }}
       >
         SALVAR TESTE
-      </button>
+      </button> */}
     </div>
   );
 };
