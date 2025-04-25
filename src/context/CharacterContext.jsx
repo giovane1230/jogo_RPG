@@ -21,9 +21,10 @@ export const CharacterProvider = ({ children }) => {
     },
     proficiencies: [],
     selectedProficiencies: {},
-    selectedEquipments: {},
+    selectedEquipments: [],
     background: "",
     alignment: "",
+    gold: 5,
   });
 
   // Função para atualizar o personagem

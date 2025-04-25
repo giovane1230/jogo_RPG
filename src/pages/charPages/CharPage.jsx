@@ -1,6 +1,5 @@
 import React from "react";
 import CharInfoTopBar from "../../components/charComponents/CharInfoTopBar";
-import CharStats from "../../components/charComponents/CharStatus";
 import CharActions from "../../components/charComponents/CharActions";
 import CharBag from "../../components/charComponents/CharBag";
 import "../../../styles/charCss/CharPage.css"
@@ -11,7 +10,6 @@ function CharPage() {
       <div className="top-section">
       <div className="left-panel">
         <CharInfoTopBar />
-        <CharStats />
         <CharActions />
       </div>
       <div className="right-panel">
