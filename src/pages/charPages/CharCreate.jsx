@@ -1,5 +1,5 @@
 import React from 'react';
-import CharCreateBackground from '../../components/charComponents/CharCreateBackground';
+import CharCreateBackground from '../../components/createCharComponents/CharCreateBackground';
 
 const CharCreate = () => {
 

@@ -1,25 +1,19 @@
-import React, { useEffect } from "react";
-import { useCharacter } from "../../context/CharacterContext";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import SellerPage from "../../pages/charPages/SellerPage";
 
 function CharBag() {
-  const { character } = useCharacter();
-  const navigate = useNavigate();
+  const [character, setCharacter] = useState(() => {
+    // Carrega os dados do localStorage na inicialização
+    const savedData = localStorage.getItem('charData');
+    return savedData ? JSON.parse(savedData) : null;
+  });
 
   useEffect(() => {
-    if (!character) {
-      navigate("/");
-    }
-  }, [character, navigate]);
+    console.log(character)
+  }, [character]);
 
   return (
     <>
-      {/* Bloco de vendedor */}
-      <div style={{ marginBottom: "2rem" }}>
-        <SellerPage />
-      </div>
-
       {/* Bloco da bolsa */}
       {character && (
         <section>
@@ -29,7 +23,14 @@ function CharBag() {
               .flat()
               .map((item, index) => (
                 <li key={item?.index || item?.name || index}>
-                  {item?.name || item}
+                  {item?.name || item} !!
+                </li>
+              ))}
+              {Object.values(character.equipments ?? {})
+              .flat()
+              .map((item, index) => (
+                <li key={item?.index || item?.name || index}>
+                  {item?.name || item} NOVO
                 </li>
               ))}
           </ul>

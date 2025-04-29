@@ -5,7 +5,7 @@ function CharActions() {
     <div style={{ marginTop: "20px" }}>
       <button>Equipar</button>
       <button>Treinar</button>
-      <button>Subir de Nível</button>
+      <button>Descansar</button>
     </div>
   );
 }

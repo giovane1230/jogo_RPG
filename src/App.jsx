@@ -15,6 +15,7 @@ import SkillsPage from "./pages/dataBasePages/SkillsPage";
 import CharCreate from "./pages/charPages/CharCreate";
 import CharCreatePtns from "./pages/charPages/CharCreatePtns";
 import ResumoPage from "./pages/createCharPages/ResumoPage";
+import SellerPage from "./pages/charPages/SellerPage";
 
 function App() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -41,6 +42,7 @@ function App() {
           <Route path="/charcreate" element={<CharCreate />} />
           <Route path="/charcreateptns" element={<CharCreatePtns />} />
           <Route path="/resumo" element={<ResumoPage />} />
+          <Route path="mercador" element={<SellerPage />} />
         </Routes>
       </div>
     </>

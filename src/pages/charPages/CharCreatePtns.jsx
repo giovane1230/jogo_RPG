@@ -1,5 +1,5 @@
 import React from 'react';
-import CharStatusCreate from '../../components/charComponents/CharStatusCreate';
+import CharStatusCreate from '../../components/createCharComponents/CharStatusCreate';
 
 const CharCreatePtns = () => {
 

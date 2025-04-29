@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/components/topBar.css";
 import Sidebar from "./SideBar";
-import { useCharacter } from "../context/CharacterContext";
-import { useNavigate } from "react-router-dom";
 
 function Topbar() {
-  const { character } = useCharacter();
   const [menuAberto, setMenuAberto] = useState(false);
-  const navigate = useNavigate();
+  const [character, setCharacter] = useState(() => {
+    // Carrega os dados do localStorage na inicialização
+    const savedData = localStorage.getItem('charData');
+    return savedData ? JSON.parse(savedData) : null;
+  });
+
+  useEffect(() => {
+    console.log(character);
+  }, [character]);
 
   const toggleMenu = () => setMenuAberto(!menuAberto);
-
-    useEffect(() => {
-      if (!character) {
-        navigate("/");
-      }
-    }, [character, navigate]);
 
   return (
     <>
@@ -25,11 +24,10 @@ function Topbar() {
           <>
             <span>👤 {character?.name} - {character?.class?.name} - {character?.race?.name}</span>
             <span>❤️ {character?.vidaInicial}</span>
-            <span> Força: {character?.attributes.str}</span>
             <span>💰 {character?.gold ?? 0}</span>
+            <span>⭐ {character?.exp ?? 0}</span>
           </>
         )}
-        <span>⭐ 340/1000</span>
       </div>
 
       {menuAberto && <Sidebar fecharMenu={() => setMenuAberto(false)} />}

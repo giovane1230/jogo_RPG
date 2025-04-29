@@ -1,18 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import "../../../styles/charCss/CharStatus.css";
-import { useCharacter } from "../../context/CharacterContext";
-import { useNavigate } from "react-router-dom";
 
 
 function CharInfoTopBar() {
-  const { character } = useCharacter();
-  const navigate = useNavigate();
+  const [character, setCharacter] = useState(() => {
+    // Carrega os dados do localStorage na inicialização
+    const savedData = localStorage.getItem('charData');
+    return savedData ? JSON.parse(savedData) : null;
+  });
 
-    useEffect(() => {
-      if (!character) {
-        navigate("/");
-      }
-    }, [character, navigate]);
 
   return (
     <>
@@ -23,9 +19,9 @@ function CharInfoTopBar() {
           <br />
           <span>Vida</span>
           <p>DEPOIS MUDAR PARA VIDA ATUAL E MAXIMA</p>
-          <span>{character?.vidaInicial}/{character?.vidaInicial}</span>
+          <span>VIDA: {character?.vidaInicial}</span>
           <br />
-          <span>{character?.class?.name} - {character?.race?.name}</span>
+          <span>{character?.class?.name} - {character?.race?.name} - {character?.nivel} </span>
           <br />
           <span>Força: {character?.attributes.str}</span>
           <span>Destreza: {character?.attributes.dex}</span>

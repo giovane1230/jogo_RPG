@@ -4,6 +4,7 @@ import { useCharacter } from '../../context/CharacterContext';
 
 const SpellSelection = () => {
   const navigate = useNavigate();
+  const { character } = useCharacter();
   const [spells, setSpells] = useState([]);
   const [selectedSpells, setSelectedSpells] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,11 +78,13 @@ const SpellSelection = () => {
   };
 
   const handleFinish = () => {
-    const charData = JSON.parse(localStorage.getItem('charData')) || {};
-    charData.spells = selectedSpells;
+    const updatedCharacter = {
+      ...character, // Mantém todos dados existentes do contexto
+      spells: selectedSpells // Atualiza apenas os spells
+    };
   
-    localStorage.setItem('charData', JSON.stringify(charData));
-    updateCharacter({ spells: selectedSpells }); // <- Atualiza o contexto
+    localStorage.setItem('charData', JSON.stringify(updatedCharacter));
+    updateCharacter(updatedCharacter); // Atualiza o contexto global
     navigate('/resumo');
   };
   

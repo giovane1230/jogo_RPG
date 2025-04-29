@@ -8,11 +8,11 @@ function Sidebar({ fecharMenu }) {
     <div className="sidebar">
       <button className="fechar" onClick={fecharMenu}>×</button>
       <ul>
-        <Link to="/"><li>Início</li></Link>
+        <Link to="/"><li>NOVO</li></Link>
         <Link to="/char"><li>Personagem</li></Link>
         <li>Treinamento</li>
         <li>Ferreiro</li>
-        <li>Mercador</li>
+        <Link to="/mercador"><li>Mercador</li></Link>
         <li>Alquimista</li>
         <li>Saída da Cidade</li>
         <li>Histórico de Combate</li>

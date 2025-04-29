@@ -1,5 +1,3 @@
-// src/pages/CharCreateBackground.jsx
-
 import React from 'react';
 import ClassSelection from './ClassSelection';
 

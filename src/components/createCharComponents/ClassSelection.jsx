@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // necessário para navegação
-import RaceSelection from './RaceSelection'; // Só mantenha se for usar aqui
+import { useNavigate } from 'react-router-dom';
+import RaceSelection from './RaceSelection';
 import { useCharacter } from '../../context/CharacterContext';
 
 const ClassSelection = () => {
