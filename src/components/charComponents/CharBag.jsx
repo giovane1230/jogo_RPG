@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import SellerPage from "../../pages/charPages/SellerPage";
 
 function CharBag() {
   const [character, setCharacter] = useState(() => {

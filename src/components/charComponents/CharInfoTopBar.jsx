@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "../../../styles/charCss/CharStatus.css";
 
-
 function CharInfoTopBar() {
   const [character, setCharacter] = useState(() => {
     // Carrega os dados do localStorage na inicialização
