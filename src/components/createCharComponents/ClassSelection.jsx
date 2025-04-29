@@ -123,9 +123,35 @@ const ClassSelection = () => {
     });
   };
   
-  const handleAvancar = () => {
+  const handleAvancar = async () => {
     const selectedClassData = classes.find(c => c.index === selectedClass);
-    console.log("vida inicial: ", vidaInicial);
+  
+    // Lista de URLs únicas dos equipamentos selecionados
+    const selectedUrls = [];
+  
+    equipmentOptions.forEach((option, idx) => {
+      const selectedNames = selectedEquipments[idx] || [];
+      option.items.forEach(item => {
+        if (selectedNames.includes(item.name)) {
+          selectedUrls.push(item.url);
+        }
+      });
+    });
+  
+    // Buscar detalhes de cada item
+    const equipmentDetails = await Promise.all(
+      selectedUrls.map(async url => {
+        const res = await fetch(`https://www.dnd5eapi.co${url}`);
+        return res.json();
+      })
+    );
+  
+    const formattedEquipments = equipmentDetails.map(eq => ({
+      index: eq.index,
+      name: eq.name,
+      price: eq.cost?.quantity ?? 0,
+      url: eq.url
+    }));
   
     const updatedData = {
       class: {
@@ -136,18 +162,18 @@ const ClassSelection = () => {
       vidaInicial,
       proficiencies,
       selectedProficiencies,
-      selectedEquipments,
+      selectedEquipments: formattedEquipments
     };
   
     updateCharacter(updatedData);
   
-    // Salva no localStorage junto com o que já tiver salvo
     const existingData = JSON.parse(localStorage.getItem('charData')) || {};
     const newCharData = { ...existingData, ...updatedData };
     localStorage.setItem('charData', JSON.stringify(newCharData));
   
     navigate('/charcreateptns');
   };
+  
   
   
   

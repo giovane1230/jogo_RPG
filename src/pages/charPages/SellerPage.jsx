@@ -6,8 +6,30 @@ function SellerPage() {
   const { character, updateCharacter } = useCharacter();
   const [sellerItems, setSellerItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState(null); // Para armazenar o item selecionado para detalhes
-  const [itemDetails, setItemDetails] = useState(null); // Para armazenar os detalhes do item
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [itemDetails, setItemDetails] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    const lastUpdate = localStorage.getItem("lastUpdate");
+  
+    if (lastUpdate) {
+      const interval = setInterval(() => {
+        const timePassed = Date.now() - parseInt(lastUpdate, 10);
+        const timeRemaining = 3600000 - timePassed;
+        setTimeLeft(timeRemaining > 0 ? timeRemaining : 0);
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }
+  }, []);
+
+  function formatTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
 
   useEffect(() => {
     // Verificar se os itens já estão armazenados no localStorage
@@ -61,11 +83,11 @@ function SellerPage() {
       return;
     }
 
-    const updatedEquipments = [...character.equipments, item];
+    const updatedEquipments = [...character.selectedEquipments, item];
     const currentGold = character.gold - item.price;
 
     updateCharacter({
-      equipments: updatedEquipments,
+      selectedEquipments: updatedEquipments,
       gold: currentGold,
     });
 
@@ -75,10 +97,28 @@ function SellerPage() {
   };
 
   const limpar = () => {
+    console.log(character.selectedEquipments == null)
     updateCharacter({
-      equipments: [],
+      selectedEquipments: [],
     });
   };
+
+  const handleSell = (item) => {
+    const updatedEquipments = character.selectedEquipments.filter(
+      (equip) => equip.index !== item.index
+    );
+    const goldEarned = Math.floor(item.price / 2); // Arredonda para baixo
+    const updatedGold = character.gold + goldEarned;
+  
+    updateCharacter({
+      selectedEquipments: updatedEquipments,
+      gold: updatedGold,
+    });
+  
+    // Adiciona o item de volta na loja
+    setSellerItems([...sellerItems, item]);
+  };
+  
 
   if (loading) {
     return <div>Carregando itens...</div>;
@@ -88,20 +128,57 @@ function SellerPage() {
     <div style={{ padding: "20px" }}>
       <h1>Loja do Vendedor</h1>
 
+      <div style={{ marginBottom: "10px" }}>
+  <strong>Última atualização:</strong>{" "}
+  {new Date(parseInt(localStorage.getItem("lastUpdate"))).toLocaleTimeString()}
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+  <strong>Próxima atualização dos itens em:</strong>{" "}
+  {timeLeft > 0 ? formatTime(timeLeft) : "Atualizando..."}
+</div>
+
+
       <div style={{ marginBottom: "20px" }}>
         <strong>Ouro atual:</strong> {character.gold} 🪙
       </div>
 
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
-        {character.equipments.length > 0 ? (
+        {character.selectedEquipments.length > 0 ? (
           <ul>
-            {character.equipments.map((equip) => (
-              <li key={equip.index}>
-                {equip.name} (Preço: {equip.price} 🪙)
-              </li>
-            ))}
-          </ul>
+          {character.selectedEquipments.map((equip) => (
+            <li key={equip.index}>
+              {equip.name} (Preço: {equip.price} 🪙)
+              <button onClick={() => handleSell(equip)}>Vender por {Math.floor(equip.price / 2)} 🪙</button>
+              <button onClick={() => setSelectedItem(equip)}>Ver Detalhes</button>
+        
+              {/* Detalhes do item comprado */}
+              {selectedItem?.index === equip.index && itemDetails && (
+                <div style={{ marginTop: "10px", border: "1px solid #ccc", padding: "10px" }}>
+                  <h3>Detalhes do Item:</h3>
+                  <p><strong>Nome:</strong> {itemDetails.name}</p>
+                  <p><strong>Preço:</strong> {itemDetails.cost?.quantity} {itemDetails.cost?.unit}</p>
+                  <p><strong>Descrição:</strong> {itemDetails.desc}</p>
+                  {itemDetails.weight && <p><strong>Peso:</strong> {itemDetails.weight}</p>}
+                  {itemDetails.rarity && <p><strong>Raridade:</strong> {itemDetails.rarity}</p>}
+                  {itemDetails.armor_class && (
+                    <>
+                      <p><strong>Classe de Armadura:</strong> {itemDetails.armor_class.base}</p>
+                      <p><strong>Bônus de Destreza:</strong> {itemDetails.armor_class.dex_bonus ? "Sim" : "Não"}</p>
+                    </>
+                  )}
+                  {itemDetails.damage && (
+                    <>
+                      <p><strong>Dano:</strong> {itemDetails.damage.damage_dice}</p>
+                      <p><strong>Tipo de Dano:</strong> {itemDetails.damage.damage_type.name}</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>        
         ) : (
           <p>Mochila vazia.</p>
         )}

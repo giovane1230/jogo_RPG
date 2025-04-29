@@ -24,8 +24,8 @@ const ResumoPage = () => {
 
       <h2>Equipamentos Selecionados</h2>
       <ul>
-        {Object.values(character.selectedEquipments || {}).flat().map((item, index) => (
-          <li key={index}>{item}</li>
+        {character.selectedEquipments.map((item) => (
+          <li key={item.index}>{item.name}</li>
         ))}
       </ul>
 
