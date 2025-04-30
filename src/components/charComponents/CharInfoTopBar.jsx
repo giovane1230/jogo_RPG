@@ -18,16 +18,28 @@ function CharInfoTopBar() {
           <br />
           <span>Vida</span>
           <p>DEPOIS MUDAR PARA VIDA ATUAL E MAXIMA</p>
-          <span>VIDA: {character?.vidaInicial}</span>
+          <span>VIDA: {character?.vidaInicial} </span>
+          <p>CA: {character?.cArmor} MOD: {character.attributes.dex.mod}</p>
+          <span>CA TOTAL: {character?.cArmor + character.attributes.dex.mod}</span>
           <br />
           <span>{character?.class?.name} - {character?.race?.name} - {character?.nivel} </span>
           <br />
-          <span>Força: {character?.attributes.str}</span>
-          <span>Destreza: {character?.attributes.dex}</span>
-          <span>Constituição: {character?.attributes.con}</span>
-          <span>Inteligência: {character?.attributes.int}</span>
-          <span>Sabedoria: {character?.attributes.wis}</span>
-          <span>Carisma: {character?.attributes.cha}</span>
+          <h2>Atributos</h2>
+      <ul>
+      {Object.entries(character.attributes).map(([key, val]) => (
+  <p key={key}>
+    <strong>{key.toUpperCase()}:</strong> {val.total} ({val.mod})
+  </p>
+))}
+
+      </ul>
+          <br />
+          <span>Proeficiencias:</span>
+          <ul>
+            {character?.proficiencies.map((e) => (
+              <li key={e.index}>{e.name}</li>
+            ))}
+          </ul>
         </>
       )}
     </>

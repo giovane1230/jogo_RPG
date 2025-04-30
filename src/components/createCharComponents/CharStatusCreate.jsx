@@ -8,12 +8,12 @@ const CharStatusCreate = () => {
 
   const [points, setPoints] = useState(27);
   const [baseAttributes, setBaseAttributes] = useState({
-    str: 8,
-    dex: 8,
-    con: 8,
-    int: 8,
-    wis: 8,
-    cha: 8,
+      str: { mod: -1, value: 8 },
+      dex: { mod: -1, value: 8 },
+      con: { mod: -1, value: 8 },
+      int: { mod: -1, value: 8 },
+      wis: { mod: -1, value: 8 },
+      cha: { mod: -1, value: 8 },
   });
 
   const [loading, setLoading] = useState(true);
@@ -64,26 +64,40 @@ const CharStatusCreate = () => {
   }, {}) || {};
 
   const handleIncrease = (attr) => {
-    const current = baseAttributes[attr];
-    const next = current + 1;
-    const diff = (pointBuyCost[next] ?? 99) - (pointBuyCost[current] ?? 0);
-
-    if (next <= 15 && points >= diff) {
-      setBaseAttributes(prev => ({ ...prev, [attr]: next }));
-      setPoints(prev => prev - diff);
+    const currentValue = baseAttributes[attr].value;
+    const nextValue = currentValue + 1;
+    const diff = (pointBuyCost[nextValue] ?? 99) - (pointBuyCost[currentValue] ?? 0);
+  
+    if (nextValue <= 15 && points >= diff) {
+      setBaseAttributes((prev) => ({
+        ...prev,
+        [attr]: {
+          value: nextValue,
+          mod: getModifier(nextValue),
+        },
+      }));
+      setPoints((prev) => prev - diff);
     }
   };
+  
 
   const handleDecrease = (attr) => {
-    const current = baseAttributes[attr];
-    const prevVal = current - 1;
-    const refund = (pointBuyCost[current] ?? 0) - (pointBuyCost[prevVal] ?? 0);
-
-    if (prevVal >= 8) {
-      setBaseAttributes(prev => ({ ...prev, [attr]: prevVal }));
-      setPoints(prev => prev + refund);
+    const currentValue = baseAttributes[attr].value;
+    const prevValue = currentValue - 1;
+    const refund = (pointBuyCost[currentValue] ?? 0) - (pointBuyCost[prevValue] ?? 0);
+  
+    if (prevValue >= 8) {
+      setBaseAttributes((prev) => ({
+        ...prev,
+        [attr]: {
+          value: prevValue,
+          mod: getModifier(prevValue),
+        },
+      }));
+      setPoints((prev) => prev + refund);
     }
   };
+  
 
   const getModifier = (total) => Math.floor((total - 10) / 2);
 
@@ -94,43 +108,31 @@ const CharStatusCreate = () => {
     }));
   }, [baseAttributes, setCharacter]);
 
-  // const handleFinalizar = () => {
-  //   const base = baseAttributes;
-  //   const bonus = racialBonuses;
-
-  //   const finalAttributes = Object.keys(base).reduce((acc, key) => {
-  //     acc[key] = base[key] + (bonus[key] || 0);
-  //     return acc;
-  //   }, {});
-
-  //   // Apenas os dados essenciais:
-  //   // const filteredCharacter = {
-  //   //   name: character.name,
-  //   //   alignment: character.alignment,
-  //   //   background: character.background,
-  //   //   finalAttributes,
-  //   //   race: character.race ? {
-  //   //   index: character.race.index,
-  //   //   name: character.race.name,
-  //   //   } : null,
-  //   //   class: character.class ? {
-  //   //   index: character.class.index,
-  //   //   name: character.class.name,
-  //   //   } : null,
-  //   //   selectedProficiencies: character.selectedProficiencies || {},
-  //   //   selectedEquipments: character.selectedEquipments || {},
-  //   //   vidaInicial: {
-  //   //   ...character.vidaInicial,
-  //   //   total: (character.vidaInicial || 0) + getModifier(finalAttributes.con),
-  //   //   modCon: getModifier(finalAttributes.con)
-  //   //   },
-  //   //   spells: character.spells || [], // opcional
-  //   // };
-
-  //   // localStorage.setItem('charData', JSON.stringify(filteredCharacter, null, 2));
-  //   // console.log('Personagem salvo:', filteredCharacter);
-  //   // alert('Personagem criado e salvo com sucesso!');
-  // };
+  const handleFinalizar = () => {
+    const finalAttributes = {};
+  
+    for (const attr in baseAttributes) {
+      const baseValue = baseAttributes[attr].value;
+      const racialBonus = racialBonuses[attr] || 0;
+      const total = baseValue + racialBonus;
+      const modifier = getModifier(total);
+  
+      finalAttributes[attr] = {
+        base: baseValue,
+        bonus: racialBonus,
+        total,
+        mod: modifier,
+      };
+    }
+  
+    setCharacter((prev) => ({
+      ...prev,
+      attributes: finalAttributes,
+    }));
+  
+    console.log("Atributos finais salvos:", finalAttributes);
+  };
+  
 
   return (
     <div>
@@ -169,29 +171,33 @@ const CharStatusCreate = () => {
       <h2>Distribuição de Pontos</h2>
       <p>Pontos disponíveis: {points}</p>
       {Object.keys(baseAttributes).map((attr) => {
-        const base = baseAttributes[attr];
-        const bonus = racialBonuses[attr] || 0;
-        const total = base + bonus;
+  const base = baseAttributes[attr].value; // Acessa o valor base
+  const bonus = racialBonuses[attr] || 0;
+  const total = base + bonus;
+  const modifier = getModifier(total);
 
-        return (
-          <div key={attr}>
-            <strong>{attr.toUpperCase()}:</strong> {base}
-            {bonus > 0 && <span> + {bonus} = <strong>{total}</strong></span>}
-            <span> (Mod: {getModifier(total)}) </span>
-            <button onClick={() => handleIncrease(attr)}>+</button>
-            <button onClick={() => handleDecrease(attr)}>-</button>
-          </div>
-        );
-      })}
+  return (
+    <div key={attr}>
+      <strong>{attr.toUpperCase()}:</strong> {base}
+      {bonus > 0 && <span> + {bonus} = <strong>{total}</strong></span>}
+      <span> (Mod: {modifier}) </span>
+      <button onClick={() => handleIncrease(attr)}>+</button>
+      <button onClick={() => handleDecrease(attr)}>-</button>
+    </div>
+  );
+})}
+
+
+
+      <button
+  onClick={handleFinalizar}
+  style={{ marginTop: '20px', padding: '10px 20px', fontWeight: 'bold' }}
+>
+  SALVAR ATRIBUTOS
+</button>
 
       <SpellSelection />
 
-      {/* <button
-        onClick={handleFinalizar}
-        style={{ marginTop: '20px', padding: '10px 20px', fontWeight: 'bold' }}
-      >
-        SALVAR TESTE
-      </button> */}
     </div>
   );
 };

@@ -15,11 +15,12 @@ const ResumoPage = () => {
 
       <h2>Atributos</h2>
       <ul>
-        {Object.entries(character.attributes).map(([attr, value]) => (
-          <li key={attr}>
-            {attr.toUpperCase()}: {value}
-          </li>
-        ))}
+      {Object.entries(character.attributes).map(([key, val]) => (
+  <p key={key}>
+    <strong>{key.toUpperCase()}:</strong> Base: {val.base}, Bônus: {val.bonus}, Total: {val.total}, Mod: {val.mod}
+  </p>
+))}
+
       </ul>
 
       <h2>Equipamentos Selecionados</h2>

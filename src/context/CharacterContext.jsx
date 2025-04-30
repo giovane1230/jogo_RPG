@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-const CharacterContext = createContext();
+export const CharacterContext = createContext();
 
 export const useCharacter = () => {
   return useContext(CharacterContext);
@@ -10,6 +10,7 @@ export const CharacterProvider = ({ children }) => {
   const [character, setCharacter] = useState(() => {
     // Tenta carregar o personagem salvo no localStorage ao iniciar
     const savedCharacter = localStorage.getItem("charData");
+
     return savedCharacter
       ? JSON.parse(savedCharacter)
       : {
@@ -17,12 +18,12 @@ export const CharacterProvider = ({ children }) => {
           race: {},
           class: null,
           attributes: {
-            str: 8,
-            dex: 8,
-            con: 8,
-            int: 8,
-            wis: 8,
-            cha: 8,
+            str: { mod: -1, value: 8 },
+            dex: { mod: -1, value: 8 },
+            con: { mod: -1, value: 8 },
+            int: { mod: -1, value: 8 },
+            wis: { mod: -1, value: 8 },
+            cha: { mod: -1, value: 8 },
           },
           proficiencies: [],
           selectedProficiencies: {},
@@ -30,9 +31,10 @@ export const CharacterProvider = ({ children }) => {
           equipments: [],
           background: "",
           alignment: "",
-          gold: 5,
+          gold: 1000,
           exp: 0,
           nivel: 1,
+          cArmor: 10,
         };
   });
 

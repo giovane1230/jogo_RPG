@@ -96,18 +96,11 @@ function SellerPage() {
     setSellerItems(updatedItems);
   };
 
-  const limpar = () => {
-    console.log(character.selectedEquipments == null)
-    updateCharacter({
-      selectedEquipments: [],
-    });
-  };
-
   const handleSell = (item) => {
     const updatedEquipments = character.selectedEquipments.filter(
       (equip) => equip.index !== item.index
     );
-    const goldEarned = Math.floor(item.price / 2); // Arredonda para baixo
+    const goldEarned = Math.floor(item.price / 1.3); // Arredonda para baixo
     const updatedGold = character.gold + goldEarned;
   
     updateCharacter({
@@ -150,7 +143,7 @@ function SellerPage() {
           {character.selectedEquipments.map((equip) => (
             <li key={equip.index}>
               {equip.name} (Preço: {equip.price} 🪙)
-              <button onClick={() => handleSell(equip)}>Vender por {Math.floor(equip.price / 2)} 🪙</button>
+              <button onClick={() => handleSell(equip)}>Vender por {Math.floor(equip.price / 1.3)} 🪙</button>
               <button onClick={() => setSelectedItem(equip)}>Ver Detalhes</button>
         
               {/* Detalhes do item comprado */}
@@ -183,8 +176,6 @@ function SellerPage() {
           <p>Mochila vazia.</p>
         )}
       </div>
-
-      <button onClick={limpar}>LIMPAR BOLSA</button>
 
       <h2>Itens à Venda:</h2>
       {Array.isArray(sellerItems) && (

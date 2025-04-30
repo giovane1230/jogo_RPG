@@ -10,9 +10,9 @@ function Topbar() {
     return savedData ? JSON.parse(savedData) : null;
   });
 
-  useEffect(() => {
-    console.log(character);
-  }, [character]);
+  // useEffect(() => {
+  //   console.log(character);
+  // }, [character]);
 
   const toggleMenu = () => setMenuAberto(!menuAberto);
 
