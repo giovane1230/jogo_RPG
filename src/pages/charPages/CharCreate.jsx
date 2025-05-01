@@ -1,12 +1,12 @@
 import React from 'react';
-import CharCreateBackground from '../../components/createCharComponents/CharCreateBackground';
+import ClassSelection from '../../components/createCharComponents/ClassSelection';
 
 const CharCreate = () => {
 
     return (
         <div style={{ padding: '20px' }}>
             <h1>Criação de Personagem</h1>
-                <CharCreateBackground />
+            <ClassSelection />
         </div>
     );
 };

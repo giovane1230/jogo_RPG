@@ -35,6 +35,14 @@ export const CharacterProvider = ({ children }) => {
           exp: 0,
           nivel: 1,
           cArmor: 10,
+          initialSlots: {
+            armor: null,
+            weapon: null,
+            shield: null,
+            focus: null,
+            ring: [],
+            wondrousItem: null,
+          },
         };
   });
 

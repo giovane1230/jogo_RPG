@@ -37,7 +37,7 @@ function SellerPage() {
     const lastUpdate = localStorage.getItem("lastUpdate");
 
     // Se não houver itens ou se a hora for diferente da última atualização (1 hora atrás) = 3600000
-    if (!storedItems || !lastUpdate || Date.now() - lastUpdate > 3600000) {
+    if (!storedItems || !lastUpdate || Date.now() - lastUpdate > 1) {
       setLoading(true);
       fetchItems()
         .then((items) => {
@@ -117,6 +117,10 @@ function SellerPage() {
     return <div>Carregando itens...</div>;
   }
 
+  const testConsole = () => {
+    console.log(character.selectedEquipments)
+  }
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Loja do Vendedor</h1>
@@ -135,7 +139,9 @@ function SellerPage() {
       <div style={{ marginBottom: "20px" }}>
         <strong>Ouro atual:</strong> {character.gold} 🪙
       </div>
-
+      <button onClick={testConsole}>
+        console
+      </button>
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
         {character.selectedEquipments.length > 0 ? (

@@ -1,6 +1,5 @@
 // src/components/EquipmentSlots.jsx
-import React, { useContext, useState } from 'react';
-import { CharacterContext } from '../../context/CharacterContext';
+import React, { useEffect, useState } from "react";
 
 const initialSlots = {
   armor: null,
@@ -12,16 +11,49 @@ const initialSlots = {
 };
 
 const EquipmentSlots = () => {
-  const { character } = useContext(CharacterContext);
-  const [equipment, setEquipment] = useState(initialSlots);
+  const [character, setCharacter] = useState(() => {
+    const savedData = localStorage.getItem("charData");
+    return savedData ? JSON.parse(savedData) : null;
+  });
+
+  const [equipment, setEquipment] = useState(() => {
+    const savedEquip = localStorage.getItem("charEquip");
+    return savedEquip ? JSON.parse(savedEquip) : initialSlots;
+  });
+
+  if (!character || !character.selectedEquipments) {
+    return <p>Carregando personagem e itens...</p>;
+  }
+
+  useEffect(() => {
+    localStorage.setItem("charEquip", JSON.stringify(equipment));
+  }, [equipment]);
 
   const getItemSlot = (item) => {
-    const category = item.equipment_category?.index;
+    const category = (
+      item.type ||
+      item.equipment_category?.name ||
+      ""
+    ).toLowerCase();
 
-    if (["light-armor", "medium-armor", "heavy-armor"].includes(category)) return "armor";
-    if (category === "shields") return "shield";
-    if (category.includes("weapon")) return "weapon";
-    if (["arcane-foci", "druidic-foci", "holy-symbols", "staff", "wand", "rod"].includes(category)) return "focus";
+    if (
+      ["light-armor", "medium-armor", "heavy-armor", "armor"].includes(category)
+    )
+      return "armor";
+    if (category === "shields" || category === "shield") return "shield";
+    if (category === "weapon") return "weapon";
+    if (
+      [
+        "arcane-foci",
+        "druidic-foci",
+        "holy-symbols",
+        "staff",
+        "wand",
+        "rod",
+        "focus",
+      ].includes(category)
+    )
+      return "focus";
     if (category === "ring") return "ring";
     if (category === "wondrous-items") return "wondrousItem";
 
@@ -29,15 +61,58 @@ const EquipmentSlots = () => {
   };
 
   const isProficient = (item) => {
-    const profs = character.proficiencies.map(p => p.name.toLowerCase());
-    const itemType = item.equipment_category?.name?.toLowerCase();
+    const profs = character.proficiencies.map((p) => p.name.toLowerCase());
+    const itemCategoryRaw = item.category?.toLowerCase();
+    const itemType = item.type?.toLowerCase(); // "armor", "weapon" etc.
     const itemName = item.name?.toLowerCase();
-    return profs.includes(itemType) || profs.includes(itemName);
+  
+    // Normaliza categorias de armadura e armas
+    let itemCategory = itemCategoryRaw;
+  
+    if (itemType === "armor") {
+      if (["light", "medium", "heavy"].includes(itemCategoryRaw)) {
+        itemCategory = `${itemCategoryRaw} armor`; // ex: "heavy armor"
+      }
+    } else if (itemType === "weapon") {
+      if (["simple", "martial"].includes(itemCategoryRaw)) {
+        itemCategory = `${itemCategoryRaw} weapons`; // ex: "simple weapons"
+      }
+    }
+  
+    // Verifica se há correspondência com proficiências
+    const isProf =
+      profs.includes(itemCategory) ||
+      profs.includes("all armor") && itemType === "armor" ||
+      profs.includes("all weapons") && itemType === "weapon" ||
+      profs.includes(itemName);
+  
+    console.log("Is proficient:", isProf);
+    console.log("Proficiencies:", profs);
+    console.log("Item category:", itemCategory);
+    console.log("Item name:", itemName);
+  
+    return isProf;
   };
+  
+  
+  
 
   const equipItem = (item) => {
+    console.log(item);
+    const available = character.selectedEquipments?.find(
+      (i) => i.name === item.name
+    );
+    if (!available) {
+      alert("Você não possui esse item!");
+      return;
+    }
+
     if (!isProficient(item)) {
-      alert(`Você não é proficiente com ${item.name} - (${item.equipment_category.name})`);
+      alert(
+        `Você não é proficiente com ${item.name} - (${
+          item.category || "Categoria desconhecida"
+        })`
+      );
       return;
     }
 
@@ -80,14 +155,41 @@ const EquipmentSlots = () => {
     }
   };
 
-  // Exemplo de item para teste
-  const testItem = {
-    name: " Hide Armor",
-    equipment_category: { name: "Medium Armor", index: "heavy-armor" },
+  const renderAvailableItems = (slotType) => {
+    if (!character?.selectedEquipments) {
+      console.log("Nenhum personagem ou itens encontrados");
+      return null;
+    }
+
+    console.log(
+      `Itens filtrados para ${slotType}`,
+      character.selectedEquipments.filter(
+        (item) => getItemSlot(item) === slotType
+      )
+    );
+
+    const filtered = character.selectedEquipments.filter(
+      (item) => getItemSlot(item) === slotType
+    );
+
+    if (filtered.length === 0)
+      return <p>Nenhum item disponível para {slotType}</p>;
+
+    return filtered.map((item, i) => (
+      <div key={i}>
+        {item.name}
+        <button onClick={() => equipItem(item)}>Equipar</button>
+      </div>
+    ));
+  };
+
+  const testConsole = () => {
+    console.log("character", character);
   };
 
   return (
     <div>
+      <button onClick={testConsole}>CONSOLE</button>
       <h2>Equipamentos</h2>
 
       <div>
@@ -98,7 +200,24 @@ const EquipmentSlots = () => {
             <button onClick={() => unequipItem("armor")}>Remover</button>
           </div>
         ) : (
-          <button onClick={() => equipItem(testItem)}>Equipar Exemplo</button>
+          <>
+            <h4>Armaduras disponíveis:</h4>
+            {renderAvailableItems("armor")}
+          </>
+        )}
+      </div>
+      <div>
+        <h3>weapon</h3>
+        {equipment.weapon ? (
+          <div>
+            {equipment.weapon.name}
+            <button onClick={() => unequipItem("weapon")}>Remover</button>
+          </div>
+        ) : (
+          <>
+            <h4>weapon disponíveis:</h4>
+            {renderAvailableItems("weapon")}
+          </>
         )}
       </div>
 

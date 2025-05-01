@@ -1,30 +1,42 @@
 export const fetchItems = async () => {
-    try {
-      const response = await fetch("https://www.dnd5eapi.co/api/2014/equipment");
-      const data = await response.json();
-  
-      // Embaralhar a lista de itens e pegar os 10 primeiros
-      const shuffledItems = data.results.sort(() => Math.random() - 0.5).slice(0, 10);
-  
-      // Mapear os itens e pegar o custo de cada um
-      const itemsWithPrices = await Promise.all(
-        shuffledItems.map(async (item) => {
-          const itemResponse = await fetch(`https://www.dnd5eapi.co${item.url}`);
-          const itemData = await itemResponse.json();
-          
-          const cost = itemData.cost ? itemData.cost.quantity : 0; // Verificar se existe o preço
-          
-          return {
-            ...item,
-            price: cost,  // Usando o preço direto da API
-          };
-        })
-      );
-  
-      return itemsWithPrices;
-    } catch (error) {
-      console.error("Erro ao buscar itens da API:", error);
-      return [];
-    }
-  };
-  
+  const STORAGE_KEY = "sellerItems"; // agora igual ao usado no SellerPage
+
+  // Verificar se há itens já salvos
+  const storedItems = localStorage.getItem(STORAGE_KEY);
+  if (storedItems) {
+    return JSON.parse(storedItems);
+  }
+
+  try {
+    const response = await fetch("https://www.dnd5eapi.co/api/equipment");
+    const data = await response.json();
+
+    const shuffledItems = data.results.sort(() => Math.random() - 0.5).slice(0, 10);
+
+    const itemsWithDetails = await Promise.all(
+      shuffledItems.map(async (item) => {
+        const itemResponse = await fetch(`https://www.dnd5eapi.co${item.url}`);
+        const itemData = await itemResponse.json();
+
+        const price = itemData.cost?.quantity || 0;
+        const type = itemData.equipment_category?.name?.toLowerCase() || "unknown";
+        const category = itemData.weapon_category || itemData.armor_category || "Misc";
+
+        return {
+          index: item.index,
+          name: item.name,
+          price: price,
+          url: item.url,
+          type: type,
+          category: category,
+        };
+      })
+    );
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsWithDetails));
+    return itemsWithDetails;
+  } catch (error) {
+    console.error("Erro ao buscar itens da API:", error);
+    return [];
+  }
+};

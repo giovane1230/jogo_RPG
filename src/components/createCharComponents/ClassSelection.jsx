@@ -145,12 +145,18 @@ const ClassSelection = () => {
         return res.json();
       })
     );
-  
+
     const formattedEquipments = equipmentDetails.map(eq => ({
       index: eq.index,
       name: eq.name,
       price: eq.cost?.quantity ?? 0,
-      url: eq.url
+      url: eq.url,
+      type: eq.equipment_category.index,
+      category: eq.weapon_category 
+      ? eq.weapon_category
+      : eq.armor_category 
+      ? eq.armor_category
+      : null,
     }));
   
     const updatedData = {
