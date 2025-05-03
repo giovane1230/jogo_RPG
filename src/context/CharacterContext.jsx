@@ -28,7 +28,6 @@ export const CharacterProvider = ({ children }) => {
           proficiencies: [],
           selectedProficiencies: {},
           selectedEquipments: [],
-          equipments: [],
           background: "",
           alignment: "",
           gold: 1000,
