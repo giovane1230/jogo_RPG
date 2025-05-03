@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { fetchItems } from "../../api/fetchItems"; // Função que busca os itens do vendedor
 
-
 function SellerPage() {
   const { character, updateCharacter } = useCharacter();
   const [sellerItems, setSellerItems] = useState([]);
@@ -75,43 +74,55 @@ function SellerPage() {
   }, [selectedItem]);
   
   const handleBuy = (item) => {
-    if (character.equipments.find((equip) => equip.index === item.index)) {
+    if (character.selectedEquipments.find((equip) => equip.index === item.index)) {
       alert("Você já possui esse item");
       return;
     }
+  
     if (character.gold < item.price) {
       alert("Ouro insuficiente!");
       return;
     }
-    
+  
     const updatedEquipments = [...character.selectedEquipments, item];
     const currentGold = character.gold - item.price;
-    
-    updateCharacter({
+  
+    const updatedCharacter = {
+      ...character,
       selectedEquipments: updatedEquipments,
       gold: currentGold,
-    });
-    
-    // Remover o item comprado da lista de itens do vendedor
+    };
+  
+    updateCharacter(updatedCharacter);
+    localStorage.setItem("charData", JSON.stringify(updatedCharacter)); // <- Aqui
+  
     const updatedItems = sellerItems.filter((sellerItem) => sellerItem.index !== item.index);
     setSellerItems(updatedItems);
+    localStorage.setItem("sellerItems", JSON.stringify(updatedItems)); // <- Aqui também
   };
+  
   
   const handleSell = (item) => {
     const updatedEquipments = character.selectedEquipments.filter(
       (equip) => equip.index !== item.index
     );
-    const goldEarned = Math.floor(item.price / 1.3); // Arredonda para baixo
+    const goldEarned = Math.floor(item.price / 1.3);
     const updatedGold = character.gold + goldEarned;
-    
-    updateCharacter({
+  
+    const updatedCharacter = {
+      ...character,
       selectedEquipments: updatedEquipments,
       gold: updatedGold,
-    });
-    
-    // Adiciona o item de volta na loja
-    setSellerItems([...sellerItems, item]);
+    };
+  
+    updateCharacter(updatedCharacter);
+    localStorage.setItem("charData", JSON.stringify(updatedCharacter)); // <- Aqui
+  
+    const updatedItems = [...sellerItems, item];
+    setSellerItems(updatedItems);
+    localStorage.setItem("sellerItems", JSON.stringify(updatedItems)); // <- Aqui também
   };
+  
   
   
   if (loading) {
@@ -133,6 +144,8 @@ function SellerPage() {
       url: "/api/2014/equipment/shield",
       type: "armor",
       category: "Shield",
+      status: 2,
+      dex_bonus: false,
     };
     setSellerItems([...sellerItems, newItem]);
   }

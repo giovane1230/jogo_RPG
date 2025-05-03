@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/components/topBar.css";
 import Sidebar from "./SideBar";
+import { useCharacter } from "../context/CharacterContext";
 
 function Topbar() {
   const [menuAberto, setMenuAberto] = useState(false);
-  const [character, setCharacter] = useState(() => {
-    // Carrega os dados do localStorage na inicialização
-    const savedData = localStorage.getItem('charData');
-    return savedData ? JSON.parse(savedData) : null;
-  });
-
-  // useEffect(() => {
-  //   console.log(character);
-  // }, [character]);
+  const { character } = useCharacter();
 
   const toggleMenu = () => setMenuAberto(!menuAberto);
 

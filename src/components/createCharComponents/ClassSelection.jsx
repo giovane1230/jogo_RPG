@@ -152,11 +152,13 @@ const ClassSelection = () => {
       price: eq.cost?.quantity ?? 0,
       url: eq.url,
       type: eq.equipment_category.index,
-      category: eq.weapon_category 
-      ? eq.weapon_category
-      : eq.armor_category 
-      ? eq.armor_category
+      category: eq.weapon_category ? eq.weapon_category
+      : eq.armor_category ? eq.armor_category
       : null,
+      status: eq.weapon_category ? eq.damage.damage_dice
+      : eq.armor_category ? eq.armor_class.base
+      : null,
+      bonusDex: eq.armor_category ? eq.armor_class.dex_bonus : null
     }));
   
     const updatedData = {

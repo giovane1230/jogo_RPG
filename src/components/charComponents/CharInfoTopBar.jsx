@@ -8,7 +8,7 @@ function CharInfoTopBar() {
     return savedData ? JSON.parse(savedData) : null;
   });
 
-  const { equipment } = useCharEquip(); // Usando o contexto para equipamentos
+  const { equipment } = useCharEquip();
 
   const testConsole = () => {
     console.log("Equipamento atual:", equipment);

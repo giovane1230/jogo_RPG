@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useCharEquip } from "../../context/charEquipContext";
 
 const initialSlots = {
   armor: null,
@@ -15,10 +16,7 @@ const EquipmentSlots = () => {
     return savedData ? JSON.parse(savedData) : null;
   });
 
-  const [equipment, setEquipment] = useState(() => {
-    const savedEquip = localStorage.getItem("charEquip");
-    return savedEquip ? JSON.parse(savedEquip) : initialSlots;
-  });
+  const { equipment, updateEquipment } = useCharEquip();
 
   if (!character || !character.selectedEquipments) {
     return <p>Carregando personagem e itens...</p>;
@@ -103,7 +101,7 @@ const EquipmentSlots = () => {
   };
 
   const updateEquipStorage = (newEquipment) => {
-    setEquipment(newEquipment); // atualiza para renderizar
+    updateEquipment(newEquipment); // atualiza para renderizar
     localStorage.setItem("charEquip", JSON.stringify(newEquipment)); // persiste
   };  
 
@@ -184,9 +182,16 @@ const EquipmentSlots = () => {
     ));
   };
 
+  const contextConsole = () => {
+    console.log(equipment)
+  }
+
   return (
     <div>
       <h2>Equipamentos</h2>
+      <button onClick={contextConsole}>
+        xxxxxxxx
+      </button>
 
       <div>
         <h3>Armadura</h3>

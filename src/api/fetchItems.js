@@ -21,6 +21,8 @@ export const fetchItems = async () => {
         const price = itemData.cost?.quantity || 0;
         const type = itemData.equipment_category?.name?.toLowerCase() || "unknown";
         const category = itemData.weapon_category || itemData.armor_category || "Misc";
+        const itemStatus = itemData.damage?.damage_dice || itemData.armor_class?.base || "Misc";
+        const bonusDex = itemData.armor_class?.dex_bonus ?? null;
 
         return {
           index: item.index,
@@ -29,6 +31,8 @@ export const fetchItems = async () => {
           url: item.url,
           type: type,
           category: category,
+          status: itemStatus,
+          bonusDex: bonusDex,
         };
       })
     );
