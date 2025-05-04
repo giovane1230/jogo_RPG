@@ -7,7 +7,7 @@ import { useCharEquip } from "../../context/charEquipContext";
 
 function CombatePage() {
   const { player, enemy } = useCombat();
-  const { character } = useCharacter();
+  const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
 
   const [playerHP, setPlayerHP] = useState(player?.vida || 100);
@@ -16,6 +16,25 @@ function CombatePage() {
   const [logCombate, setLogCombate] = useState([]);
   const [combateFinalizado, setCombateFinalizado] = useState(false);
   const [round, setRound] = useState(1);
+  const [selectedPotion, setSelectedPotion] = useState(null);
+  const [potionDetails, setPotionDetails] = useState(null);
+
+    useEffect(() => {
+      // Se não houver item selecionado, não fazer nada
+      if (!selectedPotion) return;
+  
+      async function fetchItemDetailsPotion() {
+        try {
+          const res = await fetch(`https://www.dnd5eapi.co/api/magic-items/${selectedPotion.index}`);
+          const data = await res.json();
+          setPotionDetails(data);
+        } catch (err) {
+          console.error("Erro ao buscar detalhes do item:", err);
+        }
+      }
+  
+      fetchItemDetailsPotion();
+    }, [selectedPotion]);
 
   useEffect(() => {
     if (!combateFinalizado) {
@@ -90,6 +109,20 @@ function CombatePage() {
     ataqueJogador(dano);
   }
 
+  function UsarPotion(item) {
+    setPlayerHP(playerHP + 100);
+    const updatedPotions = character.potions.filter(
+      (equip) => equip.index !== item.index
+    );
+
+    const updatedCharacter = {
+      ...character,
+      potions: updatedPotions,
+    };
+
+    setCharacter(updatedCharacter);
+  }
+
   function turnoInimigo() {
     if (!enemy.actions || enemy.actions.length === 0 || combateFinalizado)
       return;
@@ -129,14 +162,8 @@ function CombatePage() {
     }
   }
 
-  const testConsole = () => {
-    const DanoEquipado = equipment.weapon.status;
-    console.log(DanoEquipado);
-  };
-
   return (
     <div>
-      <button onClick={testConsole}>xxxxxxxxxx</button>
       <h1>Combate</h1>
 
       <BarraStatus
@@ -173,8 +200,46 @@ function CombatePage() {
       {!combateFinalizado && (
         <div>
           <h2>Ataques:</h2>
+          {character.potions.length > 0 ? (
+          <ul>
+            {character.potions.map((equip) => (
+              <li key={equip.index}>
+                {equip.name}
+
+                {/* Detalhes do item comprado */}
+                <button onClick={() => UsarPotion(equip)}>Usar</button>
+                <button onClick={() => setSelectedPotion(equip)}>Ver Detalhes</button>
+                {selectedPotion?.index === equip.index && potionDetails && (
+                  <div style={{ marginTop: "10px", border: "1px solid #ccc", padding: "10px" }}>
+                    <h3>Detalhes do Item:</h3>
+                    <p><strong>Nome:</strong> {potionDetails.name}</p>
+                    {/* <p><strong>Preço de revenda:</strong> {Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)}🪙</p> */}
+                    <p><strong>Descrição:</strong> {potionDetails.desc}</p>
+                    {potionDetails.weight && <p><strong>Peso:</strong> {potionDetails.weight}</p>}
+                    {potionDetails.rarity && <p><strong>Raridade:</strong> {potionDetails.rarity.name}</p>}
+                    {potionDetails.armor_class && (
+                      <>
+                        <p><strong>Classe de Armadura:</strong> {potionDetails.armor_class.base}</p>
+                        <p><strong>Bônus de Destreza:</strong> {potionDetails.armor_class.dex_bonus ? "Sim" : "Não"}</p>
+                      </>
+                    )}
+                    {potionDetails.damage && (
+                      <>
+                        <p><strong>Dano:</strong> {potionDetails.damage.damage_dice}</p>
+                        <p><strong>Tipo de Dano:</strong> {potionDetails.damage.damage_type.name}</p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Mochila vazia.</p>
+        )}
+          <button onClick={console.log("faz nada")}>xxx</button>
           <button onClick={() => ataquePorBotao("leve")}>
-            Ataque Leve (1d6)
+            Ataque Leve ({equipment.weapon.status})
           </button>
           <button onClick={() => ataquePorBotao("pesado")}>
             Ataque Pesado (10d12)

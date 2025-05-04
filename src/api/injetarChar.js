@@ -99,6 +99,9 @@ const personagemPronto = {
             "Skill: Intimidation"
         ]
     },
+    "potions": [
+
+    ],
     "selectedEquipments": [
         {
             "index": "greataxe",

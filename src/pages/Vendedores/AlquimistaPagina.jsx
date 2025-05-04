@@ -60,7 +60,7 @@ function AlquimistaPage() {
 
     async function fetchItemDetails() {
       try {
-        const res = await fetch(`https://www.dnd5eapi.co/api/equipment-categories/potion/${selectedItem.index}`);
+        const res = await fetch(`https://www.dnd5eapi.co/api/magic-items/${selectedItem.index}`);
         const data = await res.json();
         setItemDetails(data);
       } catch (err) {
@@ -167,11 +167,11 @@ function AlquimistaPage() {
 
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
-        {character.potions.length > 0 ? (
+        {character.potions?.length > 0 ? (
           <ul>
             {character.potions.map((equip) => (
               <li key={equip.index}>
-                {equip.name} (Preço: {equip.price} 🪙)
+                {equip.name}
                 <button onClick={() => handleSell(equip)}>Vender por { Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)} 🪙</button>
                 <button onClick={() => setSelectedItem(equip)}>Ver Detalhes</button>
 
@@ -180,10 +180,10 @@ function AlquimistaPage() {
                   <div style={{ marginTop: "10px", border: "1px solid #ccc", padding: "10px" }}>
                     <h3>Detalhes do Item:</h3>
                     <p><strong>Nome:</strong> {itemDetails.name}</p>
-                    <p><strong>Preço:</strong> {itemDetails.cost?.quantity} {itemDetails.cost?.unit}</p>
+                    <p><strong>Preço de revenda:</strong> {Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)}🪙</p>
                     <p><strong>Descrição:</strong> {itemDetails.desc}</p>
                     {itemDetails.weight && <p><strong>Peso:</strong> {itemDetails.weight}</p>}
-                    {itemDetails.rarity && <p><strong>Raridade:</strong> {itemDetails.rarity}</p>}
+                    {itemDetails.rarity && <p><strong>Raridade:</strong> {itemDetails.rarity.name}</p>}
                     {itemDetails.armor_class && (
                       <>
                         <p><strong>Classe de Armadura:</strong> {itemDetails.armor_class.base}</p>
@@ -213,8 +213,8 @@ function AlquimistaPage() {
             const price = calculatePriceByRarity(item.rarity);
             return (
               <li key={item.index}>
-                <span>{item.name} | Preço: {price} 🪙</span>
-                <button onClick={() => handleBuy(item)}>Comprar</button>
+                <span>{item.name}</span>
+                <button onClick={() => handleBuy(item)}>Comprar por {price}🪙</button>
                 <button onClick={() => setSelectedItem(item)}>Ver Detalhes</button>
 
                 {/* Mostrar detalhes do item selecionado */}
@@ -222,10 +222,10 @@ function AlquimistaPage() {
                   <div style={{ marginTop: "10px", border: "1px solid #ccc", padding: "10px" }}>
                     <h3>Detalhes do Item:</h3>
                     <p><strong>Nome:</strong> {itemDetails.name}</p>
-                    <p><strong>Preço:</strong> {itemDetails.cost?.quantity} {itemDetails.cost?.unit}</p>
+                    <p><strong>Preço:</strong> {price}🪙</p>
                     <p><strong>Descrição:</strong> {itemDetails.desc}</p>
                     {itemDetails.weight && <p><strong>Peso:</strong> {itemDetails.weight}</p>}
-                    {itemDetails.rarity && <p><strong>Raridade:</strong> {itemDetails.rarity}</p>}
+                    {itemDetails.rarity && <p><strong>Raridade:</strong> {itemDetails.rarity.name}</p>}
                     {itemDetails.armor_class && (
                       <>
                         <p><strong>Classe de Armadura:</strong> {itemDetails.armor_class.base}</p>
