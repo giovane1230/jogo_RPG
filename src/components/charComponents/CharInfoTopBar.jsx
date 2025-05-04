@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCharEquip } from "../../context/charEquipContext";
 import "../../../styles/charCss/CharStatus.css";
 
@@ -30,8 +30,21 @@ function CharInfoTopBar() {
     return caBase;
   };
 
-  const dexMod = character.attributes.dex.mod;
+  const dexMod = character ? character.attributes.dex.mod : 0; // Verifica se o character existe
   const caFinal = calcularCA(equipment, dexMod);
+
+  // Função para atualizar o cArmor no localStorage
+  const atualizarCArmorNoLocalStorage = (newCharacter) => {
+    newCharacter.cArmor = caFinal; // Atualiza o cArmor diretamente
+    localStorage.setItem("charData", JSON.stringify(newCharacter)); // Atualiza o localStorage com o novo cArmor
+  };
+
+  // Efeito para atualizar o localStorage sempre que o equipamento mudar
+  useEffect(() => {
+    if (character) {
+      atualizarCArmorNoLocalStorage(character); // Atualiza o cArmor no localStorage
+    }
+  }, [equipment]); // Atualiza apenas quando o equipamento mudar
 
   const testConsole = () => {
     console.log(dexMod);
@@ -62,7 +75,7 @@ function CharInfoTopBar() {
           <p>Arma Equipada</p>
           <span>{equipment.weapon?.name || "Sem arma equipada"} {equipment.weapon?.status || ""}</span>
           <p>Bonus para acertar: {dexMod}</p>
-          <p>DEPOIS BUSCAR ESSA REGRA DE MOD PARA ACERTAR ESUQUECI</p>
+          <p>DEPOIS BUSCAR ESSA REGRA DE MOD PARA ACERTAR ESQUECI</p>
           <br />
           <br />
           <span>
