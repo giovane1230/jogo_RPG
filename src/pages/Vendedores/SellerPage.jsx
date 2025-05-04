@@ -34,10 +34,10 @@ function SellerPage() {
   useEffect(() => {
     // Verificar se os itens já estão armazenados no localStorage
     const storedItems = JSON.parse(localStorage.getItem("sellerItems"));
-    const lastUpdate = localStorage.getItem("lastUpdate");
+    const lastUpdate = localStorage.getItem("MercadorlastUpdate");
     
     // Se não houver itens ou se a hora for diferente da última atualização (1 hora atrás) = 3600000
-    if (!storedItems || !lastUpdate || Date.now() - lastUpdate > 1) {
+    if (!storedItems || !lastUpdate || Date.now() - lastUpdate > 3600000) {
       setLoading(true);
       fetchItems()
       .then((items) => {
@@ -152,7 +152,7 @@ function SellerPage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Loja do Vendedor</h1>
+      <h1>Loja do Mercador</h1>
 
       <div style={{ marginBottom: "10px" }}>
   <strong>Última atualização:</strong>{" "}

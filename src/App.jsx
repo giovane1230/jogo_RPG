@@ -15,9 +15,10 @@ import SkillsPage from "./pages/dataBasePages/SkillsPage";
 import CharCreate from "./pages/charPages/CharCreate";
 import CharCreatePtns from "./pages/charPages/CharCreatePtns";
 import ResumoPage from "./pages/createCharPages/ResumoPage";
-import SellerPage from "./pages/charPages/SellerPage";
+import SellerPage from "./pages/Vendedores/SellerPage";
 import TreinoPage from "./pages/combatePages/TreinoPage";
 import CombatePage from "./pages/combatePages/CombatePage";
+import AlquimistaPagina from "./pages/Vendedores/AlquimistaPagina";
 
 function App() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -47,6 +48,7 @@ function App() {
           <Route path="/mercador" element={<SellerPage />} />
           <Route path="/treino" element={<TreinoPage />} />
           <Route path="/combate" element={<CombatePage />} />
+          <Route path="/alquimista" element={<AlquimistaPagina />} />
         </Routes>
       </div>
     </>

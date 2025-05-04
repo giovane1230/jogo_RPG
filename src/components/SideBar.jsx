@@ -13,7 +13,7 @@ function Sidebar({ fecharMenu }) {
         <Link to="/treino"><li>Treino</li></Link>
         <li>Ferreiro</li>
         <Link to="/mercador"><li>Mercador</li></Link>
-        <li>Alquimista</li>
+        <Link to="/alquimista"><li>Alquimista</li></Link>
         <li>Saída da Cidade</li>
         <li>Histórico de Combate</li>
         <li>Sandbox</li>

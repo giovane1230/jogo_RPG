@@ -10,6 +10,10 @@ function DropComponent({ CR }) {
   const [loadingItem, setLoadingItem] = useState(true);
   const navigate = useNavigate();
 
+  function rolarDado(lados) {
+    return Math.floor(Math.random() * lados) + 1;
+  }
+
   useEffect(() => {
     async function getItem() {
       if (!CR) return;
@@ -25,7 +29,10 @@ function DropComponent({ CR }) {
             eq.cost && eq.cost.unit === "gp" && eq.cost.quantity <= limiteValor
         );
 
-        if (filtrados.length > 0) {
+        const RNG = rolarDado(20);
+        
+        if (filtrados.length > 0 && RNG >= 10) {
+          console.log(RNG);
           const sorteado =
             filtrados[Math.floor(Math.random() * filtrados.length)];
           setItemRecompensa(sorteado);
@@ -91,9 +98,9 @@ function DropComponent({ CR }) {
             <p>Carregando item de recompensa...</p>
           ) : (
             <>
+                  <p>Você ganhou {Math.floor(CR * 10)}⭐️ e {Math.floor(CR * 10)}</p>
               {itemRecompensa ? (
                 <p>
-                  Você ganhou {Math.floor(CR * 10)}⭐️ e {Math.floor(CR * 10)}
                   🪙! Inimigo deixou cair:{" "}
                   <strong>{itemRecompensa.name}</strong> (
                   {itemRecompensa.cost.quantity}gp)
