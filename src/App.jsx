@@ -16,6 +16,8 @@ import CharCreate from "./pages/charPages/CharCreate";
 import CharCreatePtns from "./pages/charPages/CharCreatePtns";
 import ResumoPage from "./pages/createCharPages/ResumoPage";
 import SellerPage from "./pages/charPages/SellerPage";
+import TreinoPage from "./pages/combatePages/TreinoPage";
+import CombatePage from "./pages/combatePages/CombatePage";
 
 function App() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -34,15 +36,17 @@ function App() {
           <Route path="/char" element={<CharPage />} />
           <Route path="/database" element={<DataBasePage />} />
           <Route path="/classes" element={<ClassesPage />} />
-          <Route path="/equipmentsCategories" element={<EquipmentsCategoriesPage />} />
+          <Route path="/equipments-categories" element={<EquipmentsCategoriesPage />} />
           <Route path="/races" element={<RacesPage />} />
           <Route path="/monsters" element={<MonstersPage />} />
           <Route path="/spells" element={<SpellsPage />} />
           <Route path="/skills" element={<SkillsPage />} />
-          <Route path="/charcreate" element={<CharCreate />} />
-          <Route path="/charcreateptns" element={<CharCreatePtns />} />
+          <Route path="/char-create" element={<CharCreate />} />
+          <Route path="/char-create-ptns" element={<CharCreatePtns />} />
           <Route path="/resumo" element={<ResumoPage />} />
-          <Route path="mercador" element={<SellerPage />} />
+          <Route path="/mercador" element={<SellerPage />} />
+          <Route path="/treino" element={<TreinoPage />} />
+          <Route path="/combate" element={<CombatePage />} />
         </Routes>
       </div>
     </>

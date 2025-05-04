@@ -138,7 +138,7 @@ const personagemPronto = {
             "type": "armor",
             "category": "Medium",
             "status": 14,
-            "bonusDex": true
+            "bonusDex": false
         },
         {
             "index": "shortsword",
@@ -157,7 +157,7 @@ const personagemPronto = {
             "url": "/api/2014/equipment/leather-armor",
             "type": "armor",
             "category": "Light",
-            "status": 11,
+            "status": 14,
             "bonusDex": true
         },
         {

@@ -10,7 +10,7 @@ function MonsterDetalhes({ dados }) {
       <p><strong>Tamanho:</strong> {dados.size}</p>
       <p><strong>Tipo:</strong> {dados.type}</p>
       <p><strong>Alinhamento:</strong> {dados.alignment}</p>
-      <p><strong>Classe de Armadura:</strong> {dados.armor_class?.valeu}</p>
+      <p><strong>Classe de Armadura:</strong> {dados.armor_class?.value}</p>
       <p><strong>Vida Fixo: </strong>{dados.hit_points} - <strong>Rolagem de vida: </strong>({dados.hit_points_roll})</p>
       <p><strong>Velocidade:</strong> {dados.speed ? Object.entries(dados.speed).map(([tipo, valor]) => `${tipo}: ${valor}`).join(', ') : 'N/A'}</p>
 
@@ -94,6 +94,7 @@ function MonsterDetalhes({ dados }) {
     </div>
   );
 }
+
 MonsterDetalhes.propTypes = {
   dados: PropTypes.shape({
     name: PropTypes.string,
@@ -101,7 +102,7 @@ MonsterDetalhes.propTypes = {
     type: PropTypes.string,
     alignment: PropTypes.string,
     armor_class: PropTypes.shape({
-      valeu: PropTypes.number,
+      value: PropTypes.number,
     }),
     hit_points: PropTypes.number,
     hit_points_roll: PropTypes.string,

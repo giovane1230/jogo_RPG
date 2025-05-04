@@ -10,8 +10,31 @@ function CharInfoTopBar() {
 
   const { equipment } = useCharEquip();
 
+  const calcularCA = (equipamentos, dexMod) => {
+    let caBase = 10 + dexMod;
+
+    const { armor, shield } = equipamentos;
+
+    if (armor) {
+      caBase = armor.status;
+
+      if (armor.bonusDex) {
+        caBase += dexMod;
+      }
+    }
+
+    if (shield) {
+      caBase += shield.status;
+    }
+
+    return caBase;
+  };
+
+  const dexMod = character.attributes.dex.mod;
+  const caFinal = calcularCA(equipment, dexMod);
+
   const testConsole = () => {
-    console.log("Equipamento atual:", equipment);
+    console.log(dexMod);
   };
 
   return (
@@ -24,20 +47,29 @@ function CharInfoTopBar() {
           <br />
           <span>Vida</span>
           <p>DEPOIS MUDAR PARA VIDA ATUAL E MÁXIMA</p>
-          <span>VIDA: {character?.vidaInicial}</span>
-          <p>
-            CA: {character?.cArmor} MOD: {character.attributes.dex.mod}
-          </p>
+          <span>VIDA: {character?.vidaInicial} / {character?.vidaInicial}</span>
+          <br />
           <span>
-            CA TOTAL: {character?.cArmor + character.attributes.dex.mod}
+            CA: {caFinal}
           </span>
+          <span>
+            {equipment.armor?.name || ""}
+            {equipment.shield ? ` + ${equipment.shield.name}` : ""}
+            {equipment.armor?.bonusDex ? ` + Mod dex(${dexMod})` : ""}
+          </span>
+          <br />
+          <br />
+          <p>Arma Equipada</p>
+          <span>{equipment.weapon?.name || "Sem arma equipada"} {equipment.weapon?.status || ""}</span>
+          <p>Bonus para acertar: {dexMod}</p>
+          <p>DEPOIS BUSCAR ESSA REGRA DE MOD PARA ACERTAR ESUQUECI</p>
+          <br />
           <br />
           <span>
             {character?.class?.name} - {character?.race?.name} -{" "}
             {character?.nivel}
           </span>
           <br />
-          <h2>Atributos</h2>
           <ul>
             {Object.entries(character.attributes).map(([key, val]) => (
               <p key={key}>

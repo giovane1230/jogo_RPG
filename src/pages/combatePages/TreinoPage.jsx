@@ -1,0 +1,136 @@
+import React, { useState, useEffect } from "react";
+import { useCombat } from "../../context/CombateContext";
+import { useNavigate } from "react-router-dom";
+
+function TreinoPage() {
+  const { setPlayer, setEnemy } = useCombat();
+  const [monstros, setMonstros] = useState([]);
+  const [inimigoSelecionado, setInimigoSelecionado] = useState(null);
+  const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
+  const navigate = useNavigate();
+
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    async function buscarMonstros() {
+      try {
+        const resposta = await fetch("https://www.dnd5eapi.co/api/monsters");
+        const data = await resposta.json();
+        setMonstros(data.results);
+      } catch (erro) {
+        console.error("Erro ao buscar monstros:", erro);
+      } 
+    }
+
+    buscarMonstros();
+
+    const personagemLocal = localStorage.getItem("charData");
+    if (personagemLocal) {
+      try {
+        const personagem = JSON.parse(personagemLocal);
+        setPersonagemSelecionado(personagem);
+      } catch (erro) {
+        console.error("Erro ao carregar personagem:", erro);
+      } finally {
+        setCarregando(false);
+      }
+    }
+  }, []);
+
+  const handleSelecionarInimigo = async (url) => {
+    if (!url) return;
+    try {
+      const res = await fetch(`https://www.dnd5eapi.co${url}`);
+      const data = await res.json();
+      setInimigoSelecionado(data);
+    } catch (erro) {
+      console.error("Erro ao buscar detalhes do inimigo:", erro);
+    }
+  };
+
+  const handleAvancarParaCombate = () => {
+    const personagemLocal = localStorage.getItem("charData");
+    if (!personagemLocal || !inimigoSelecionado) {
+      alert("Você precisa ter um personagem criado e um inimigo selecionado.");
+      return;
+    }
+
+    const personagem = JSON.parse(personagemLocal);
+    setPlayer(personagem);
+    setEnemy(inimigoSelecionado);
+    navigate("/combate");
+  };
+
+  const consoleLog = () => {
+    console.log(inimigoSelecionado);
+    console.log('p', personagemSelecionado);
+  };
+
+  return (
+    <div>
+      <h1>Modo de Treino</h1>
+      <p>Selecione um inimigo:</p>
+
+      {carregando ? (
+        <p>Carregando monstros...</p>
+      ) : (
+        <select
+          onChange={(e) => handleSelecionarInimigo(e.target.value)}
+          defaultValue=""
+        >
+          <option value="" disabled>
+            -- Selecione um inimigo --
+          </option>
+          {monstros.map((monstro) => (
+            <option key={monstro.index} value={monstro.url}>
+              {monstro.name}
+            </option>
+          ))}
+        </select>
+      )}
+
+      <button onClick={consoleLog}>xxxxxxxxx</button>
+
+      {inimigoSelecionado && (
+        <div style={{ marginTop: "20px" }}>
+          <h2>Inimigo Selecionado: {inimigoSelecionado.name}</h2>
+          <p>
+            <strong>HP:</strong> {inimigoSelecionado.hit_points}
+          </p>
+          <p>
+            <strong>AC:</strong> {inimigoSelecionado.armor_class.value}
+          </p>
+          <p>
+            <strong>Desafio:</strong> {inimigoSelecionado.challenge_rating}
+          </p>
+        </div>
+      )}
+
+      {personagemSelecionado && (
+        <div style={{ marginTop: "20px" }}>
+          <h2>Seu Personagem: {personagemSelecionado.name || "Sem nome"}</h2>
+          <p>
+            <strong>Classe:</strong> {personagemSelecionado.class?.name}
+          </p>
+          <p>
+            <strong>Raça:</strong> {personagemSelecionado.race?.name}
+          </p>
+          <p>
+            <strong>Classe:</strong> {personagemSelecionado.vidaInicial}
+          </p>
+          {/* etc, dependendo de como está estruturado seu objeto */}
+        </div>
+      )}
+
+      <button
+        disabled={!inimigoSelecionado}
+        onClick={handleAvancarParaCombate}
+        style={{ marginTop: "20px" }}
+      >
+        Avançar para Combate
+      </button>
+    </div>
+  );
+}
+
+export default TreinoPage;

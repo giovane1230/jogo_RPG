@@ -10,7 +10,7 @@ function Sidebar({ fecharMenu }) {
       <ul>
         <Link to="/"><li>NOVO</li></Link>
         <Link to="/char"><li>Personagem</li></Link>
-        <li>Treinamento</li>
+        <Link to="/treino"><li>Treino</li></Link>
         <li>Ferreiro</li>
         <Link to="/mercador"><li>Mercador</li></Link>
         <li>Alquimista</li>
