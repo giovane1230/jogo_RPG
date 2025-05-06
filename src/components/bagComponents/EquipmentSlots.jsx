@@ -207,10 +207,11 @@ const EquipmentSlots = () => {
         )}
       </div>
       <div>
-        <h3>Escudo</h3>
+        <h3>Mão esquerda</h3>
         {equipment.shield ? (
           <div>
             {equipment.shield.name}
+            
             <button onClick={() => unequipItem("shield")}>Remover</button>
           </div>
         ) : (
@@ -220,7 +221,7 @@ const EquipmentSlots = () => {
         )}
       </div>
       <div>
-        <h3>Arma</h3>
+        <h3>Mão direita</h3>
         {equipment.weapon ? (
           <div>
             {equipment.weapon.name}

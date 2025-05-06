@@ -131,9 +131,12 @@ function SellerPage() {
 
   const testConsole = () => {
     console.log(character.selectedEquipments);
+    localStorage.removeItem("lastUpdate");
+    localStorage.removeItem("sellerItems");
     updateCharacter({
-      gold: 100000,
+      gold: 1000000,
     })
+    window.location.reload()
   }
   
   const itemInjetado = () => {

@@ -14,7 +14,7 @@ const Home = () => {
       Salvar Personagem no LocalStorage
     </button>
       <p>VAMOS CRIAR SEU NOVO PERSONAGEM</p>
-      <Link to="/charcreate">
+      <Link to="/char-create">
         <button id="charCreat">NOVO PERSONAGEM</button>
       </Link>
     </>

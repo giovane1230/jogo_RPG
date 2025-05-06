@@ -158,7 +158,7 @@ const ClassSelection = () => {
       status: eq.weapon_category ? eq.damage.damage_dice
       : eq.armor_category ? eq.armor_class.base
       : null,
-      bonusDex: eq.armor_category ? eq.armor_class.dex_bonus : null
+      bonusDex: eq.armor_category ? eq.armor_class.dex_bonus : null,
     }));
   
     const updatedData = {
@@ -179,7 +179,7 @@ const ClassSelection = () => {
     const newCharData = { ...existingData, ...updatedData };
     localStorage.setItem('charData', JSON.stringify(newCharData));
   
-    navigate('/charcreateptns');
+    navigate('/char-create-ptns');
   };
   
   

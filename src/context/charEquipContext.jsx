@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState } from "react";
 
 const initialEquip = {
   armor: null,
-  weapon: null,
-  shield: null,
+  mainHand: null,
+  offHand: null,
   focus: null,
   ring: [],
   wondrousItem: null,

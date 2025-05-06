@@ -37,8 +37,8 @@ export const CharacterProvider = ({ children }) => {
           cArmor: 10,
           initialSlots: {
             armor: null,
-            weapon: null,
-            shield: null,
+            mainHand: null,
+            offHand: null,
             focus: null,
             ring: [],
             wondrousItem: null,
