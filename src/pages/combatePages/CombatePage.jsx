@@ -4,6 +4,8 @@ import { useCharacter } from "../../context/CharacterContext";
 import BarraStatus from "../../components/barsComponents/BarraStatus";
 import DropComponent from "../../components/monsterComponents/dropComponent";
 import { useCharEquip } from "../../context/charEquipContext";
+import DiceRoller from "../../components/barsComponents/DiceRoller";
+import DiceRollerMedium from "../../components/barsComponents/DiceRollerMedium";
 
 function CombatePage() {
   const { player, enemy } = useCombat();
@@ -19,22 +21,42 @@ function CombatePage() {
   const [selectedPotion, setSelectedPotion] = useState(null);
   const [potionDetails, setPotionDetails] = useState(null);
 
-    useEffect(() => {
-      // Se não houver item selecionado, não fazer nada
-      if (!selectedPotion) return;
-  
-      async function fetchItemDetailsPotion() {
-        try {
-          const res = await fetch(`https://www.dnd5eapi.co/api/magic-items/${selectedPotion.index}`);
-          const data = await res.json();
-          setPotionDetails(data);
-        } catch (err) {
-          console.error("Erro ao buscar detalhes do item:", err);
-        }
+  const [diceResult, setDiceResult] = useState(null);
+  const [rolling, setRolling] = useState(false);
+
+  const rollDice = () => {
+    setRolling(true);
+    let roll = 0;
+    const interval = setInterval(() => {
+      roll = Math.floor(Math.random() * 20) + 1; // d20
+      setDiceResult(roll);
+    }, 50);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      setRolling(false);
+      setDiceResult(roll); // valor final
+    }, 1000); // 1 segundo de "animação"
+  };
+
+  useEffect(() => {
+    // Se não houver item selecionado, não fazer nada
+    if (!selectedPotion) return;
+
+    async function fetchItemDetailsPotion() {
+      try {
+        const res = await fetch(
+          `https://www.dnd5eapi.co/api/magic-items/${selectedPotion.index}`
+        );
+        const data = await res.json();
+        setPotionDetails(data);
+      } catch (err) {
+        console.error("Erro ao buscar detalhes do item:", err);
       }
-  
-      fetchItemDetailsPotion();
-    }, [selectedPotion]);
+    }
+
+    fetchItemDetailsPotion();
+  }, [selectedPotion]);
 
   useEffect(() => {
     if (!combateFinalizado) {
@@ -73,7 +95,7 @@ function CombatePage() {
     const critico = acerto === 20;
     const danoTotal = critico ? dano * 2 : dano;
 
-    setRound(round+1);
+    setRound(round + 1);
     setMensagens((prev) => [
       ...prev,
       ` ------------------------ ${round}° Rodada --------------------------`,
@@ -102,7 +124,7 @@ function CombatePage() {
   }
 
   function ataquePorBotao(tipo) {
-    const DanoEquipado = equipment.weapon?.status || "1d4"
+    const DanoEquipado = equipment.weapon?.status || "1d4";
     const lados = parseInt(DanoEquipado.split("d")[1]) || 6;
     const dado = tipo === "leve" ? lados : 999999;
     const dano = rolarDado(dado);
@@ -165,6 +187,18 @@ function CombatePage() {
   return (
     <div>
       <h1>Combate</h1>
+      <div>
+        <button onClick={rollDice}>Rolar Dado</button>
+        {rolling ? <p>Rolando...</p> : <p>Resultado: {diceResult}</p>}
+      </div>
+      <div>
+      <h1>Combate</h1>
+      <DiceRoller sides={20} />
+      {/* Você pode passar 6, 8, 10, 12, etc. como `sides` */}
+    </div>
+    <div>
+      <DiceRollerMedium sides={20} />
+    </div>
 
       <BarraStatus
         label="Vida do Jogador"
@@ -201,43 +235,76 @@ function CombatePage() {
         <div>
           <h2>Ataques:</h2>
           {character.potions.length > 0 ? (
-          <ul>
-            {character.potions.map((equip) => (
-              <li key={equip.index}>
-                {equip.name}
+            <ul>
+              {character.potions.map((equip) => (
+                <li key={equip.index}>
+                  {equip.name}
 
-                {/* Detalhes do item comprado */}
-                <button onClick={() => UsarPotion(equip)}>Usar</button>
-                <button onClick={() => setSelectedPotion(equip)}>Ver Detalhes</button>
-                {selectedPotion?.index === equip.index && potionDetails && (
-                  <div style={{ marginTop: "10px", border: "1px solid #ccc", padding: "10px" }}>
-                    <h3>Detalhes do Item:</h3>
-                    <p><strong>Nome:</strong> {potionDetails.name}</p>
-                    {/* <p><strong>Preço de revenda:</strong> {Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)}🪙</p> */}
-                    <p><strong>Descrição:</strong> {potionDetails.desc}</p>
-                    {potionDetails.weight && <p><strong>Peso:</strong> {potionDetails.weight}</p>}
-                    {potionDetails.rarity && <p><strong>Raridade:</strong> {potionDetails.rarity.name}</p>}
-                    {potionDetails.armor_class && (
-                      <>
-                        <p><strong>Classe de Armadura:</strong> {potionDetails.armor_class.base}</p>
-                        <p><strong>Bônus de Destreza:</strong> {potionDetails.armor_class.dex_bonus ? "Sim" : "Não"}</p>
-                      </>
-                    )}
-                    {potionDetails.damage && (
-                      <>
-                        <p><strong>Dano:</strong> {potionDetails.damage.damage_dice}</p>
-                        <p><strong>Tipo de Dano:</strong> {potionDetails.damage.damage_type.name}</p>
-                      </>
-                    )}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Mochila vazia.</p>
-        )}
-          <button onClick={console.log("faz nada")}>xxx</button>
+                  {/* Detalhes do item comprado */}
+                  <button onClick={() => UsarPotion(equip)}>Usar</button>
+                  <button onClick={() => setSelectedPotion(equip)}>
+                    Ver Detalhes
+                  </button>
+                  {selectedPotion?.index === equip.index && potionDetails && (
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        border: "1px solid #ccc",
+                        padding: "10px",
+                      }}
+                    >
+                      <h3>Detalhes do Item:</h3>
+                      <p>
+                        <strong>Nome:</strong> {potionDetails.name}
+                      </p>
+                      {/* <p><strong>Preço de revenda:</strong> {Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)}🪙</p> */}
+                      <p>
+                        <strong>Descrição:</strong> {potionDetails.desc}
+                      </p>
+                      {potionDetails.weight && (
+                        <p>
+                          <strong>Peso:</strong> {potionDetails.weight}
+                        </p>
+                      )}
+                      {potionDetails.rarity && (
+                        <p>
+                          <strong>Raridade:</strong> {potionDetails.rarity.name}
+                        </p>
+                      )}
+                      {potionDetails.armor_class && (
+                        <>
+                          <p>
+                            <strong>Classe de Armadura:</strong>{" "}
+                            {potionDetails.armor_class.base}
+                          </p>
+                          <p>
+                            <strong>Bônus de Destreza:</strong>{" "}
+                            {potionDetails.armor_class.dex_bonus
+                              ? "Sim"
+                              : "Não"}
+                          </p>
+                        </>
+                      )}
+                      {potionDetails.damage && (
+                        <>
+                          <p>
+                            <strong>Dano:</strong>{" "}
+                            {potionDetails.damage.damage_dice}
+                          </p>
+                          <p>
+                            <strong>Tipo de Dano:</strong>{" "}
+                            {potionDetails.damage.damage_type.name}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Mochila vazia.</p>
+          )}
           <button onClick={() => ataquePorBotao("leve")}>
             Ataque Leve ({equipment.weapon?.status || "1d4"})
           </button>
