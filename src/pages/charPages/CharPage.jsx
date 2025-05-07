@@ -9,8 +9,8 @@ function CharPage() {
     <div className="character-page">
       <div className="top-section">
       <div className="left-panel">
-        <CharInfoTopBar />
         <CharActions />
+        <CharInfoTopBar />
       </div>
       <div className="right-panel">
         <CharBag />

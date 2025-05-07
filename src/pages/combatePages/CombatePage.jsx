@@ -102,7 +102,7 @@ function CombatePage() {
   }
 
   function ataquePorBotao(tipo) {
-    const DanoEquipado = equipment.weapon.status;
+    const DanoEquipado = equipment.weapon?.status || "1d4"
     const lados = parseInt(DanoEquipado.split("d")[1]) || 6;
     const dado = tipo === "leve" ? lados : 999999;
     const dano = rolarDado(dado);
@@ -239,7 +239,7 @@ function CombatePage() {
         )}
           <button onClick={console.log("faz nada")}>xxx</button>
           <button onClick={() => ataquePorBotao("leve")}>
-            Ataque Leve ({equipment.weapon.status})
+            Ataque Leve ({equipment.weapon?.status || "1d4"})
           </button>
           <button onClick={() => ataquePorBotao("pesado")}>
             Ataque Pesado (10d12)

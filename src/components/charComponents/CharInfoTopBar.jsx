@@ -60,11 +60,11 @@ function CharInfoTopBar() {
           <br />
           <span>Vida</span>
           <p>DEPOIS MUDAR PARA VIDA ATUAL E MÁXIMA</p>
-          <span>VIDA: {character?.vidaInicial} / {character?.vidaInicial}</span>
-          <br />
           <span>
-            CA: {caFinal}
+            VIDA: {character?.vidaInicial} / {character?.vidaInicial}
           </span>
+          <br />
+          <span>CA: {caFinal}</span>
           <span>
             {equipment.armor?.name || ""}
             {equipment.shield ? ` + ${equipment.shield.name}` : ""}
@@ -73,32 +73,36 @@ function CharInfoTopBar() {
           <br />
           <br />
           <p>Arma Equipada</p>
-          <span>{equipment.weapon?.name || "Sem arma equipada"} {equipment.weapon?.status || ""}</span>
+          <span>
+            {equipment.weapon?.name || "Sem arma equipada"}{" "}
+            {equipment.weapon?.status || ""}
+          </span>
           <p>Bonus para acertar: {dexMod}</p>
-          <p>DEPOIS BUSCAR ESSA REGRA DE MOD PARA ACERTAR ESQUECI</p>
+          <p>DEPOIS BUSCAR ESSA REGRA DE MOD PARA ACERTAR ESQUECI!!! LEMBRAR DE ESQUCER MAIS DETALHADO NEM LEMBRO O QUE EU QUERI AAQUI!!!!</p>
           <br />
           <br />
           <span>
             {character?.class?.name} - {character?.race?.name} -{" "}
             {character?.nivel}
+            <br />
+            <span>Bonus Proeficiencia: (+{character?.proficienciesBonus})</span>
           </span>
           <br />
           <ul>
             {Object.entries(character.attributes).map(([key, val]) => (
               <p key={key}>
-                <strong>{key.toUpperCase()}:</strong> {val.total} ({val.mod})
+                <strong>{key.toUpperCase()}:</strong> {val.value} ({val.mod})
               </p>
             ))}
           </ul>
           <br />
-          <span>Proeficiências:</span>
           <ul>
             {character?.proficiencies.map((e) => (
               <li key={e.index}>{e.name}</li>
             ))}
           </ul>
 
-          <h2>Equipamento</h2>
+          <h2>Equipados</h2>
           <ul>
             {Object.entries(equipment).map(([slot, item]) => (
               <li key={slot}>

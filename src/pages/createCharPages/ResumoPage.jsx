@@ -17,7 +17,7 @@ const ResumoPage = () => {
       <ul>
       {Object.entries(character.attributes).map(([key, val]) => (
   <p key={key}>
-    <strong>{key.toUpperCase()}:</strong> Base: {val.base}, Bônus: {val.bonus}, Total: {val.total}, Mod: {val.mod}
+    <strong>{key.toUpperCase()}:</strong> Bônus: {val.bonus}, Total: {val.value}, Mod: {val.mod}
   </p>
 ))}
 

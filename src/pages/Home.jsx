@@ -4,6 +4,8 @@ import personagemPronto from "../api/injetarChar";
 
 const Home = () => {
   const salvarNoLocalStorage = () => {
+    localStorage.removeItem("charData");
+    window.location.reload();
     localStorage.setItem("charData", JSON.stringify(personagemPronto));
     alert("Personagem salvo com sucesso!");
   };

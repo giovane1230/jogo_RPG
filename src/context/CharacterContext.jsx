@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { vidaClasse } from "../api/regras";
 
 export const CharacterContext = createContext();
 
@@ -25,16 +26,18 @@ export const CharacterProvider = ({ children }) => {
             wis: { mod: -1, value: 8 },
             cha: { mod: -1, value: 8 },
           },
-          proficiencies: [],
-          selectedProficiencies: {},
-          selectedEquipments: [],
+          proficiencies: {},
+          bag: [],
           potions: [],
           background: "",
           alignment: "",
           gold: 1000,
           exp: 0,
           nivel: 1,
+          up: false,
+          proficienciesBonus: 2,
           cArmor: 10,
+          vidaInicial: 1,
           initialSlots: {
             armor: null,
             mainHand: null,

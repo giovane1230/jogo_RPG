@@ -26,7 +26,9 @@ function ClassesPage() {
 
     async function fetchClassDetails() {
       try {
-        const response = await fetch(`https://www.dnd5eapi.co/api/classes/${selectedClass}`);
+        const response = await fetch(
+          `https://www.dnd5eapi.co/api/classes/${selectedClass}`
+        );
         const data = await response.json();
         setClassDetails(data);
       } catch (error) {
@@ -45,9 +47,14 @@ function ClassesPage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <BtnVoltarDB /><br />
+      <BtnVoltarDB />
+      <br />
       <h1>Classes</h1>
-      <select onChange={handleClassChange} value={selectedClass} style={{ marginBottom: "20px" }}>
+      <select
+        onChange={handleClassChange}
+        value={selectedClass}
+        style={{ marginBottom: "20px" }}
+      >
         <option value="">-- Selecione uma Classe --</option>
         {classes.map((classe) => (
           <option key={classe.index} value={classe.index}>
@@ -55,8 +62,7 @@ function ClassesPage() {
           </option>
         ))}
       </select>
-
-      <ClasseDetalhes dados={classDetails} />
+      {classDetails && <ClasseDetalhes dados={classDetails} />}
     </div>
   );
 }
