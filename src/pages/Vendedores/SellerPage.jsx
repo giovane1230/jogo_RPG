@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
-import { fetchItems } from "../../api/fetchItems"; // Função que busca os itens do vendedor
+import { fetchItems } from "../../api/fetchItems";
 
 function SellerPage() {
   const { character, updateCharacter } = useCharacter();
@@ -12,7 +12,7 @@ function SellerPage() {
   
   useEffect(() => {
     const lastUpdate = localStorage.getItem("lastUpdate");
-    
+
     if (lastUpdate) {
       const interval = setInterval(() => {
         const timePassed = Date.now() - parseInt(lastUpdate, 10);
@@ -23,7 +23,7 @@ function SellerPage() {
       return () => clearInterval(interval);
     }
   }, []);
-  
+
   function formatTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");

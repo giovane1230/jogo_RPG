@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useCombat } from "../../context/CombateContext";
 import { useCharacter } from "../../context/CharacterContext";
@@ -9,6 +10,7 @@ import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
 
 function CombatePage() {
+  const navigate = useNavigate();
   const { player, enemy, playerHP, setPlayerHP } = useCombat();
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
@@ -17,6 +19,11 @@ function CombatePage() {
   const [mensagens, setMensagens] = useState([]);
   const [combateFinalizado, setCombateFinalizado] = useState(false);
   const [round, setRound] = useState(1);
+
+  if (!enemy) {
+    return <p>Combate Interrompido, por favor saida dessa pagina...</p>
+  }
+  
 
   useEffect(() => {
     if (!combateFinalizado) {
@@ -133,7 +140,7 @@ function CombatePage() {
       <BarraStatus
         label="Vida do Jogador"
         valorAtual={playerHP}
-        valorMaximo={player.maxHp || 100}
+        valorMaximo={character.vidaInicial || 100}
         cor="green"
       />
       <BarraStatus

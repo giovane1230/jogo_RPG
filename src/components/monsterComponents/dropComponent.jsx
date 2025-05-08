@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { fetchAllEquipments } from "../../api/equipments";
 import { useNavigate } from "react-router-dom";
+import { useCombat } from "../../context/CombateContext";
 
 function DropComponent({ CR }) {
   const { updateCharacter, character } = useCharacter();
   const [pegou, setPegou] = useState(false);
   const [itemRecompensa, setItemRecompensa] = useState(null);
   const [loadingItem, setLoadingItem] = useState(true);
+  const { playerHP } = useCombat();
   const navigate = useNavigate();
 
   function rolarDado(lados) {
@@ -82,6 +84,7 @@ function DropComponent({ CR }) {
       selectedEquipments: formattedEquipment
         ? [...(character.selectedEquipments || []), formattedEquipment]
         : [...(character.selectedEquipments || [])],
+      vidaAtual: playerHP,
     });
 
     setPegou(true);
