@@ -4,59 +4,19 @@ import { useCharacter } from "../../context/CharacterContext";
 import BarraStatus from "../../components/barsComponents/BarraStatus";
 import DropComponent from "../../components/monsterComponents/dropComponent";
 import { useCharEquip } from "../../context/charEquipContext";
-import DiceRoller from "../../components/barsComponents/DiceRoller";
 import DiceRollerMedium from "../../components/barsComponents/DiceRollerMedium";
+import CombatPotions from "../../components/combateComponents/combatPotions";
+import xpLevels from "../../api/regras";
 
 function CombatePage() {
-  const { player, enemy } = useCombat();
+  const { player, enemy, playerHP, setPlayerHP } = useCombat();
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
 
-  const [playerHP, setPlayerHP] = useState(player?.vida || 100);
   const [enemyHP, setEnemyHP] = useState(enemy?.hit_points || 50);
   const [mensagens, setMensagens] = useState([]);
-  const [logCombate, setLogCombate] = useState([]);
   const [combateFinalizado, setCombateFinalizado] = useState(false);
   const [round, setRound] = useState(1);
-  const [selectedPotion, setSelectedPotion] = useState(null);
-  const [potionDetails, setPotionDetails] = useState(null);
-
-  const [diceResult, setDiceResult] = useState(null);
-  const [rolling, setRolling] = useState(false);
-
-  const rollDice = () => {
-    setRolling(true);
-    let roll = 0;
-    const interval = setInterval(() => {
-      roll = Math.floor(Math.random() * 20) + 1; // d20
-      setDiceResult(roll);
-    }, 50);
-
-    setTimeout(() => {
-      clearInterval(interval);
-      setRolling(false);
-      setDiceResult(roll); // valor final
-    }, 1000); // 1 segundo de "animação"
-  };
-
-  useEffect(() => {
-    // Se não houver item selecionado, não fazer nada
-    if (!selectedPotion) return;
-
-    async function fetchItemDetailsPotion() {
-      try {
-        const res = await fetch(
-          `https://www.dnd5eapi.co/api/magic-items/${selectedPotion.index}`
-        );
-        const data = await res.json();
-        setPotionDetails(data);
-      } catch (err) {
-        console.error("Erro ao buscar detalhes do item:", err);
-      }
-    }
-
-    fetchItemDetailsPotion();
-  }, [selectedPotion]);
 
   useEffect(() => {
     if (!combateFinalizado) {
@@ -91,7 +51,8 @@ function CombatePage() {
     if (combateFinalizado) return;
 
     const acerto = rolarDado(20);
-    const sucesso = acerto + 5 > enemy.armor_class?.[0]?.value;
+    const sucesso =
+      acerto + character.attributes.dex.mod > enemy.armor_class?.[0]?.value;
     const critico = acerto === 20;
     const danoTotal = critico ? dano * 2 : dano;
 
@@ -104,18 +65,18 @@ function CombatePage() {
     if (critico || sucesso) {
       setMensagens((prev) => [
         ...prev,
-        `Você ${critico ? "acertou um CRÍTICO" : "acertou"} 🎲${acerto}(+5) = ${
-          acerto + 5
-        } Causou ⚔️${danoTotal}!`,
+        `Você ${critico ? "acertou um CRÍTICO" : "acertou"} 🎲${acerto}+${
+          character.attributes.dex.mod
+        } = ${acerto + character.attributes.dex.mod} Causou ⚔️${danoTotal}!`,
       ]);
-      setLogCombate((log) => [...log, `Você rolou: ${acerto} (sucesso)`]);
       setEnemyHP((hp) => Math.max(0, hp - danoTotal));
     } else {
       setMensagens((prev) => [
         ...prev,
-        `Você errou 🎲${acerto}(+5)=${acerto + 5}.`,
+        `Você errou 🎲${acerto}+${character.attributes.dex.mod} = ${
+          acerto + character.attributes.dex.mod
+        }.`,
       ]);
-      setLogCombate((log) => [...log, `Você rolou: ${acerto} (falha)`]);
     }
 
     if (enemyHP - danoTotal > 0) {
@@ -129,20 +90,6 @@ function CombatePage() {
     const dado = tipo === "leve" ? lados : 999999;
     const dano = rolarDado(dado);
     ataqueJogador(dano);
-  }
-
-  function UsarPotion(item) {
-    setPlayerHP(playerHP + 100);
-    const updatedPotions = character.potions.filter(
-      (equip) => equip.index !== item.index
-    );
-
-    const updatedCharacter = {
-      ...character,
-      potions: updatedPotions,
-    };
-
-    setCharacter(updatedCharacter);
   }
 
   function turnoInimigo() {
@@ -167,19 +114,11 @@ function CombatePage() {
           critico ? "acertou um CRÍTICO" : "acertou"
         } com 🎲${acerto}(+5)=${acerto + 5}! Causou ⚔️${danoTotal}!`,
       ]);
-      setLogCombate((log) => [
-        ...log,
-        `${enemy.name} rolou: ${acerto} (sucesso)`,
-      ]);
       setPlayerHP((hp) => Math.max(0, hp - danoTotal));
     } else {
       setMensagens((prev) => [
         ...prev,
         `${enemy.name} errou com um roll de 🎲${acerto}(+5)=${acerto + 5}.`,
-      ]);
-      setLogCombate((log) => [
-        ...log,
-        `${enemy.name} rolou: ${acerto} (falha)`,
       ]);
     }
   }
@@ -188,17 +127,8 @@ function CombatePage() {
     <div>
       <h1>Combate</h1>
       <div>
-        <button onClick={rollDice}>Rolar Dado</button>
-        {rolling ? <p>Rolando...</p> : <p>Resultado: {diceResult}</p>}
+        <DiceRollerMedium sides={20} />
       </div>
-      <div>
-      <h1>Combate</h1>
-      <DiceRoller sides={20} />
-      {/* Você pode passar 6, 8, 10, 12, etc. como `sides` */}
-    </div>
-    <div>
-      <DiceRollerMedium sides={20} />
-    </div>
 
       <BarraStatus
         label="Vida do Jogador"
@@ -215,7 +145,7 @@ function CombatePage() {
       <BarraStatus
         label="Experiência"
         valorAtual={character.exp}
-        valorMaximo={100}
+        valorMaximo={xpLevels[character.nivel + 1].xp}
         cor="blue"
       />
 
@@ -233,78 +163,16 @@ function CombatePage() {
 
       {!combateFinalizado && (
         <div>
+          <CombatPotions />
           <h2>Ataques:</h2>
-          {character.potions.length > 0 ? (
-            <ul>
-              {character.potions.map((equip) => (
-                <li key={equip.index}>
-                  {equip.name}
-
-                  {/* Detalhes do item comprado */}
-                  <button onClick={() => UsarPotion(equip)}>Usar</button>
-                  <button onClick={() => setSelectedPotion(equip)}>
-                    Ver Detalhes
-                  </button>
-                  {selectedPotion?.index === equip.index && potionDetails && (
-                    <div
-                      style={{
-                        marginTop: "10px",
-                        border: "1px solid #ccc",
-                        padding: "10px",
-                      }}
-                    >
-                      <h3>Detalhes do Item:</h3>
-                      <p>
-                        <strong>Nome:</strong> {potionDetails.name}
-                      </p>
-                      {/* <p><strong>Preço de revenda:</strong> {Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)}🪙</p> */}
-                      <p>
-                        <strong>Descrição:</strong> {potionDetails.desc}
-                      </p>
-                      {potionDetails.weight && (
-                        <p>
-                          <strong>Peso:</strong> {potionDetails.weight}
-                        </p>
-                      )}
-                      {potionDetails.rarity && (
-                        <p>
-                          <strong>Raridade:</strong> {potionDetails.rarity.name}
-                        </p>
-                      )}
-                      {potionDetails.armor_class && (
-                        <>
-                          <p>
-                            <strong>Classe de Armadura:</strong>{" "}
-                            {potionDetails.armor_class.base}
-                          </p>
-                          <p>
-                            <strong>Bônus de Destreza:</strong>{" "}
-                            {potionDetails.armor_class.dex_bonus
-                              ? "Sim"
-                              : "Não"}
-                          </p>
-                        </>
-                      )}
-                      {potionDetails.damage && (
-                        <>
-                          <p>
-                            <strong>Dano:</strong>{" "}
-                            {potionDetails.damage.damage_dice}
-                          </p>
-                          <p>
-                            <strong>Tipo de Dano:</strong>{" "}
-                            {potionDetails.damage.damage_type.name}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Mochila vazia.</p>
-          )}
+          <p>
+            Modificador de acerto dex ou str:({character.attributes.dex.mod})
+            Proeficiencia:({character.proficienciesBonus})
+          </p>
+          <p>
+            Chance de acerto d20+(
+            {character.attributes.dex.mod + character.proficienciesBonus})
+          </p>
           <button onClick={() => ataquePorBotao("leve")}>
             Ataque Leve ({equipment.weapon?.status || "1d4"})
           </button>

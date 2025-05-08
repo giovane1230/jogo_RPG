@@ -42,6 +42,7 @@ function CharActions() {
       ...prev,
       nivel: 1,
       proficienciesBonus: xpLevels[1].proficiencia,
+      vidaAtual: vidaBase,
       vidaInicial: vidaBase,
       attributes: {
         str: { mod: -1, value: 8 },
@@ -102,6 +103,13 @@ function CharActions() {
     }
   };
 
+  const descanso = () => {
+    setCharacter((prev) => ({
+      ...prev,
+      vidaAtual: character.vidaInicial,
+    }));
+  }
+
   return (
     <div style={{ marginTop: "20px" }}>
         <div>
@@ -138,7 +146,7 @@ function CharActions() {
         Subir de nivel
       </button>
       <button onClick={voltarNv}>vai pro 1</button>
-      <button>Descansar</button>
+      <button onClick={descanso}>Descansar</button>
     </div>
   );
 }

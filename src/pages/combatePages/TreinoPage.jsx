@@ -19,7 +19,7 @@ function TreinoPage() {
         setMonstros(data.results);
       } catch (erro) {
         console.error("Erro ao buscar monstros:", erro);
-      } 
+      }
     }
 
     buscarMonstros();
@@ -61,11 +61,6 @@ function TreinoPage() {
     navigate("/combate");
   };
 
-  const consoleLog = () => {
-    console.log(inimigoSelecionado);
-    console.log('p', personagemSelecionado);
-  };
-
   return (
     <div>
       <h1>Modo de Treino</h1>
@@ -88,8 +83,6 @@ function TreinoPage() {
           ))}
         </select>
       )}
-
-      <button onClick={consoleLog}>xxxxxxxxx</button>
 
       {inimigoSelecionado && (
         <div style={{ marginTop: "20px" }}>
@@ -116,12 +109,11 @@ function TreinoPage() {
             <strong>Raça:</strong> {personagemSelecionado.race?.name}
           </p>
           <p>
-            <strong>Classe:</strong> {personagemSelecionado.vidaInicial}
+            <strong>AC:</strong> {personagemSelecionado.cArmor}
           </p>
           {/* etc, dependendo de como está estruturado seu objeto */}
         </div>
       )}
-
       <button
         disabled={!inimigoSelecionado}
         onClick={handleAvancarParaCombate}

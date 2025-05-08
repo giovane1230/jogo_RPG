@@ -27,7 +27,7 @@ function Topbar() {
           <>
 
             <span>👤 {character?.name} - {character?.class?.name} - {character?.race?.name} - {character?.nivel} </span>
-            <span>❤️ {character?.vidaInicial}</span>
+            <span>❤️ {character?.vidaAtual} / {character?.vidaInicial}</span>
             <span>💰 {character?.gold ?? 0}</span>
             <span>⭐ {character?.exp ?? 0} / {xpMax(character.nivel)}</span>
           </>

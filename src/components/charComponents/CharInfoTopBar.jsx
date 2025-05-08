@@ -30,7 +30,8 @@ function CharInfoTopBar() {
     return caBase;
   };
 
-  const dexMod = character ? character.attributes.dex.mod : 0; // Verifica se o character existe
+  const dexMod = character ? character.attributes.dex.mod : 0;
+  // const strMod = character ? character.attributes.str.mod : 0; depois fazer a verificação de qual é maior 
   const caFinal = calcularCA(equipment, dexMod);
 
   // Função para atualizar o cArmor no localStorage
@@ -59,9 +60,8 @@ function CharInfoTopBar() {
           <span>{character?.name}</span>
           <br />
           <span>Vida</span>
-          <p>DEPOIS MUDAR PARA VIDA ATUAL E MÁXIMA</p>
           <span>
-            VIDA: {character?.vidaInicial} / {character?.vidaInicial}
+            VIDA: {character?.vidaAtual} / {character?.vidaInicial}
           </span>
           <br />
           <span>CA: {caFinal}</span>
@@ -77,8 +77,7 @@ function CharInfoTopBar() {
             {equipment.weapon?.name || "Sem arma equipada"}{" "}
             {equipment.weapon?.status || ""}
           </span>
-          <p>Bonus para acertar: {dexMod}</p>
-          <p>DEPOIS BUSCAR ESSA REGRA DE MOD PARA ACERTAR ESQUECI!!! LEMBRAR DE ESQUCER MAIS DETALHADO NEM LEMBRO O QUE EU QUERI AAQUI!!!!</p>
+          <p>Bonus para acertar: {dexMod}</p> 
           <br />
           <br />
           <span>

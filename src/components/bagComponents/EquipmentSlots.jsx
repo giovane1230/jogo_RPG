@@ -182,16 +182,9 @@ const EquipmentSlots = () => {
     ));
   };
 
-  const contextConsole = () => {
-    console.log(equipment)
-  }
-
   return (
     <div>
       <h2>Equipamentos</h2>
-      <button onClick={contextConsole}>
-        xxxxxxxx
-      </button>
 
       <div>
         <h3>Armadura</h3>

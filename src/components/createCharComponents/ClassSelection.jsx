@@ -14,6 +14,7 @@ const ClassSelection = () => {
   const [proficiencyChoices, setProficiencyChoices] = useState([]);
   const [selectedProficiencies, setSelectedProficiencies] = useState({});
   const [ vidaInicial, setVidaInicial ] = useState('');
+  const [ vidaAtual, setVidaAtual ] = useState('');
   const { updateCharacter } = useCharacter();
   
   useEffect(() => {
@@ -31,6 +32,8 @@ const ClassSelection = () => {
         setProficiencies(data.proficiencies || []);
         setProficiencyChoices(data.proficiency_choices || []);
         setVidaInicial(data.hit_die || {});
+        setVidaAtual(data.hit_die || {});
+        
 
         const processed = await Promise.all(
           (data.starting_equipment_options || []).map(async (choice) => {
@@ -168,6 +171,7 @@ const ClassSelection = () => {
         vida: selectedClassData.hit_die,
       },
       vidaInicial,
+      vidaAtual,
       proficiencies,
       selectedProficiencies,
       selectedEquipments: formattedEquipments

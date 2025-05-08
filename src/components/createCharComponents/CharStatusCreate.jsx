@@ -109,20 +109,6 @@ const CharStatusCreate = () => {
 
   const getModifier = (total) => Math.floor((total - 10) / 2);
 
-  // useEffect(() => {
-  //   const classe = character.class;
-  //   const vidaBase = vidaClasse[classe];
-  //   const modificadorConstituicao = character.attributes.con.mod;
-
-  //   const vidaInicial = vidaBase + modificadorConstituicao;
-
-  //   setCharacter(prev => ({
-  //     ...prev,
-  //     attributes: baseAttributes,
-  //     vidaInicial: vidaInicial,
-  //   }));
-  // }, [baseAttributes, setCharacter, character.class]);
-
   const handleFinalizar = () => {
     const finalAttributes = {};
 
@@ -144,12 +130,13 @@ const CharStatusCreate = () => {
     const vidaBase = vidaClasse[classe].vida;
     const modificadorConstituicao = character.attributes.con.mod;
 
-    const vidaInicial = vidaBase + modificadorConstituicao;
+    const vidaCriada = vidaBase + modificadorConstituicao;
 
     setCharacter((prev) => ({
       ...prev,
       attributes: baseAttributes,
-      vidaInicial: vidaInicial,
+      vidaAtual: vidaCriada,
+      vidaInicial: vidaCriada,
     }));
 
     console.log("Atributos finais salvos:", finalAttributes);

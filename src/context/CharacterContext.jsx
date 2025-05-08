@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { vidaClasse } from "../api/regras";
 
 export const CharacterContext = createContext();
 
@@ -38,6 +37,7 @@ export const CharacterProvider = ({ children }) => {
           proficienciesBonus: 2,
           cArmor: 10,
           vidaInicial: 1,
+          vidaAtual: 1,
           initialSlots: {
             armor: null,
             mainHand: null,
