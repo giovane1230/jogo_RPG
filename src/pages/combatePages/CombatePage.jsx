@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useCombat } from "../../context/CombateContext";
 import { useCharacter } from "../../context/CharacterContext";
@@ -10,7 +9,6 @@ import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
 
 function CombatePage() {
-  const navigate = useNavigate();
   const { player, enemy, playerHP, setPlayerHP } = useCombat();
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
