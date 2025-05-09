@@ -35,7 +35,6 @@ function AlquimistaPage() {
   }
 
   useEffect(() => {
-    // Verificar se os itens já estão armazenados no localStorage
     const storedItems = JSON.parse(localStorage.getItem("alchemistItems"));
     const lastUpdate = localStorage.getItem("AlchemistlastUpdate");
 
@@ -102,6 +101,7 @@ function AlquimistaPage() {
     return basePrice;
   }
 
+  // Função para comprar item
   const handleBuy = (item) => {
     const price = calculatePriceByRarity(item.rarity);
 
@@ -110,8 +110,25 @@ function AlquimistaPage() {
       return;
     }
 
-    const updatedPotions = [...character.potions, item];
+    // Verificar se o jogador já tem 5 unidades do item
+    const itemInPotions = character.potions.find(
+      (potion) => potion.index === item.index
+    );
+
+    if (itemInPotions && itemInPotions.quantity >= 5) {
+      alert("Você já tem 5 unidades desse item!");
+      return;
+    }
+
+    const updatedPotions = [...character.potions];
     const currentGold = character.gold - price;
+
+    // Se o item já existe na mochila, aumente a quantidade, caso contrário, adicione o item
+    if (itemInPotions) {
+      itemInPotions.quantity += 1;
+    } else {
+      updatedPotions.push({ ...item, quantity: 1 });
+    }
 
     const updatedCharacter = {
       ...character,
@@ -122,33 +139,34 @@ function AlquimistaPage() {
     updateCharacter(updatedCharacter);
     localStorage.setItem("charData", JSON.stringify(updatedCharacter));
 
-    const updatedItems = alchemistItems.filter(
-      (alchemistItem) => alchemistItem.index !== item.index
-    );
-    setAlchemistItems(updatedItems);
-    localStorage.setItem("alchemistItems", JSON.stringify(updatedItems));
+    // const updatedItems = alchemistItems.filter(
+    //   (alchemistItem) => alchemistItem.index !== item.index
+    // );
+    // setAlchemistItems(updatedItems);
+    // localStorage.setItem("alchemistItems", JSON.stringify(updatedItems));
   };
 
-  const handleSell = (item) => {
-    const updatedPotions = character.potions.filter(
-      (equip) => equip.index !== item.index
-    );
-    const goldEarned = Math.floor(calculatePriceByRarity(item.rarity) / 1.3);
-    const updatedGold = character.gold + goldEarned;
+  // Função para vender item
+  // const handleSell = (item) => {
+  //   const updatedPotions = character.potions.filter(
+  //     (equip) => equip.index !== item.index
+  //   );
+  //   const goldEarned = Math.floor(calculatePriceByRarity(item.rarity) / 1.3);
+  //   const updatedGold = character.gold + goldEarned;
 
-    const updatedCharacter = {
-      ...character,
-      potions: updatedPotions,
-      gold: updatedGold,
-    };
+  //   const updatedCharacter = {
+  //     ...character,
+  //     potions: updatedPotions,
+  //     gold: updatedGold,
+  //   };
 
-    updateCharacter(updatedCharacter);
-    localStorage.setItem("charData", JSON.stringify(updatedCharacter));
+  //   updateCharacter(updatedCharacter);
+  //   localStorage.setItem("charData", JSON.stringify(updatedCharacter));
 
-    const updatedItems = [...alchemistItems, item];
-    setAlchemistItems(updatedItems);
-    localStorage.setItem("alchemistItems", JSON.stringify(updatedItems));
-  };
+  //   const updatedItems = [...alchemistItems, item];
+  //   setAlchemistItems(updatedItems);
+  //   localStorage.setItem("alchemistItems", JSON.stringify(updatedItems));
+  // };
 
   if (loading) {
     return <div>Carregando itens...</div>;
@@ -177,19 +195,19 @@ function AlquimistaPage() {
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
         {character.potions?.length > 0 ? (
-        <ul>
-        {character.potions.map((potion) => (
-          <li key={potion.index}>
-            <ItemTooltip item={potion} isMagic={true}>
-              <span>{potion.name}</span>
-            </ItemTooltip>
-            <button onClick={() => handleBuy(potion)}>
-              Comprar por {Math.floor(calculatePriceByRarity(potion.rarity) / 1.5)}{" "}
-              🪙
-            </button>
-          </li>
-        ))}
-      </ul>
+          <ul>
+            {character.potions.map((potion) => (
+              <li key={potion.index}>
+                <ItemTooltip item={potion} isMagic={true}>
+                  <span>{potion.name}</span>
+                </ItemTooltip>
+                <span> - Quantidade: {potion.quantity}</span>
+                {/* <button onClick={() => handleSell(potion)}>
+                  Vender por {Math.floor(calculatePriceByRarity(potion.rarity) / 1.3)} 🪙
+                </button> */}
+              </li>
+            ))}
+          </ul>
         ) : (
           <p>Mochila vazia.</p>
         )}
@@ -204,8 +222,7 @@ function AlquimistaPage() {
                 <span>{potion.name}</span>
               </ItemTooltip>
               <button onClick={() => handleBuy(potion)}>
-                Comprar por {Math.floor(calculatePriceByRarity(potion.rarity))}{" "}
-                🪙
+                Comprar por {Math.floor(calculatePriceByRarity(potion.rarity))} 🪙
               </button>
             </li>
           ))}

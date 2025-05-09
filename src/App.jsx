@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { Routes, Route, Router } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 
-import Sidebar from "./components/SideBar";
-import Topbar from "./components/TopBar";
+import Layout from "./components/barsComponents/Layout";
 import Home from "./pages/Home";
 import CharPage from "./pages/charPages/CharPage";
 import ClassesPage from "./pages/dataBasePages/ClassesPage";
@@ -23,39 +22,30 @@ import NotFound from "./pages/404";
 import TestProeficiencia from "./pages/charPages/TestProeficiencia";
 
 function App() {
-  const [menuAberto, setMenuAberto] = useState(false);
-
-  const abrirMenu = () => setMenuAberto(true);
-  const fecharMenu = () => setMenuAberto(false);
-
   return (
-    <>
-      <Topbar abrirMenu={abrirMenu} />
-      {menuAberto && <Sidebar fecharMenu={fecharMenu} />}
-      
-      <div className="conteudo-principal">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/char" element={<CharPage />} />
-          <Route path="/database" element={<DataBasePage />} />
-          <Route path="/classes" element={<ClassesPage />} />
-          <Route path="/equipments-categories" element={<EquipmentsCategoriesPage />} />
-          <Route path="/races" element={<RacesPage />} />
-          <Route path="/monsters" element={<MonstersPage />} />
-          <Route path="/spells" element={<SpellsPage />} />
-          <Route path="/skills" element={<SkillsPage />} />
-          <Route path="/char-create" element={<CharCreate />} />
-          <Route path="/char-create-ptns" element={<CharCreatePtns />} />
-          <Route path="/resumo" element={<ResumoPage />} />
-          <Route path="/mercador" element={<SellerPage />} />
-          <Route path="/treino" element={<TreinoPage />} />
-          <Route path="/combate" element={<CombatePage />} />
-          <Route path="/alquimista" element={<AlquimistaPagina />} />
-          <Route path="/teste" element={<TestProeficiencia />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-    </>
+    <Routes>
+      {/* Layout aplica o sidebar/topbar em todas as páginas internas */}
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="char" element={<CharPage />} />
+        <Route path="database" element={<DataBasePage />} />
+        <Route path="classes" element={<ClassesPage />} />
+        <Route path="equipments-categories" element={<EquipmentsCategoriesPage />} />
+        <Route path="races" element={<RacesPage />} />
+        <Route path="monsters" element={<MonstersPage />} />
+        <Route path="spells" element={<SpellsPage />} />
+        <Route path="skills" element={<SkillsPage />} />
+        <Route path="char-create" element={<CharCreate />} />
+        <Route path="char-create-ptns" element={<CharCreatePtns />} />
+        <Route path="resumo" element={<ResumoPage />} />
+        <Route path="mercador" element={<SellerPage />} />
+        <Route path="treino" element={<TreinoPage />} />
+        <Route path="combate" element={<CombatePage />} />
+        <Route path="alquimista" element={<AlquimistaPagina />} />
+        <Route path="teste" element={<TestProeficiencia />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }
 

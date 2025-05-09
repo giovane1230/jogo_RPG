@@ -1,6 +1,6 @@
 import React from "react";
 
-const BarraStatus = ({ label, valorAtual, valorMaximo, cor = "green" }) => {
+const BarraStatus = ({ label, valorAtual, valorMaximo, cor = "green", CA, CR }) => {
   const largura = (valorAtual / valorMaximo) * 100;
 
   return (
@@ -11,7 +11,7 @@ const BarraStatus = ({ label, valorAtual, valorMaximo, cor = "green" }) => {
         borderRadius: "5px",
         overflow: "hidden",
         height: "15px",
-        width: "40%"
+        width: "200px",
       }}>
         <div style={{
           width: `${largura}%`,
@@ -20,6 +20,7 @@ const BarraStatus = ({ label, valorAtual, valorMaximo, cor = "green" }) => {
         }} />
       </div>
       <small>{valorAtual} / {valorMaximo}</small>
+      <strong> {CA} {CR} </strong>
     </div>
   );
 };

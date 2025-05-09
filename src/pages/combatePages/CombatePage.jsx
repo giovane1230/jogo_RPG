@@ -12,6 +12,7 @@ function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP } = useCombat();
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
+  const [ultimoResultado, setUltimoResultado] = useState("-");
 
   const [enemyHP, setEnemyHP] = useState(enemy?.hit_points || 50);
   const [mensagens, setMensagens] = useState([]);
@@ -19,9 +20,8 @@ function CombatePage() {
   const [round, setRound] = useState(1);
 
   if (!enemy) {
-    return <p>Combate Interrompido, por favor saida dessa pagina...</p>
+    return <p>Combate Interrompido, por favor saida dessa pagina...</p>;
   }
-  
 
   useEffect(() => {
     if (!combateFinalizado) {
@@ -55,7 +55,7 @@ function CombatePage() {
   function ataqueJogador(dano) {
     if (combateFinalizado) return;
 
-    const acerto = rolarDado(20);
+    const acerto = 19; // MUDAR PARA rolarDado(20);
     const sucesso =
       acerto + character.attributes.dex.mod > enemy.armor_class?.[0]?.value;
     const critico = acerto === 20;
@@ -128,43 +128,42 @@ function CombatePage() {
     }
   }
 
+  const handleRoll = (resultado) => {
+    console.log("Dado rolado:", resultado);
+    setUltimoResultado(resultado);
+  };
+
   return (
     <div>
       <h1>Combate</h1>
-      <div>
-        <DiceRollerMedium sides={20} />
-      </div>
+      {combateFinalizado && <DropComponent CR={enemy.challenge_rating} />}
 
+      <div>
+        <BarraStatus
+          label={player.name}
+          valorAtual={playerHP}
+          valorMaximo={character.vidaInicial || 100}
+          CA={`| CA: ${player.cArmor}`}
+          cor="blue"
+        />
+        <p>
+          <strong>CA:</strong> {player.cArmor}
+        </p>
+      </div>
       <BarraStatus
-        label="Vida do Jogador"
-        valorAtual={playerHP}
-        valorMaximo={character.vidaInicial || 100}
-        cor="green"
-      />
-      <BarraStatus
-        label="Vida do Monstro"
+        label={enemy.name}
         valorAtual={enemyHP}
         valorMaximo={enemy.hit_points || 50}
+        CA={`| CA: ${enemy.armor_class?.[0]?.value}`}
+        CR={`| CA: ${enemy.challenge_rating}`}
         cor="red"
       />
       <BarraStatus
         label="Experiência"
         valorAtual={character.exp}
         valorMaximo={xpLevels[character.nivel + 1].xp}
-        cor="blue"
+        cor="yellow"
       />
-
-      <p>
-        <strong>Seu HP:</strong> {playerHP} - <strong>CA:</strong>{" "}
-        {player.cArmor}
-      </p>
-      <p>
-        <strong>{enemy.name} HP:</strong> {enemyHP} - <strong>CA:</strong>{" "}
-        {enemy.armor_class?.[0]?.value}
-      </p>
-      <p>
-        Dificuldade: <strong>{enemy.challenge_rating}</strong>
-      </p>
 
       {!combateFinalizado && (
         <div>
@@ -182,7 +181,7 @@ function CombatePage() {
             Ataque Leve ({equipment.weapon?.status || "1d4"})
           </button>
           <button onClick={() => ataquePorBotao("pesado")}>
-            Ataque Pesado (10d12)
+            Ataque Pesado (HITKILL)
           </button>
         </div>
       )}
@@ -198,8 +197,6 @@ function CombatePage() {
             ))}
         </ul>
       </div>
-
-      {combateFinalizado && <DropComponent CR={enemy.challenge_rating} />}
     </div>
   );
 }

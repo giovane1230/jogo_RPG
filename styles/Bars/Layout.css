@@ -1,0 +1,49 @@
+/* layout geral */
+.layout {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* topbar sempre por cima */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #222;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 1000;
+}
+
+/* sidebar fixo na lateral esquerda */
+.sidebar {
+  position: fixed;
+  top: 60px; /* abaixo do Topbar */
+  left: 0;
+  height: calc(100% - 60px);
+  width: 240px;
+  background-color: #111;
+  overflow: auto;
+  transition: width 0.3s;
+  z-index: 500;
+}
+
+.sidebar.fechado {
+  width: 60px;
+}
+
+/* conteúdo principal */
+.main-content {
+  margin-top: 60px; /* altura da Topbar */
+  margin-left: 240px; /* largura do Sidebar */
+  padding: 1rem;
+  transition: margin-left 0.3s;
+}
+
+.sidebar.fechado ~ .main-content {
+  margin-left: 60px;
+}

@@ -104,7 +104,7 @@ function DropComponent({ CR }) {
                   <p>Você ganhou {Math.floor(CR * 10)}⭐️ e {Math.floor(CR * 10)}</p>
               {itemRecompensa ? (
                 <p>
-                  🪙! Inimigo deixou cair:{" "}
+                  Inimigo deixou cair:{" "}
                   <strong>{itemRecompensa.name}</strong> (
                   {itemRecompensa.cost.quantity}gp)
                 </p>

@@ -1,0 +1,17 @@
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #111;
+  color: white;
+  padding: 10px 20px;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.menu:hover {
+  cursor: pointer;
+}

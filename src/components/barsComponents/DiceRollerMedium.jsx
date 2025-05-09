@@ -5,11 +5,6 @@ function DiceRollerMedium({ sides = 20, onRoll }) {
   const [result, setResult] = useState(null);
   const [rolling, setRolling] = useState(false);
 
-  function handleRoll() {
-    const result = Math.floor(Math.random() * sides) + 1;
-    onRoll(result); // Passa o resultado para o componente pai
-  }
-
   const rollDice = () => {
     setRolling(true);
     let temp = 0;
@@ -34,7 +29,6 @@ function DiceRollerMedium({ sides = 20, onRoll }) {
         {rolling ? "🎲" : result ?? "-"}
       </div>
       <br />
-      <button onClick={handleRoll}>Rolar D{ sides }</button>
       <button
         onClick={rollDice}
         disabled={rolling}
