@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./DiceRoller.css"; // certifique-se de importar o CSS
 
-function DiceRollerMedium({ sides = 20 }) {
+function DiceRollerMedium({ sides = 20, onRoll }) {
   const [result, setResult] = useState(null);
   const [rolling, setRolling] = useState(false);
 
@@ -18,6 +18,7 @@ function DiceRollerMedium({ sides = 20 }) {
       clearInterval(interval);
       setRolling(false);
       setResult(temp);
+      if (onRoll) onRoll(temp); // <- avisa o pai
     }, 1000);
   };
 

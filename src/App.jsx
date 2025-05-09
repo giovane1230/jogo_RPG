@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Router } from "react-router-dom";
 
 import Sidebar from "./components/SideBar";
 import Topbar from "./components/TopBar";
@@ -19,6 +19,8 @@ import SellerPage from "./pages/Vendedores/SellerPage";
 import TreinoPage from "./pages/combatePages/TreinoPage";
 import CombatePage from "./pages/combatePages/CombatePage";
 import AlquimistaPagina from "./pages/Vendedores/AlquimistaPagina";
+import NotFound from "./pages/404";
+import TestProeficiencia from "./pages/charPages/TestProeficiencia";
 
 function App() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -49,6 +51,8 @@ function App() {
           <Route path="/treino" element={<TreinoPage />} />
           <Route path="/combate" element={<CombatePage />} />
           <Route path="/alquimista" element={<AlquimistaPagina />} />
+          <Route path="/teste" element={<TestProeficiencia />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </>

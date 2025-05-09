@@ -14,6 +14,7 @@ function Sidebar({ fecharMenu }) {
         <li>Ferreiro</li>
         <Link to="/mercador"><li>Mercador</li></Link>
         <Link to="/alquimista"><li>Alquimista</li></Link>
+        <Link to="/teste"><li>Teste Proeficiencia</li></Link>
         <li>Saída da Cidade</li>
         <li>Histórico de Combate</li>
         <li>Sandbox</li>

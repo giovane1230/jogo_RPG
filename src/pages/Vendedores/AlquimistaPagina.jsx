@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { fetchItems } from "../../api/alquimistaApi"; // Função que busca os itens do alquimista
+import ItemTooltip from "../../components/itemsComponents/ItemTolltip";
 
 function AlquimistaPage() {
   const { character, updateCharacter } = useCharacter();
@@ -26,7 +27,9 @@ function AlquimistaPage() {
 
   function formatTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, "0");
     const seconds = (totalSeconds % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
   }
@@ -60,7 +63,9 @@ function AlquimistaPage() {
 
     async function fetchItemDetails() {
       try {
-        const res = await fetch(`https://www.dnd5eapi.co/api/magic-items/${selectedItem.index}`);
+        const res = await fetch(
+          `https://www.dnd5eapi.co/api/magic-items/${selectedItem.index}`
+        );
         const data = await res.json();
         setItemDetails(data);
       } catch (err) {
@@ -117,7 +122,9 @@ function AlquimistaPage() {
     updateCharacter(updatedCharacter);
     localStorage.setItem("charData", JSON.stringify(updatedCharacter));
 
-    const updatedItems = alchemistItems.filter((alchemistItem) => alchemistItem.index !== item.index);
+    const updatedItems = alchemistItems.filter(
+      (alchemistItem) => alchemistItem.index !== item.index
+    );
     setAlchemistItems(updatedItems);
     localStorage.setItem("alchemistItems", JSON.stringify(updatedItems));
   };
@@ -153,7 +160,9 @@ function AlquimistaPage() {
 
       <div style={{ marginBottom: "10px" }}>
         <strong>Última atualização:</strong>{" "}
-        {new Date(parseInt(localStorage.getItem("lastUpdate"))).toLocaleTimeString()}
+        {new Date(
+          parseInt(localStorage.getItem("lastUpdate"))
+        ).toLocaleTimeString()}
       </div>
 
       <div style={{ marginBottom: "20px" }}>
@@ -168,39 +177,19 @@ function AlquimistaPage() {
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
         {character.potions?.length > 0 ? (
-          <ul>
-            {character.potions.map((equip) => (
-              <li key={equip.index}>
-                {equip.name}
-                <button onClick={() => handleSell(equip)}>Vender por { Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)} 🪙</button>
-                <button onClick={() => setSelectedItem(equip)}>Ver Detalhes</button>
-
-                {/* Detalhes do item comprado */}
-                {selectedItem?.index === equip.index && itemDetails && (
-                  <div style={{ marginTop: "10px", border: "1px solid #ccc", padding: "10px" }}>
-                    <h3>Detalhes do Item:</h3>
-                    <p><strong>Nome:</strong> {itemDetails.name}</p>
-                    <p><strong>Preço de revenda:</strong> {Math.floor(calculatePriceByRarity(equip.rarity) / 1.3)}🪙</p>
-                    <p><strong>Descrição:</strong> {itemDetails.desc}</p>
-                    {itemDetails.weight && <p><strong>Peso:</strong> {itemDetails.weight}</p>}
-                    {itemDetails.rarity && <p><strong>Raridade:</strong> {itemDetails.rarity.name}</p>}
-                    {itemDetails.armor_class && (
-                      <>
-                        <p><strong>Classe de Armadura:</strong> {itemDetails.armor_class.base}</p>
-                        <p><strong>Bônus de Destreza:</strong> {itemDetails.armor_class.dex_bonus ? "Sim" : "Não"}</p>
-                      </>
-                    )}
-                    {itemDetails.damage && (
-                      <>
-                        <p><strong>Dano:</strong> {itemDetails.damage.damage_dice}</p>
-                        <p><strong>Tipo de Dano:</strong> {itemDetails.damage.damage_type.name}</p>
-                      </>
-                    )}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+        <ul>
+        {character.potions.map((potion) => (
+          <li key={potion.index}>
+            <ItemTooltip item={potion} isMagic={true}>
+              <span>{potion.name}</span>
+            </ItemTooltip>
+            <button onClick={() => handleBuy(potion)}>
+              Comprar por {Math.floor(calculatePriceByRarity(potion.rarity) / 1.5)}{" "}
+              🪙
+            </button>
+          </li>
+        ))}
+      </ul>
         ) : (
           <p>Mochila vazia.</p>
         )}
@@ -209,40 +198,17 @@ function AlquimistaPage() {
       <h2>Itens à Venda:</h2>
       {Array.isArray(alchemistItems) && (
         <ul>
-          {alchemistItems.map((item) => {
-            const price = calculatePriceByRarity(item.rarity);
-            return (
-              <li key={item.index}>
-                <span>{item.name}</span>
-                <button onClick={() => handleBuy(item)}>Comprar por {price}🪙</button>
-                <button onClick={() => setSelectedItem(item)}>Ver Detalhes</button>
-
-                {/* Mostrar detalhes do item selecionado */}
-                {selectedItem?.index === item.index && itemDetails && (
-                  <div style={{ marginTop: "10px", border: "1px solid #ccc", padding: "10px" }}>
-                    <h3>Detalhes do Item:</h3>
-                    <p><strong>Nome:</strong> {itemDetails.name}</p>
-                    <p><strong>Preço:</strong> {price}🪙</p>
-                    <p><strong>Descrição:</strong> {itemDetails.desc}</p>
-                    {itemDetails.weight && <p><strong>Peso:</strong> {itemDetails.weight}</p>}
-                    {itemDetails.rarity && <p><strong>Raridade:</strong> {itemDetails.rarity.name}</p>}
-                    {itemDetails.armor_class && (
-                      <>
-                        <p><strong>Classe de Armadura:</strong> {itemDetails.armor_class.base}</p>
-                        <p><strong>Bônus de Destreza:</strong> {itemDetails.armor_class.dex_bonus ? "Sim" : "Não"}</p>
-                      </>
-                    )}
-                    {itemDetails.damage && (
-                      <>
-                        <p><strong>Dano:</strong> {itemDetails.damage.damage_dice}</p>
-                        <p><strong>Tipo de Dano:</strong> {itemDetails.damage.damage_type.name}</p>
-                      </>
-                    )}
-                  </div>
-                )}
-              </li>
-            );
-          })}
+          {alchemistItems.map((potion) => (
+            <li key={potion.index}>
+              <ItemTooltip item={potion} isMagic={true}>
+                <span>{potion.name}</span>
+              </ItemTooltip>
+              <button onClick={() => handleBuy(potion)}>
+                Comprar por {Math.floor(calculatePriceByRarity(potion.rarity))}{" "}
+                🪙
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>

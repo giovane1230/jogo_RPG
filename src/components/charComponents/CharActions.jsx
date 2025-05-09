@@ -108,6 +108,7 @@ function CharActions() {
       ...prev,
       vidaAtual: character.vidaInicial,
     }));
+    console.log(character.vidaInicial);
   }
 
   return (
