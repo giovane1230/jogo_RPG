@@ -80,7 +80,7 @@ function SellerPage() {
 
   const handleBuy = (item) => {
     if (
-      character.selectedEquipments.find((equip) => equip.index === item.index)
+      character.bag.find((equip) => equip.index === item.index)
     ) {
       alert("Você já possui esse item");
       return;
@@ -91,12 +91,12 @@ function SellerPage() {
       return;
     }
 
-    const updatedEquipments = [...character.selectedEquipments, item];
+    const updatedEquipments = [...character.bag, item];
     const currentGold = character.gold - item.price;
 
     const updatedCharacter = {
       ...character,
-      selectedEquipments: updatedEquipments,
+      bag: updatedEquipments,
       gold: currentGold,
     };
 
@@ -111,7 +111,7 @@ function SellerPage() {
   };
 
   const handleSell = (item) => {
-    const updatedEquipments = character.selectedEquipments.filter(
+    const updatedEquipments = character.bag.filter(
       (equip) => equip.index !== item.index
     );
     const goldEarned = Math.floor(item.price / 1.3);
@@ -119,7 +119,7 @@ function SellerPage() {
 
     const updatedCharacter = {
       ...character,
-      selectedEquipments: updatedEquipments,
+      bag: updatedEquipments,
       gold: updatedGold,
     };
 
@@ -136,7 +136,7 @@ function SellerPage() {
   }
 
   const testConsole = () => {
-    console.log(character.selectedEquipments);
+    console.log(character.bag);
     localStorage.removeItem("lastUpdate");
     localStorage.removeItem("sellerItems");
     updateCharacter({
@@ -147,7 +147,7 @@ function SellerPage() {
 
   const itemInjetado = () => {
     const newItem = {
-      index: "shield",
+      index: "shieldInjetado",
       name: "Shield",
       price: 10,
       url: "/api/2014/equipment/shield",
@@ -182,9 +182,9 @@ function SellerPage() {
       <button onClick={testConsole}>console</button>
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
-        {character.selectedEquipments.length > 0 ? (
+        {character.bag.length > 0 ? (
           <ul>
-            {character.selectedEquipments.map((equip) => (
+            {character.bag.map((equip) => (
               <li key={equip.index}>
                 <ItemTooltip item={equip}>
                   <span>{equip.name}</span>

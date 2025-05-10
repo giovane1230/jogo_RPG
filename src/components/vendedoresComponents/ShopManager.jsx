@@ -7,7 +7,7 @@ function ShopManager({ character, sellerItems, setSellerItems, updateCharacter }
   };
 
   const buyItem = (item) => {
-    if (character.selectedEquipments.find((equip) => equip.index === item.index)) {
+    if (character.bag.find((equip) => equip.index === item.index)) {
       alert("Você já possui esse item");
     }
 
@@ -16,12 +16,12 @@ function ShopManager({ character, sellerItems, setSellerItems, updateCharacter }
       return;
     }
 
-    const updatedEquipments = [...character.selectedEquipments, item];
+    const updatedEquipments = [...character.bag, item];
     const currentGold = character.gold - item.price;
 
     const updatedCharacter = {
       ...character,
-      selectedEquipments: updatedEquipments,
+      bag: updatedEquipments,
       gold: currentGold,
     };
 
@@ -33,7 +33,7 @@ function ShopManager({ character, sellerItems, setSellerItems, updateCharacter }
   };
 
   const sellItem = (item) => {
-    const updatedEquipments = character.selectedEquipments.filter(
+    const updatedEquipments = character.bag.filter(
       (equip) => equip.index !== item.index
     );
     const goldEarned = Math.floor(item.price / 1.3);
@@ -41,7 +41,7 @@ function ShopManager({ character, sellerItems, setSellerItems, updateCharacter }
 
     const updatedCharacter = {
       ...character,
-      selectedEquipments: updatedEquipments,
+      bag: updatedEquipments,
       gold: updatedGold,
     };
 

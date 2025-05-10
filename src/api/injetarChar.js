@@ -81,7 +81,6 @@ const personagemPronto = {
       url: "/api/2014/proficiencies/saving-throw-con",
     },
   ],
-  bag: [],
   potions: [],
   background: "MOKBACK",
   alignment: "Chaotic Evil",
@@ -104,7 +103,7 @@ const personagemPronto = {
   selectedProficiencies: {
     0: ["Skill: Animal Handling", "Skill: Athletics"],
   },
-  selectedEquipments: [
+  bag: [
     {
       index: "warhammer",
       name: "Warhammer",

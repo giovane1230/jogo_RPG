@@ -10,14 +10,21 @@ const Home = () => {
     alert("Personagem salvo com sucesso!");
   };
 
+  const removeLocalstorage = () => {
+    localStorage.removeItem("charData");
+        localStorage.removeItem("charEquip");
+  };
+
   return (
     <>
-    <button onClick={salvarNoLocalStorage}>
-      Salvar Personagem no LocalStorage
-    </button>
+      <button onClick={salvarNoLocalStorage}>
+        Salvar Personagem no LocalStorage
+      </button>
       <p>VAMOS CRIAR SEU NOVO PERSONAGEM</p>
       <Link to="/char-create">
-        <button id="charCreat">NOVO PERSONAGEM</button>
+        <button id="charCreat" onClick={removeLocalstorage}>
+          NOVO PERSONAGEM
+        </button>
       </Link>
     </>
   );

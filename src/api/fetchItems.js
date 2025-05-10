@@ -11,32 +11,31 @@ export const fetchItems = async () => {
     const response = await fetch("https://www.dnd5eapi.co/api/equipment");
     const data = await response.json();
 
-    const shuffledItems = data.results.sort(() => Math.random() - 0.5).slice(0, 10);
+    const shuffledItems = data.results.sort(() => Math.random() - 0.5); // removi .slice(0, 10) listar todos e para teste
 
     const itemsWithDetails = await Promise.all(
       shuffledItems.map(async (item) => {
         const itemResponse = await fetch(`https://www.dnd5eapi.co${item.url}`);
         const itemData = await itemResponse.json();
 
-        const price = itemData.cost?.quantity || 0;
-        const type = itemData.equipment_category?.name?.toLowerCase() || "unknown";
-        const category = itemData.weapon_category || itemData.armor_category || "Misc";
-        const itemStatus = itemData.damage?.damage_dice || itemData.armor_class?.base || "Misc";
-        const bonusDex = itemData.armor_class?.dex_bonus ?? null;
-
         return {
           index: item.index,
           name: item.name,
-          price: price,
+          price: itemData.cost?.quantity || 0,
           url: item.url,
-          type: type,
-          category: category,
-          status: itemStatus,
-          bonusDex: bonusDex,
+          type: itemData.equipment_category?.name?.toLowerCase() || "unknown",
+          category: itemData.weapon_category || itemData.armor_category || "Misc",
+          status: itemData.damage?.damage_dice || itemData.armor_class?.base || "Misc",
+          bonusDex: itemData.armor_class?.dex_bonus ?? null,
+          properties: itemData.properties || null,
+          twoHandedDamage: itemData.two_handed_damage || null,
+          strengthRequirement: itemData.str_minimum || null,
+          stealthDisadvantage: itemData.stealth_disadvantage ? "Yes" : "No",
         };
       })
     );
 
+    console.log(itemsWithDetails)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsWithDetails));
     return itemsWithDetails;
   } catch (error) {

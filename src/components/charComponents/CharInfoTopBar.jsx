@@ -47,15 +47,10 @@ function CharInfoTopBar() {
     }
   }, [equipment]); // Atualiza apenas quando o equipamento mudar
 
-  const testConsole = () => {
-    console.log(dexMod);
-  };
-
   return (
     <>
       {character && (
         <>
-          <button onClick={testConsole}>TESTE</button>
           <span>Nome</span>
           <span>{character?.name}</span>
           <br />
@@ -80,13 +75,13 @@ function CharInfoTopBar() {
           <p>Bonus para acertar: {dexMod}</p> 
           <br />
           <br />
-          <span>
+          {/* <span>
             {character?.class?.name} - {character?.race?.name} -{" "}
             {character?.nivel}
             <br />
             <span>Bonus Proeficiencia: (+{character?.proficienciesBonus})</span>
-          </span>
-          <br />
+          </span> */}
+          {/* <br />
           <ul>
             {Object.entries(character.attributes).map(([key, val]) => (
               <p key={key}>
@@ -94,13 +89,13 @@ function CharInfoTopBar() {
               </p>
             ))}
           </ul>
-          <br />
-          <ul>
+          <br /> */}
+          {/* <ul>
             {character?.proficiencies.map((e) => (
               <li key={e.index}>{e.name}</li>
             ))}
-          </ul>
-
+          </ul> */}
+{/* 
           <h2>Equipados</h2>
           <ul>
             {Object.entries(equipment).map(([slot, item]) => (
@@ -113,7 +108,7 @@ function CharInfoTopBar() {
                   : item?.name || "Nenhum"}
               </li>
             ))}
-          </ul>
+          </ul> */}
         </>
       )}
     </>

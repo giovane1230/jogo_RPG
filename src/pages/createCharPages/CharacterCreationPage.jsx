@@ -32,7 +32,7 @@ const CharacterCreationPage = () => {
       class: selectedClass,
       proficiencies: classDetails?.proficiencies || [],
       selectedProficiencies: classDetails?.selectedProficiencies || {},
-      selectedEquipments: classDetails?.selectedEquipments || {},
+      bag: classDetails?.bag || {},
     };
 
     localStorage.setItem('charData', JSON.stringify(novosDados));

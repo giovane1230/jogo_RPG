@@ -7,7 +7,7 @@
   background-color: #222;
   color: white;
   z-index: 1000;
-  padding-top: 60px;
+  /* padding-top: 60px; */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
   transition: transform 0.3s ease;
 }
@@ -15,6 +15,7 @@
 /* Quando estiver fechado, empurra para fora da tela */
 .sidebar.fechado {
   transform: translateX(-100%);
+    transition: 0.2s ease;
 }
 
 /* Quando aberto, mostra normalmente */

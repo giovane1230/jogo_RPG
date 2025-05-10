@@ -18,7 +18,7 @@ const EquipmentSlots = () => {
 
   const { equipment, updateEquipment } = useCharEquip();
 
-  if (!character || !character.selectedEquipments) {
+  if (!character || !character.bag) {
     return <p>Carregando personagem e itens...</p>;
   }
 
@@ -106,7 +106,7 @@ const EquipmentSlots = () => {
   };  
 
   const equipItem = (item) => {
-    const available = character.selectedEquipments?.find(
+    const available = character.bag?.find(
       (i) => i.name === item.name
     );
     if (!available) {
@@ -163,11 +163,11 @@ const EquipmentSlots = () => {
   
 
   const renderAvailableItems = (slotType) => {
-    if (!character?.selectedEquipments) {
+    if (!character?.bag) {
       return null;
     }
 
-    const filtered = character.selectedEquipments.filter(
+    const filtered = character.bag.filter(
       (item) => getItemSlot(item) === slotType
     );
 

@@ -81,9 +81,9 @@ function DropComponent({ CR }) {
     updateCharacter({
       exp: character.exp + Math.floor(CR * 10),
       gold: character.gold + Math.floor(CR * 10),
-      selectedEquipments: formattedEquipment
-        ? [...(character.selectedEquipments || []), formattedEquipment]
-        : [...(character.selectedEquipments || [])],
+      bag: formattedEquipment
+        ? [...(character.bag || []), formattedEquipment]
+        : [...(character.bag || [])],
       vidaAtual: playerHP,
     });
 

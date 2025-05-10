@@ -54,9 +54,9 @@ function CharBag() {
     <div style={{ marginBottom: "20px" }}>
       <EquipmentSlots />
       <h2>Sua Mochila:</h2>
-      {character.selectedEquipments.length > 0 ? (
+      {character.bag.length > 0 ? (
         <ul>
-          {character.selectedEquipments.map((equip) => (
+          {character.bag.map((equip) => (
             <li key={equip.index}>
               <ItemTooltip item={equip}>
                 <span>{equip.name}</span>
