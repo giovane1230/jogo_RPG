@@ -3,7 +3,7 @@ import { useCombat } from "../../context/CombateContext";
 import { useNavigate } from "react-router-dom";
 
 function TreinoPage() {
-  const { setPlayer, setEnemy } = useCombat();
+  const { setPlayer, setEnemy, playerHP, setPlayerHP, player } = useCombat();
   const [monstros, setMonstros] = useState([]);
   const [inimigoSelecionado, setInimigoSelecionado] = useState(null);
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
@@ -61,6 +61,15 @@ function TreinoPage() {
     navigate("/combate");
   };
 
+
+  useEffect(() => {
+  {carregando ? (
+      <p>Carregando playerHP...</p>
+    ) : playerHP === 0 ? (
+      <button onClick={() => setPlayerHP(player / 1.5)}>RECURA VIDA</button>
+    ) : null}
+  }, []);
+
   return (
     <div>
       <h1>Modo de Treino</h1>
@@ -102,6 +111,9 @@ function TreinoPage() {
       {personagemSelecionado && (
         <div style={{ marginTop: "20px" }}>
           <h2>Seu Personagem: {personagemSelecionado.name || "Sem nome"}</h2>
+                    <p>
+            <strong>Vida:</strong> {playerHP}/{personagemSelecionado.vidaInicial}
+          </p>
           <p>
             <strong>Classe:</strong> {personagemSelecionado.class?.name}
           </p>

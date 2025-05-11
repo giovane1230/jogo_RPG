@@ -4,7 +4,6 @@ import { useCharacter } from "../../context/CharacterContext";
 import BarraStatus from "../../components/barsComponents/BarraStatus";
 import DropComponent from "../../components/monsterComponents/dropComponent";
 import { useCharEquip } from "../../context/charEquipContext";
-import DiceRollerMedium from "../../components/barsComponents/DiceRollerMedium";
 import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
 
@@ -12,16 +11,16 @@ function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP } = useCombat();
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
-  const [ultimoResultado, setUltimoResultado] = useState("-");
 
   const [enemyHP, setEnemyHP] = useState(enemy?.hit_points || 50);
   const [mensagens, setMensagens] = useState([]);
   const [combateFinalizado, setCombateFinalizado] = useState(false);
+  const [dropReady, setDropReady] = useState(false);
+  const [derrota, setDerrota] = useState(false);
   const [round, setRound] = useState(1);
 
-  if (!enemy) {
-    return <p>Combate Interrompido, por favor saida dessa pagina...</p>;
-  }
+  if (!enemy)
+    return <p>Combate Interrompido, por favor saia desta página...</p>;
 
   useEffect(() => {
     if (!combateFinalizado) {
@@ -37,15 +36,32 @@ function CombatePage() {
     setCombateFinalizado(true);
 
     if (jogadorVenceu) {
+      // vitória: XP normal
       const xpGanho = (enemy.challenge_rating || 1) * 10;
-
+      setCharacter((prev) => ({
+        ...prev,
+        exp: prev.exp + xpGanho,
+      }));
       setMensagens((prev) => [
         ...prev,
         `Você derrotou ${enemy.name}! Ganhou ${xpGanho} XP.`,
       ]);
     } else {
-      setMensagens((prev) => [...prev, "Você foi derrotado!"]);
+      // derrota: Ouro perdido (aqui 5% do max)
+      const ouroPerdido = Math.floor(character.gold / 20);
+      console.log("perdido", character.gold - Math.floor(character.gold / 20));
+      setCharacter((prev) => ({
+        ...prev,
+        gold: character.gold - Math.floor(character.gold / 20),
+      }));
+      setMensagens((prev) => [
+        ...prev,
+        `Você foi derrotado! E perdeu ${ouroPerdido} de ouro.`,
+      ]);
     }
+
+    // ativa o drop (loot) para renderizar
+    setDerrota(true);
   }
 
   function rolarDado(lados) {
@@ -55,107 +71,87 @@ function CombatePage() {
   function ataqueJogador(dano) {
     if (combateFinalizado) return;
 
-    const acerto = 19; // MUDAR PARA rolarDado(20);
-    const sucesso =
-      acerto + character.attributes.dex.mod > enemy.armor_class?.[0]?.value;
+    const acerto = rolarDado(20);
+    const modAtk = Math.max(
+      character.attributes.dex.mod,
+      character.attributes.str.mod
+    );
+    const bonusTotal = modAtk + character.proficienciesBonus;
+    const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
     const critico = acerto === 20;
     const danoTotal = critico ? dano * 2 : dano;
 
-    setRound(round + 1);
+    setRound((r) => r + 1);
     setMensagens((prev) => [
       ...prev,
-      ` ------------------------ ${round}° Rodada --------------------------`,
+      `--- ${round}° Rodada ---`,
+      sucesso
+        ? `Você ${
+            critico ? "CRÍTICO" : "acertou"
+          } 🎲${acerto}+${bonusTotal} = ${
+            acerto + bonusTotal
+          }, causou ⚔️${danoTotal}!`
+        : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}.`,
     ]);
 
-    if (critico || sucesso) {
-      setMensagens((prev) => [
-        ...prev,
-        `Você ${critico ? "acertou um CRÍTICO" : "acertou"} 🎲${acerto}+${
-          character.attributes.dex.mod
-        } = ${acerto + character.attributes.dex.mod} Causou ⚔️${danoTotal}!`,
-      ]);
+    if (sucesso) {
       setEnemyHP((hp) => Math.max(0, hp - danoTotal));
+      if (enemyHP - danoTotal > 0) setTimeout(turnoInimigo, 1000);
     } else {
-      setMensagens((prev) => [
-        ...prev,
-        `Você errou 🎲${acerto}+${character.attributes.dex.mod} = ${
-          acerto + character.attributes.dex.mod
-        }.`,
-      ]);
-    }
-
-    if (enemyHP - danoTotal > 0) {
       setTimeout(turnoInimigo, 1000);
     }
   }
 
   function ataquePorBotao(tipo) {
-    const DanoEquipado = equipment.weapon?.status || "1d4";
-    const lados = parseInt(DanoEquipado.split("d")[1]) || 6;
-    const dado = tipo === "leve" ? lados : 999999;
-    const dano = rolarDado(dado);
+    const diceExpr = equipment.weapon
+      ? equipment.weapon.status
+      : equipment["two-handed"]?.twoHandedDamage?.damage_dice || "1d4";
+    const lados = parseInt(diceExpr.split("d")[1], 10) || 6;
+    const dano = rolarDado(lados);
     ataqueJogador(dano);
   }
 
   function turnoInimigo() {
-    if (!enemy.actions || enemy.actions.length === 0 || combateFinalizado)
-      return;
-
-    const ataque =
-      enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
-    const dadoStr = ataque.damage?.[0]?.damage_dice || "1d6";
-    const lados = parseInt(dadoStr.split("d")[1]) || 6;
+    if (!enemy.actions?.length || combateFinalizado) return;
+    const atk = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
+    const lados = parseInt(atk.damage?.[0]?.damage_dice.split("d")[1], 10) || 6;
     const dano = rolarDado(lados);
 
     const acerto = rolarDado(20);
-    const critico = acerto === 20;
+    const crit = acerto === 20;
     const sucesso = acerto + 5 > player.cArmor;
-    const danoTotal = critico ? dano * 2 : dano;
+    const danoTotal = crit ? dano * 2 : dano;
 
-    if (sucesso) {
-      setMensagens((prev) => [
-        ...prev,
-        `${enemy.name} ${
-          critico ? "acertou um CRÍTICO" : "acertou"
-        } com 🎲${acerto}(+5)=${acerto + 5}! Causou ⚔️${danoTotal}!`,
-      ]);
-      setPlayerHP((hp) => Math.max(0, hp - danoTotal));
-    } else {
-      setMensagens((prev) => [
-        ...prev,
-        `${enemy.name} errou com um roll de 🎲${acerto}(+5)=${acerto + 5}.`,
-      ]);
-    }
+    setMensagens((prev) => [
+      ...prev,
+      sucesso
+        ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
+            acerto + 5
+          }, causou ⚔️${danoTotal}!`
+        : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}.`,
+    ]);
+
+    if (sucesso) setPlayerHP((hp) => Math.max(0, hp - danoTotal));
   }
-
-  const handleRoll = (resultado) => {
-    console.log("Dado rolado:", resultado);
-    setUltimoResultado(resultado);
-  };
 
   return (
     <div>
       <h1>Combate</h1>
-      {combateFinalizado && <DropComponent CR={enemy.challenge_rating} />}
+      <button onClick={() => console.log(derrota)}>CONSOLE</button>
 
-      <div>
-        <BarraStatus
-          label={player.name}
-          valorAtual={playerHP}
-          valorMaximo={character.vidaInicial || 100}
-          CA={`| CA: ${player.cArmor}`}
-          cor="blue"
-        />
-        <p>
-          <strong>CA:</strong> {player.cArmor}
-        </p>
-      </div>
+      {/* Status */}
+      <BarraStatus
+        label={player.name}
+        valorAtual={playerHP}
+        valorMaximo={character.vidaInicial || 100}
+        CA={`| CA: ${player.cArmor}`}
+        cor="blue"
+      />
       <BarraStatus
         label={enemy.name}
         valorAtual={enemyHP}
         valorMaximo={enemy.hit_points || 50}
         CA={`| CA: ${enemy.armor_class?.[0]?.value}`}
-        CR={`| CA: ${enemy.challenge_rating}`}
         cor="red"
       />
       <BarraStatus
@@ -165,38 +161,52 @@ function CombatePage() {
         cor="yellow"
       />
 
+      {/* Se o combate não finalizou, mostra controles */}
       {!combateFinalizado && (
-        <div>
+        <>
           <CombatPotions />
-          <h2>Ataques:</h2>
+
+          <h2>Ataques</h2>
           <p>
-            Modificador de acerto dex ou str:({character.attributes.dex.mod})
-            Proeficiencia:({character.proficienciesBonus})
-          </p>
-          <p>
-            Chance de acerto d20+(
-            {character.attributes.dex.mod + character.proficienciesBonus})
+            Modificador de ataque: +
+            {Math.max(
+              character.attributes.dex.mod,
+              character.attributes.str.mod
+            )}
+            <br />
+            Proficiência: +{character.proficienciesBonus}
           </p>
           <button onClick={() => ataquePorBotao("leve")}>
-            Ataque Leve ({equipment.weapon?.status || "1d4"})
+            Ataque Leve (
+            {equipment.weapon
+              ? `${equipment.weapon.status} ${equipment.weapon.name}`
+              : equipment["two-handed"]
+              ? `${equipment["two-handed"].twoHandedDamage.damage_dice} ${equipment["two-handed"].name}`
+              : "1d4"}
+            )
           </button>
           <button onClick={() => ataquePorBotao("pesado")}>
-            Ataque Pesado (HITKILL)
+            Ataque Pesado
           </button>
-        </div>
+        </>
       )}
 
-      <div style={{ marginTop: "20px" }}>
-        <h2>Mensagens:</h2>
+      {/* Mensagens de combate */}
+      <div style={{ marginTop: 20 }}>
+        <h2>Mensagens</h2>
         <ul>
           {mensagens
             .slice()
             .reverse()
-            .map((msg, i) => (
-              <li key={i}>{msg}</li>
+            .map((m, i) => (
+              <li key={i}>{m}</li>
             ))}
         </ul>
       </div>
+
+      {/* Loot / drop aparece sempre que o combate acabar */}
+      {derrota && <DropComponent CR={0} />}
+      {dropReady && <DropComponent CR={enemy.challenge_rating} />}
     </div>
   );
 }

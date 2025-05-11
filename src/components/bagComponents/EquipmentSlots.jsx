@@ -42,7 +42,7 @@ const EquipmentSlots = () => {
     )
       return "armor";
 
-    if (item.properties.some((prop) => prop.index === "two-handed")) {
+    if (item.properties?.some((prop) => prop.index === "two-handed")) {
       return "two-handed";
     }
 

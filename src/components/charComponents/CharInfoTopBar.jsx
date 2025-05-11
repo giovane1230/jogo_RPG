@@ -31,7 +31,7 @@ function CharInfoTopBar() {
   };
 
   const dexMod = character ? character.attributes.dex.mod : 0;
-  // const strMod = character ? character.attributes.str.mod : 0; depois fazer a verificação de qual é maior 
+  const strMod = character ? character.attributes.str.mod : 0;
   const caFinal = calcularCA(equipment, dexMod);
 
   // Função para atualizar o cArmor no localStorage
@@ -69,46 +69,13 @@ function CharInfoTopBar() {
           <br />
           <p>Arma Equipada</p>
           <span>
-            {equipment.weapon?.name || "Sem arma equipada"}{" "}
-            {equipment.weapon?.status || ""}
+            {equipment["two-handed"]?.twoHandedDamage && "2H - "}
+            {equipment.weapon?.name || equipment["two-handed"]?.name || "Sem arma equipada" }{" - "}
+            {equipment.weapon?.status || equipment["two-handed"]?.twoHandedDamage?.damage_dice || equipment["two-handed"]?.status || ""}
           </span>
-          <p>Bonus para acertar: {dexMod}</p> 
-          <br />
-          <br />
-          {/* <span>
-            {character?.class?.name} - {character?.race?.name} -{" "}
-            {character?.nivel}
-            <br />
-            <span>Bonus Proeficiencia: (+{character?.proficienciesBonus})</span>
-          </span> */}
-          {/* <br />
-          <ul>
-            {Object.entries(character.attributes).map(([key, val]) => (
-              <p key={key}>
-                <strong>{key.toUpperCase()}:</strong> {val.value} ({val.mod})
-              </p>
-            ))}
-          </ul>
-          <br /> */}
-          {/* <ul>
-            {character?.proficiencies.map((e) => (
-              <li key={e.index}>{e.name}</li>
-            ))}
-          </ul> */}
-{/* 
-          <h2>Equipados</h2>
-          <ul>
-            {Object.entries(equipment).map(([slot, item]) => (
-              <li key={slot}>
-                <strong>{slot}:</strong>{" "}
-                {Array.isArray(item)
-                  ? item.map((r, i) => (
-                      <span key={i}>{r?.name || "Nenhum"} </span>
-                    ))
-                  : item?.name || "Nenhum"}
-              </li>
-            ))}
-          </ul> */}
+          <p>Bonus para acertar e dano:</p>
+          <span>Mod. de {dexMod > strMod ? `Dextreza +${dexMod}` : `Força +${strMod}`}</span>
+          <span>Proficiência: {character.proficienciesBonus && character.proficienciesBonus}</span>
         </>
       )}
     </>
