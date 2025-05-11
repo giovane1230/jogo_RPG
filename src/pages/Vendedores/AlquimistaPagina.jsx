@@ -139,6 +139,7 @@ function AlquimistaPage() {
     updateCharacter(updatedCharacter);
     localStorage.setItem("charData", JSON.stringify(updatedCharacter));
 
+
     // const updatedItems = alchemistItems.filter(
     //   (alchemistItem) => alchemistItem.index !== item.index
     // );
@@ -147,26 +148,37 @@ function AlquimistaPage() {
   };
 
   // Função para vender item
-  // const handleSell = (item) => {
-  //   const updatedPotions = character.potions.filter(
-  //     (equip) => equip.index !== item.index
-  //   );
-  //   const goldEarned = Math.floor(calculatePriceByRarity(item.rarity) / 1.3);
-  //   const updatedGold = character.gold + goldEarned;
+const handleSell = (item) => {
+  // Remove o item completamente da lista
+  const updatedPotions = character.potions.filter(
+    (equip) => equip.index !== item.index
+  );
 
-  //   const updatedCharacter = {
-  //     ...character,
-  //     potions: updatedPotions,
-  //     gold: updatedGold,
-  //   };
+  const goldEarned = Math.floor(calculatePriceByRarity(item.rarity) / 1.3);
+  const updatedGold = character.gold + goldEarned;
 
-  //   updateCharacter(updatedCharacter);
-  //   localStorage.setItem("charData", JSON.stringify(updatedCharacter));
+  const itemInPotions = character.potions.find(
+    (potion) => potion.index === item.index
+  );
 
-  //   const updatedItems = [...alchemistItems, item];
-  //   setAlchemistItems(updatedItems);
-  //   localStorage.setItem("alchemistItems", JSON.stringify(updatedItems));
-  // };
+  console.log("itemInPotions", item);
+
+  if (itemInPotions && itemInPotions.quantity > 1) {
+    // Diminui quantidade e re-adiciona na lista
+    const updatedItem = { ...itemInPotions, quantity: itemInPotions.quantity - 1 };
+    updatedPotions.push(updatedItem);
+  }
+
+  const updatedCharacter = {
+    ...character,
+    potions: updatedPotions,
+    gold: updatedGold,
+  };
+
+  updateCharacter(updatedCharacter);
+  localStorage.setItem("charData", JSON.stringify(updatedCharacter));
+};
+
 
   if (loading) {
     return <div>Carregando itens...</div>;
@@ -202,9 +214,10 @@ function AlquimistaPage() {
                   <span>{potion.name}</span>
                 </ItemTooltip>
                 <span> - Quantidade: {potion.quantity}</span>
-                {/* <button onClick={() => handleSell(potion)}>
-                  Vender por {Math.floor(calculatePriceByRarity(potion.rarity) / 1.3)} 🪙
-                </button> */}
+                <button onClick={() => handleSell(potion)}>
+                  Vender por{" "}
+                  {Math.floor(calculatePriceByRarity(potion.rarity) / 1.3)} 🪙
+                </button>
               </li>
             ))}
           </ul>
@@ -222,7 +235,8 @@ function AlquimistaPage() {
                 <span>{potion.name}</span>
               </ItemTooltip>
               <button onClick={() => handleBuy(potion)}>
-                Comprar por {Math.floor(calculatePriceByRarity(potion.rarity))} 🪙
+                Comprar por {Math.floor(calculatePriceByRarity(potion.rarity))}{" "}
+                🪙
               </button>
             </li>
           ))}
