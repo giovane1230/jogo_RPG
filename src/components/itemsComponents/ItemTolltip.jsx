@@ -69,7 +69,7 @@ const ItemTooltip = ({ item, isMagic = false, children }) => {
             <>
               <p>Propriedades: </p>
               <ul>
-                {details.properties.map((prop) => (
+                {details.properties?.map((prop) => (
                   <li key={prop.index}>{prop.name}</li>
                 ))}
               </ul>

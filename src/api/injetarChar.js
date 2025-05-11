@@ -100,7 +100,7 @@ const personagemPronto = {
   },
   vidaAtual: 14,
   vidaInicial: 14,
-  selectedProficiencies: {
+  proficiency_choices: {
     0: ["Skill: Animal Handling", "Skill: Athletics"],
   },
   bag: [
