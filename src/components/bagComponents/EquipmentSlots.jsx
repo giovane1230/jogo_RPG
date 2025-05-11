@@ -105,54 +105,40 @@ const EquipmentSlots = () => {
     localStorage.setItem("charEquip", JSON.stringify(newEquipment)); // persiste
   };
 
-const equipItem = (item) => {
-  const available = character.bag?.find((i) => i.name === item.name);
-  if (!available) {
-    alert("Você não possui esse item!");
-    return;
-  }
-
-  if (!isProficient(item)) {
-    alert(`Você não é proficiente com ${item.name}`);
-    return;
-  }
-
-  const isTwoHanded = item.properties?.some((p) => p.index === "two-handed");
-  const isVersatile = item.properties?.some((p) => p.index === "versatile");
-  const slot = getItemSlot(item);
-
-  const currentWeapon = equipment.weapon;
-  const offHand = equipment.shield;
-  const isSameWeaponEquipped = currentWeapon?.name === item.name || offHand?.name === item.name;
-  const usingTwoHandedWeapon = equipment["two-handed"];
-
-  // Impede equipar mesma arma duas vezes
-  if (isSameWeaponEquipped) {
-    alert("Você não pode equipar a mesma arma duas vezes.");
-    return;
-  }
-
-  // Armas de duas mãos
-  if (isTwoHanded) {
-    if (currentWeapon || offHand) {
-      alert("Você precisa das duas mãos livres para usar esta arma.");
+  const equipItem = (item) => {
+    const available = character.bag?.find((i) => i.name === item.name);
+    if (!available) {
+      alert("Você não possui esse item!");
       return;
     }
-    updateEquipStorage({
-      ...equipment,
-      "two-handed": item,
-      weapon: null,
-      shield: null,
-    });
-    return;
-  }
 
-  // Armas versáteis — escolher 1 ou 2 mãos
-  if (isVersatile) {
-    const usarDuasMaos = window.confirm(`${item.name} é versátil. Deseja equipar com DUAS mãos?`);
-    if (usarDuasMaos) {
+    if (!isProficient(item)) {
+      alert(`Você não é proficiente com ${item.name}`);
+      return;
+    }
+
+    const isTwoHanded = item.properties?.some((p) => p.index === "two-handed");
+    const isVersatile = item.properties?.some((p) => p.index === "versatile");
+    const slot = getItemSlot(item);
+
+    const currentWeapon = equipment.weapon;
+    const isShield = equipment.shield;
+    const offHand = equipment.offHand;
+    const isSameWeaponEquipped =
+      currentWeapon?.name === item.name || isShield?.name === item.name;
+    const usingTwoHandedWeapon = equipment["two-handed"];
+    const usingOffHand = equipment["offHand"];
+
+    // Impede equipar mesma arma duas vezes
+    if (isSameWeaponEquipped) {
+      alert("Você não pode equipar a mesma arma duas vezes.");
+      return;
+    }
+
+    // Armas de duas mãos
+    if (isTwoHanded) {
       if (currentWeapon || offHand) {
-        alert("Você precisa das duas mãos livres para usar esta arma em modo duas mãos.");
+        alert("Você precisa das duas mãos livres para usar esta arma.");
         return;
       }
       updateEquipStorage({
@@ -162,96 +148,120 @@ const equipItem = (item) => {
         shield: null,
       });
       return;
-    } else {
-      // Equipar como arma de uma mão
+    }
+
+    // Armas versáteis — escolher 1 ou 2 mãos
+    if (isVersatile) {
+      const usarDuasMaos = window.confirm(
+        `${item.name} é versátil. Deseja equipar com DUAS mãos?`
+      );
+      if (usarDuasMaos) {
+        if (currentWeapon || offHand) {
+          alert(
+            "Você precisa das duas mãos livres para usar esta arma em modo duas mãos."
+          );
+          return;
+        }
+        updateEquipStorage({
+          ...equipment,
+          "two-handed": item,
+          weapon: null,
+          shield: null,
+        });
+        return;
+      } else {
+        // Equipar como arma de uma mão
+        if (!currentWeapon) {
+          updateEquipStorage({
+            ...equipment,
+            weapon: item,
+          });
+          return;
+        } else if (!isShield && !usingTwoHandedWeapon) {
+          updateEquipStorage({
+            ...equipment,
+            shield: item,
+          });
+          return;
+        } else {
+          alert("Não é possível equipar esta arma agora.");
+          return;
+        }
+      }
+    }
+
+    // Armas de uma mão
+    if (slot === "weapon") {
+      if (usingTwoHandedWeapon) {
+        alert("Você está usando uma arma de duas mãos. Remova-a primeiro.");
+        return;
+      }
+
       if (!currentWeapon) {
         updateEquipStorage({
           ...equipment,
           weapon: item,
         });
-        return;
-      } else if (!offHand && !usingTwoHandedWeapon) {
+      } else if (!isShield) {
+        console.log("entrou");
         updateEquipStorage({
           ...equipment,
-          shield: item,
+          offHand: item,
         });
-        return;
       } else {
-        alert("Não é possível equipar esta arma agora.");
-        return;
+        alert("Ambas as mãos estão ocupadas.");
       }
-    }
-  }
-
-  // Armas de uma mão
-  if (slot === "weapon") {
-    if (usingTwoHandedWeapon) {
-      alert("Você está usando uma arma de duas mãos. Remova-a primeiro.");
       return;
     }
 
-    if (!currentWeapon) {
-      updateEquipStorage({
-        ...equipment,
-        weapon: item,
-      });
-    } else if (!offHand) {
+    // Escudo
+    if (slot === "shield") {
+      if (usingTwoHandedWeapon) {
+        alert("Você não pode usar um escudo com uma arma de duas mãos.");
+        return;
+      }
+      if (usingOffHand) {
+        alert("Você não pode usar um escudo com duas armas.");
+        return;
+      }
       updateEquipStorage({
         ...equipment,
         shield: item,
       });
-    } else {
-      alert("Ambas as mãos estão ocupadas.");
-    }
-    return;
-  }
-
-  // Escudo
-  if (slot === "shield") {
-    if (usingTwoHandedWeapon) {
-      alert("Você não pode usar um escudo com uma arma de duas mãos.");
       return;
     }
-    updateEquipStorage({
-      ...equipment,
-      shield: item,
-    });
-    return;
-  }
 
-  // Anéis
-  if (slot === "ring") {
-    if (equipment.ring.length >= 2) {
-      alert("Você só pode usar até 2 anéis.");
+    // Anéis
+    if (slot === "ring") {
+      if (equipment.ring.length >= 2) {
+        alert("Você só pode usar até 2 anéis.");
+        return;
+      }
+      updateEquipStorage({
+        ...equipment,
+        ring: [...equipment.ring, item],
+      });
       return;
     }
+
+    // Outros itens (armadura, etc.)
     updateEquipStorage({
       ...equipment,
-      ring: [...equipment.ring, item],
+      [slot]: item,
     });
-    return;
-  }
+  };
 
-  // Outros itens (armadura, etc.)
-  updateEquipStorage({
-    ...equipment,
-    [slot]: item,
-  });
-};
+  const unequipItem = (slot) => {
+    if (!equipment[slot]) {
+      alert("Nenhum item equipado nesse slot.");
+      return;
+    }
 
+    const updatedEquipment = { ...equipment };
+    updatedEquipment[slot] = slot === "ring" ? [] : null;
 
-const unequipItem = (slot) => {
-  if (!equipment[slot]) {
-    alert("Nenhum item equipado nesse slot.");
-    return;
-  }
-
-  const updatedEquipment = { ...equipment };
-  updatedEquipment[slot] = slot === "ring" ? [] : null;
-
-  updateEquipStorage(updatedEquipment);
-};
-
+    updateEquipStorage(updatedEquipment);
+  };
 
   const renderAvailableItems = (slotType) => {
     if (!character?.bag) {
@@ -309,7 +319,17 @@ const unequipItem = (slot) => {
         )}
       </div>
       <div>
-        <h3>Mão esquerda</h3>
+        <h3>Mão Esquerda</h3>
+        {equipment.offHand ? (
+          <div>
+            {equipment.offHand.name}{" "}
+            <button onClick={() => unequipItem("offHand")}>Remover</button>
+          </div>
+        ) : (
+          renderAvailableItems("weapon")
+        )}
+
+        <h3>Escudo</h3>
         {equipment.shield ? (
           <div>
             {equipment.shield.name}
