@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EquipmentSlots from "../bagComponents/EquipmentSlots";
 import ItemTooltip from "../itemsComponents/ItemTolltip";
+import useConsolidarItens from "../itemsComponents/removeDuplicatas";
 
 function CharBag() {
   const [character, setCharacter] = useState(() => {
@@ -11,6 +12,8 @@ function CharBag() {
   const [potionDetails, setPotionDetails] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedPotion, setSelectedPotion] = useState(null);
+
+    const itensConsolidados = useConsolidarItens(character.bag || []);
 
   useEffect(() => {
     // Se não houver item selecionado, não fazer nada
@@ -56,10 +59,10 @@ function CharBag() {
       <h2>Sua Mochila:</h2>
       {character.bag.length > 0 ? (
         <ul>
-          {character.bag.map((equip) => (
+          {itensConsolidados.map((equip) => (
             <li key={equip.index}>
               <ItemTooltip item={equip}>
-                <span>{equip.name}</span>
+                <span>{equip.name} x{equip.quantity && equip.quantity || 1}</span>
               </ItemTooltip>
             </li>
           ))}
@@ -72,7 +75,7 @@ function CharBag() {
           {character.potions.map((potion) => (
             <li key={potion.index}>
               <ItemTooltip item={potion} isMagic={true}>
-                <span>{potion.name}</span>
+                <span>{potion.name} x{potion.quantity}</span>
               </ItemTooltip>
             </li>
           ))}

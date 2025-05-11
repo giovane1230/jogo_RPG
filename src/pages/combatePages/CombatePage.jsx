@@ -18,6 +18,7 @@ function CombatePage() {
   const [dropReady, setDropReady] = useState(false);
   const [derrota, setDerrota] = useState(false);
   const [round, setRound] = useState(1);
+  const [precisaRecarregar, setPrecisaRecarregar] = useState(true);
 
   if (!enemy)
     return <p>Combate Interrompido, por favor saia desta página...</p>;
@@ -36,10 +37,7 @@ function CombatePage() {
     setCombateFinalizado(true);
 
     if (jogadorVenceu) {
-      setMensagens((prev) => [
-        ...prev,
-        `Você derrotou ${enemy.name}!`,
-      ]);
+      setMensagens((prev) => [...prev, `Você derrotou ${enemy.name}!`]);
     } else {
       // derrota: Ouro perdido (aqui 5% do max)
       const ouroPerdido = Math.floor(character.gold / 20);
@@ -68,7 +66,7 @@ function CombatePage() {
   function ataqueJogador(dano) {
     if (combateFinalizado) return;
 
-    const acerto = 1;
+    const acerto = rolarDado(20);
     const modAtk = Math.max(
       character.attributes.dex.mod,
       character.attributes.str.mod
@@ -100,7 +98,7 @@ function CombatePage() {
   function ataqueJogadorOffHand(dano) {
     if (combateFinalizado) return;
 
-    const acerto = 20;
+    const acerto = rolarDado(20);
     const modAtk = Math.max(
       character.attributes.dex.mod,
       character.attributes.str.mod
@@ -114,30 +112,45 @@ function CombatePage() {
     // caso tenha fazer a logica aqui
 
     setMensagens((prev) => [
-    ...prev,
+      ...prev,
       sucesso
         ? `Você usou sua SECUNDARIA ${
             critico ? "CRÍTICO" : "acertou"
           } 🎲${acerto}+${bonusTotal} = ${
             acerto + bonusTotal
           }, causou ⚔️${danoTotal}!`
-        : `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}.`,
+        : `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${
+            acerto + bonusTotal
+          }.`,
     ]);
 
     if (sucesso) setEnemyHP((hp) => Math.max(0, hp - danoTotal));
-
   }
 
-  function ataquePorBotao(tipo) {
+  function ataquePorBotao() {
     const diceExpr = equipment.weapon
       ? equipment.weapon.status
       : equipment["two-handed"]?.twoHandedDamage?.damage_dice || "1d4";
+
+    const isAmmunition = equipment["two-handed"].properties?.some(
+      (p) => p.index === "ammunition"
+    );
+    const isLoading = equipment["two-handed"].properties?.some(
+      (p) => p.index === "loading"
+    );
+
     const lados = parseInt(diceExpr.split("d")[1], 10) || 6;
     if (equipment.offHand) {
       const diceExprOff = equipment.offHand.status;
       const offLados = parseInt(diceExprOff.split("d")[1], 10) || 6;
       const dano = rolarDado(offLados);
       ataqueJogadorOffHand(dano);
+    }
+    if (isAmmunition) {
+      console.log("Precisa de munição, fazer a logica depois");
+    }
+    if (isLoading) {
+      setPrecisaRecarregar(false);
     }
     const dano = rolarDado(lados);
     ataqueJogador(dano);
@@ -158,22 +171,31 @@ function CombatePage() {
     setMensagens((prev) => [
       ...prev,
       sucesso
-      ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
-        acerto + 5
-      }, causou ⚔️${danoTotal}!`
-      : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}.`,
+        ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
+            acerto + 5
+          }, causou ⚔️${danoTotal}!`
+        : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}.`,
       `--- Fim do ${round}° Round ---`,
     ]);
 
     if (sucesso) setPlayerHP((hp) => Math.max(0, hp - danoTotal));
   }
 
+  const recarregarArma = () => {
+    setPrecisaRecarregar(true);
+        setMensagens((prev) => [
+      ...prev,
+        "Você recarregou sua arma!"
+    ]);
+    setTimeout(turnoInimigo, 1000);
+  };
+
   return (
     <div>
       <h1>Combate</h1>
       <button onClick={() => setPlayerHP(1)}>vida 1 player</button>
-            <button onClick={() => setPlayerHP(100)}>vida 100 player</button>
-            <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
+      <button onClick={() => setPlayerHP(100)}>vida 100 player</button>
+      <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
 
       {/* Status */}
       <BarraStatus
@@ -212,7 +234,14 @@ function CombatePage() {
             <br />
             Proficiência: +{character.proficienciesBonus}
           </p>
-          <button onClick={() => ataquePorBotao("leve")}>
+
+          <button onClick={recarregarArma} disabled={precisaRecarregar}>
+            Recarregar
+          </button>
+          <button
+            onClick={() => ataquePorBotao("leve")}
+            disabled={!precisaRecarregar}
+          >
             Ataque Principal (
             {equipment.weapon
               ? `${equipment.weapon.status} ${equipment.weapon.name}`
@@ -222,7 +251,8 @@ function CombatePage() {
               ? `${equipment["two-handed"].status} ${equipment["two-handed"].name}`
               : "1D4"}
             )
-            {equipment.offHand && ` e secundaria + ${equipment.offHand.status} ${equipment.offHand.name}`}
+            {equipment.offHand &&
+              ` e secundaria + ${equipment.offHand.status} ${equipment.offHand.name}`}
           </button>
           <button onClick={() => ataquePorBotao("pesado")}>
             Ataque Pesado

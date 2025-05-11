@@ -56,6 +56,7 @@ const ItemTooltip = ({ item, isMagic = false, children }) => {
               Preço: {details.cost.quantity} {details.cost.unit}
             </p>
           )}
+          {details.quantity && <p>Quantidade: {details.quantity} Un</p>}
           {details.desc && <p>{details.desc}</p>}
           {details.weight && <p>Peso: {details.weight} kg</p>}
           {details.rarity && <p>Raridade: {details.rarity.name}</p>}
@@ -80,14 +81,24 @@ const ItemTooltip = ({ item, isMagic = false, children }) => {
               <p>Duas Mãos: {details.two_handed_damage.damage_dice}</p>
             </>
           )}
-          {details.str_minimum != 0 && (
+          {details.range && (
+            <>
+              <p>
+                Distancia: {details.range.normal} - {details.range.long}{" "}
+              </p>
+            </>
+          )}
+          {details.str_minimum > 0 && (
             <>
               <p>Força Minima: {details.str_minimum}</p>
             </>
           )}
           {details.stealth_disadvantage && (
             <>
-              <p>Desvantagem Furtiva : {details.stealth_disadvantage ? "Sim" : "Não"}</p>
+              <p>
+                Desvantagem Furtiva :{" "}
+                {details.stealth_disadvantage ? "Sim" : "Não"}
+              </p>
             </>
           )}
           {details.armor_class && (
@@ -106,8 +117,15 @@ const ItemTooltip = ({ item, isMagic = false, children }) => {
                   </>
                 )}
               </p>
+              <p>Tipo: {details.armor_category}</p>
             </>
           )}
+          {details.desc.lenght > 0 &&
+            details.desc?.map((prop) => <li key={prop.index}>{prop.name}</li>)}
+          {details.special?.lenght > 0 &&
+            details.special?.map((prop) => (
+              <li key={prop.index}>{prop.name}</li>
+            ))}
         </div>
       )}
     </span>

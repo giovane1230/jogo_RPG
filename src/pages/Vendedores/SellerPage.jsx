@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { fetchItems } from "../../api/fetchItems";
 import ItemTooltip from "../../components/itemsComponents/ItemTolltip";
+import useConsolidarItens from "../../components/itemsComponents/removeDuplicatas";
 
 function SellerPage() {
   const { character, updateCharacter } = useCharacter();
@@ -10,6 +11,9 @@ function SellerPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [itemDetails, setItemDetails] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
+
+  const itensConsolidados = useConsolidarItens(character.bag || []);
+  const itensConsolidadosSeller = useConsolidarItens(sellerItems || []);
 
   useEffect(() => {
     const lastUpdate = localStorage.getItem("lastUpdate");
@@ -79,12 +83,10 @@ function SellerPage() {
   }, [selectedItem]);
 
   const handleBuy = (item) => {
-    if (
-      character.bag.find((equip) => equip.index === item.index)
-    ) {
-      alert("Você já possui esse item");
-      return;
-    }
+    // if (character.bag.find((equip) => equip.index === item.index)) {
+    //   alert("Você já possui esse item");
+    //   return;
+    // }
 
     if (character.gold < item.price) {
       alert("Ouro insuficiente!");
@@ -178,15 +180,20 @@ function SellerPage() {
         <strong>Ouro atual:</strong> {character.gold} 🪙
       </div>
       <button onClick={itemInjetado}>injetar</button>
-      <button onClick={testConsole}>console</button>
+      <button onClick={testConsole}>GANHA DINHEIRO</button>
+      <button onClick={() => console.log(itensConsolidados)}>
+        CONSOLIDADEOSO
+      </button>
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
         {character.bag.length > 0 ? (
           <ul>
-            {character.bag.map((equip) => (
+            {itensConsolidados.map((equip) => (
               <li key={equip.index}>
                 <ItemTooltip item={equip}>
-                  <span>{equip.name}</span>
+                  <span>
+                    {equip.name} x{equip.quantity}
+                  </span>
                 </ItemTooltip>
                 <button onClick={() => handleSell(equip)}>
                   Vender por {Math.floor(equip.price / 1.3)} 🪙
@@ -202,10 +209,12 @@ function SellerPage() {
       <h2>Itens à Venda:</h2>
       {Array.isArray(sellerItems) && (
         <ul>
-          {sellerItems.map((equip) => (
+          {itensConsolidadosSeller.map((equip) => (
             <li key={equip.index}>
               <ItemTooltip item={equip}>
-                <span>{equip.name}</span>
+                <span>
+                  {equip.name} x{equip.quantity}
+                </span>
               </ItemTooltip>
               <button onClick={() => handleBuy(equip)}>
                 {" "}

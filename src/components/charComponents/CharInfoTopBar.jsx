@@ -11,6 +11,12 @@ function CharInfoTopBar() {
   const { equipment } = useCharEquip();
 
   const calcularCA = (equipamentos, dexMod) => {
+    if (equipamentos.armor) {
+      if (equipamentos.armor?.category === "Medium") {
+        if (character.attributes.dex.mod > 2) dexMod = 2;
+      }
+    }
+
     let caBase = 10 + dexMod;
 
     const { armor, shield } = equipamentos;
@@ -31,6 +37,8 @@ function CharInfoTopBar() {
   };
 
   const dexMod = character ? character.attributes.dex.mod : 0;
+  const maxDexMod =
+    character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
   const strMod = character ? character.attributes.str.mod : 0;
   const caFinal = calcularCA(equipment, dexMod);
 
@@ -63,21 +71,35 @@ function CharInfoTopBar() {
           <span>
             {equipment.armor?.name || ""}
             {equipment.shield ? ` + ${equipment.shield.name}` : ""}
-            {equipment.armor?.bonusDex ? ` + Mod dex(${dexMod})` : ""}
+            {equipment.armor?.category === "Medium"
+              ? ` + Mod LIMITADO dex(${maxDexMod})`
+              : ` + Mod dex(${dexMod})`}
           </span>
           <br />
           <br />
           <p>Arma Equipada</p>
           <span>
             {equipment["two-handed"]?.twoHandedDamage && "2H - "}
-            {equipment.weapon?.name || equipment["two-handed"]?.name || "Sem arma equipada" }{" - "}
-            {equipment.weapon?.status || equipment["two-handed"]?.twoHandedDamage?.damage_dice || equipment["two-handed"]?.status || ""}
+            {equipment.weapon?.name ||
+              equipment["two-handed"]?.name ||
+              "Sem arma equipada"}
+            {" - "}
+            {equipment.weapon?.status ||
+              equipment["two-handed"]?.twoHandedDamage?.damage_dice ||
+              equipment["two-handed"]?.status ||
+              ""}
             <br />
-            {equipment.offHand?.status && `Secundaria - ${equipment.offHand.name} - ${equipment.offHand?.status}` }
+            {equipment.offHand?.status &&
+              `Secundaria - ${equipment.offHand.name} - ${equipment.offHand?.status}`}
           </span>
           <p>Bonus para acertar e dano:</p>
-          <span>Mod. de {dexMod > strMod ? `Dextreza ${dexMod}` : `Força ${strMod}`}</span>
-          <span>Proficiência: {character.proficienciesBonus && character.proficienciesBonus}</span>
+          <span>
+            Mod. de {dexMod > strMod ? `Dextreza ${dexMod}` : `Força ${strMod}`}
+          </span>
+          <span>
+            Proficiência:{" "}
+            {character.proficienciesBonus && character.proficienciesBonus}
+          </span>
         </>
       )}
     </>

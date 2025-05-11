@@ -118,6 +118,7 @@ const EquipmentSlots = () => {
     }
 
     const isTwoHanded = item.properties?.some((p) => p.index === "two-handed");
+    const isAmmunition = item.properties?.some((p) => p.index === "ammunition");
     const isVersatile = item.properties?.some((p) => p.index === "versatile");
     const slot = getItemSlot(item);
 
@@ -132,6 +133,20 @@ const EquipmentSlots = () => {
     // Impede equipar mesma arma duas vezes
     if (isSameWeaponEquipped) {
       alert("Você não pode equipar a mesma arma duas vezes.");
+      return;
+    }
+
+    if (isAmmunition) {
+      if (currentWeapon || offHand) {
+        alert("Você precisa das duas mãos livres para usar esta arma.");
+        return;
+      }
+      updateEquipStorage({
+        ...equipment,
+        "two-handed": item,
+        weapon: null,
+        shield: null,
+      });
       return;
     }
 
@@ -291,6 +306,7 @@ const EquipmentSlots = () => {
         {equipment.armor ? (
           <div>
             {equipment.armor.name}
+            {equipment.armor.category &&  equipment.armor.category}
             <button onClick={() => unequipItem("armor")}>Remover</button>
           </div>
         ) : (
