@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCharacter } from '../../context/CharacterContext';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCharacter } from "../../context/CharacterContext";
 
 const SpellSelection = () => {
   const navigate = useNavigate();
@@ -11,12 +11,12 @@ const SpellSelection = () => {
   const [maxSpells, setMaxSpells] = useState(0);
   const { updateCharacter } = useCharacter();
 
-
   useEffect(() => {
-    const charData = JSON.parse(localStorage.getItem('charData'));
-    const charClass = typeof charData?.class === 'object' ? charData.class.index : charData?.class;
-    console.log("Classe detectada:", charClass);
-
+    const charData = JSON.parse(localStorage.getItem("charData"));
+    const charClass =
+      typeof charData?.class === "object"
+        ? charData.class.index
+        : charData?.class;
 
     if (!charClass) {
       setLoading(false);
@@ -25,31 +25,34 @@ const SpellSelection = () => {
 
     const fetchSpells = async () => {
       try {
-        const response = await fetch('https://www.dnd5eapi.co/api/spells?level=1');
+        const response = await fetch(
+          "https://www.dnd5eapi.co/api/spells?level=1"
+        );
         const data = await response.json();
         const spellsLevel1 = data.results;
-    
+
         const detailedSpells = await Promise.all(
-          spellsLevel1.map(spell =>
-            fetch(`https://www.dnd5eapi.co${spell.url}`)
-              .then(res => res.json())
-              .catch(() => null) // evita quebra se uma falhar
+          spellsLevel1.map(
+            (spell) =>
+              fetch(`https://www.dnd5eapi.co${spell.url}`)
+                .then((res) => res.json())
+                .catch(() => null) // evita quebra se uma falhar
           )
         );
-    
+
         const classSpells = detailedSpells.filter(
-          spell => spell && spell.classes?.some(cls => cls.index === charClass)
+          (spell) =>
+            spell && spell.classes?.some((cls) => cls.index === charClass)
         );
-    
+
         setSpells(classSpells);
         setMaxSpells(getMaxSpellsByClass(charClass));
         setLoading(false);
       } catch (error) {
-        console.error('Erro ao buscar magias:', error);
+        console.error("Erro ao buscar magias:", error);
         setLoading(false);
       }
     };
-    
 
     fetchSpells();
   }, []);
@@ -69,9 +72,9 @@ const SpellSelection = () => {
   };
 
   const toggleSpell = (spell) => {
-    const alreadySelected = selectedSpells.find(s => s.index === spell.index);
+    const alreadySelected = selectedSpells.find((s) => s.index === spell.index);
     if (alreadySelected) {
-      setSelectedSpells(selectedSpells.filter(s => s.index !== spell.index));
+      setSelectedSpells(selectedSpells.filter((s) => s.index !== spell.index));
     } else if (selectedSpells.length < maxSpells) {
       setSelectedSpells([...selectedSpells, spell]);
     }
@@ -80,36 +83,40 @@ const SpellSelection = () => {
   const handleFinish = () => {
     const updatedCharacter = {
       ...character, // Mantém todos dados existentes do contexto
-      spells: selectedSpells // Atualiza apenas os spells
+      spells: selectedSpells, // Atualiza apenas os spells
     };
-  
-    localStorage.setItem('charData', JSON.stringify(updatedCharacter));
+
+    localStorage.setItem("charData", JSON.stringify(updatedCharacter));
     updateCharacter(updatedCharacter); // Atualiza o contexto global
-    navigate('/resumo');
+    navigate("/resumo");
   };
-  
 
   if (loading) return <p>Carregando magias...</p>;
-  if (!loading && spells.length === 0) return       <button onClick={handleFinish} 
-  // disabled={selectedSpells.length !== maxSpells || selectedSpells === 0}
-  >
-    Finalizar Criação (Não possui magias)
-  </button>;
+  if (!loading && spells.length === 0)
+    return (
+      <button
+        onClick={handleFinish}
+        // disabled={selectedSpells.length !== maxSpells || selectedSpells === 0}
+      >
+        Finalizar Criação (Não possui magias)
+      </button>
+    );
 
   return (
     <div style={{ padding: 20 }}>
       <h2>Seleção de Magias de Nível 1</h2>
       <p>Selecione até {maxSpells} magias:</p>
       <ul>
-        {spells.map(spell => (
+        {spells.map((spell) => (
           <li key={spell.index} style={{ marginBottom: 10 }}>
             <label>
               <input
                 type="checkbox"
-                checked={selectedSpells.some(s => s.index === spell.index)}
+                checked={selectedSpells.some((s) => s.index === spell.index)}
                 onChange={() => toggleSpell(spell)}
                 disabled={
-                  !selectedSpells.some(s => s.index === spell.index) && selectedSpells.length >= maxSpells
+                  !selectedSpells.some((s) => s.index === spell.index) &&
+                  selectedSpells.length >= maxSpells
                 }
               />
               <strong> {spell.name}</strong> - {spell.desc[0]}
@@ -117,8 +124,9 @@ const SpellSelection = () => {
           </li>
         ))}
       </ul>
-      <button onClick={handleFinish} 
-      // disabled={selectedSpells.length !== maxSpells || selectedSpells === 0}
+      <button
+        onClick={handleFinish}
+        // disabled={selectedSpells.length !== maxSpells || selectedSpells === 0}
       >
         Finalizar Criação
       </button>

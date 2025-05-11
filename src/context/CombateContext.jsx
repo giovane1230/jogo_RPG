@@ -7,7 +7,7 @@ export function CombatProvider({ children }) {
   const { character } = useCharacter();
   const [player, setPlayer] = useState(null);
   const [enemy, setEnemy] = useState(null);
-  const [playerHP, setPlayerHP] = useState(character.vidaAtual);
+  const [playerHP, setPlayerHP] = useState(character?.vidaAtual || 0);
 
   // Atualiza o localStorage sempre que o player muda
   useEffect(() => {

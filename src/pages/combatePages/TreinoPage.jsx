@@ -126,8 +126,9 @@ function TreinoPage() {
           {/* etc, dependendo de como está estruturado seu objeto */}
         </div>
       )}
+      {playerHP <= 0 && <button onClick={() => setPlayerHP(Math.floor(player.vidaInicial / 2))}>Se cure antes de iniciar o combate (50%)</button>}
       <button
-        disabled={!inimigoSelecionado}
+        disabled={!inimigoSelecionado || playerHP <= 0}
         onClick={handleAvancarParaCombate}
         style={{ marginTop: "20px" }}
       >

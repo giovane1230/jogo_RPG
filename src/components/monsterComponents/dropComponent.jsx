@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { fetchAllEquipments } from "../../api/equipments";
 import { useNavigate } from "react-router-dom";
@@ -15,10 +15,13 @@ function DropComponent({ CR }) {
   function rolarDado(lados) {
     return Math.floor(Math.random() * lados) + 1;
   }
+  const hasDropped = useRef(false);
 
   useEffect(() => {
     async function getItem() {
-      if (!CR) return;
+      if (!CR || hasDropped.current) return;
+
+      hasDropped.current = true;
 
       setLoadingItem(true);
 
@@ -32,9 +35,8 @@ function DropComponent({ CR }) {
         );
 
         const RNG = rolarDado(20);
-        
+
         if (filtrados.length > 0 && RNG >= 10) {
-          console.log(RNG);
           const sorteado =
             filtrados[Math.floor(Math.random() * filtrados.length)];
           setItemRecompensa(sorteado);
@@ -54,6 +56,15 @@ function DropComponent({ CR }) {
 
   const pegarRecompensa = () => {
     if (!CR) return;
+
+    if (CR === "derrota") {
+      updateCharacter({
+        vidaAtual: 1,
+      });
+      setPegou(true);
+      navigate("/treino");
+      return;
+    }
 
     const formattedEquipment = itemRecompensa
       ? {
@@ -101,11 +112,16 @@ function DropComponent({ CR }) {
             <p>Carregando item de recompensa...</p>
           ) : (
             <>
-                  <p>Você ganhou {Math.floor(CR * 10)}⭐️ e {Math.floor(CR * 10)}</p>
+              {CR === "derrota" ? (
+                <p>Você morreu e não recebe recompensa</p>
+              ) : (
+                <p>
+                  Você ganhou {Math.floor(CR * 10)}⭐️ e {Math.floor(CR * 10)}
+                </p>
+              )}
               {itemRecompensa ? (
                 <p>
-                  Inimigo deixou cair:{" "}
-                  <strong>{itemRecompensa.name}</strong> (
+                  Inimigo deixou cair: <strong>{itemRecompensa.name}</strong> (
                   {itemRecompensa.cost.quantity}gp)
                 </p>
               ) : (

@@ -139,7 +139,6 @@ const CharStatusCreate = () => {
       vidaInicial: vidaCriada,
     }));
 
-    console.log("Atributos finais salvos:", finalAttributes);
   };
 
   return (

@@ -203,7 +203,6 @@ const EquipmentSlots = () => {
           weapon: item,
         });
       } else if (!isShield) {
-        console.log("entrou");
         updateEquipStorage({
           ...equipment,
           offHand: item,

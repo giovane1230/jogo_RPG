@@ -45,7 +45,6 @@ function EquipmentCategoriesPage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <button onClick={console.log(categoryDetails)}>CONSOLE</button>
       <BtnVoltarDB /><br />
       <h1>Categorias de Equipamento:</h1>
       <select onChange={handleCategoryChange} value={selectedCategory} style={{ marginBottom: "20px" }}>

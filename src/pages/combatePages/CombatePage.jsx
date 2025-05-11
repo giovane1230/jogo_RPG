@@ -36,20 +36,13 @@ function CombatePage() {
     setCombateFinalizado(true);
 
     if (jogadorVenceu) {
-      // vitória: XP normal
-      const xpGanho = (enemy.challenge_rating || 1) * 10;
-      setCharacter((prev) => ({
-        ...prev,
-        exp: prev.exp + xpGanho,
-      }));
       setMensagens((prev) => [
         ...prev,
-        `Você derrotou ${enemy.name}! Ganhou ${xpGanho} XP.`,
+        `Você derrotou ${enemy.name}!`,
       ]);
     } else {
       // derrota: Ouro perdido (aqui 5% do max)
       const ouroPerdido = Math.floor(character.gold / 20);
-      console.log("perdido", character.gold - Math.floor(character.gold / 20));
       setCharacter((prev) => ({
         ...prev,
         gold: character.gold - Math.floor(character.gold / 20),
@@ -61,7 +54,11 @@ function CombatePage() {
     }
 
     // ativa o drop (loot) para renderizar
-    setDerrota(true);
+    if (playerHP <= 0) {
+      setDerrota(true);
+      return;
+    }
+    setDropReady(true);
   }
 
   function rolarDado(lados) {
@@ -71,7 +68,7 @@ function CombatePage() {
   function ataqueJogador(dano) {
     if (combateFinalizado) return;
 
-    const acerto = rolarDado(20);
+    const acerto = 1;
     const modAtk = Math.max(
       character.attributes.dex.mod,
       character.attributes.str.mod
@@ -81,10 +78,8 @@ function CombatePage() {
     const critico = acerto === 20;
     const danoTotal = critico ? dano * 2 : dano;
 
-    setRound((r) => r + 1);
     setMensagens((prev) => [
       ...prev,
-      `--- ${round}° Rodada ---`,
       sucesso
         ? `Você ${
             critico ? "CRÍTICO" : "acertou"
@@ -98,8 +93,39 @@ function CombatePage() {
       setEnemyHP((hp) => Math.max(0, hp - danoTotal));
       if (enemyHP - danoTotal > 0) setTimeout(turnoInimigo, 1000);
     } else {
-      setTimeout(turnoInimigo, 1000);
+      if (enemyHP - danoTotal > 0) setTimeout(turnoInimigo, 1000);
     }
+  }
+
+  function ataqueJogadorOffHand(dano) {
+    if (combateFinalizado) return;
+
+    const acerto = 20;
+    const modAtk = Math.max(
+      character.attributes.dex.mod,
+      character.attributes.str.mod
+    );
+    const bonusTotal = modAtk;
+    const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
+    const critico = acerto === 20;
+    const danoTotal = critico ? dano * 2 : dano;
+
+    // so da o dano bonus e acerto bonus se tiver a caracteristica
+    // caso tenha fazer a logica aqui
+
+    setMensagens((prev) => [
+    ...prev,
+      sucesso
+        ? `Você usou sua SECUNDARIA ${
+            critico ? "CRÍTICO" : "acertou"
+          } 🎲${acerto}+${bonusTotal} = ${
+            acerto + bonusTotal
+          }, causou ⚔️${danoTotal}!`
+        : `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}.`,
+    ]);
+
+    if (sucesso) setEnemyHP((hp) => Math.max(0, hp - danoTotal));
+
   }
 
   function ataquePorBotao(tipo) {
@@ -107,6 +133,12 @@ function CombatePage() {
       ? equipment.weapon.status
       : equipment["two-handed"]?.twoHandedDamage?.damage_dice || "1d4";
     const lados = parseInt(diceExpr.split("d")[1], 10) || 6;
+    if (equipment.offHand) {
+      const diceExprOff = equipment.offHand.status;
+      const offLados = parseInt(diceExprOff.split("d")[1], 10) || 6;
+      const dano = rolarDado(offLados);
+      ataqueJogadorOffHand(dano);
+    }
     const dano = rolarDado(lados);
     ataqueJogador(dano);
   }
@@ -122,13 +154,15 @@ function CombatePage() {
     const sucesso = acerto + 5 > player.cArmor;
     const danoTotal = crit ? dano * 2 : dano;
 
+    setRound((r) => r + 1);
     setMensagens((prev) => [
       ...prev,
       sucesso
-        ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
-            acerto + 5
-          }, causou ⚔️${danoTotal}!`
-        : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}.`,
+      ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
+        acerto + 5
+      }, causou ⚔️${danoTotal}!`
+      : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}.`,
+      `--- Fim do ${round}° Round ---`,
     ]);
 
     if (sucesso) setPlayerHP((hp) => Math.max(0, hp - danoTotal));
@@ -137,7 +171,9 @@ function CombatePage() {
   return (
     <div>
       <h1>Combate</h1>
-      <button onClick={() => console.log(derrota)}>CONSOLE</button>
+      <button onClick={() => setPlayerHP(1)}>vida 1 player</button>
+            <button onClick={() => setPlayerHP(100)}>vida 100 player</button>
+            <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
 
       {/* Status */}
       <BarraStatus
@@ -177,13 +213,16 @@ function CombatePage() {
             Proficiência: +{character.proficienciesBonus}
           </p>
           <button onClick={() => ataquePorBotao("leve")}>
-            Ataque Leve (
+            Ataque Principal (
             {equipment.weapon
               ? `${equipment.weapon.status} ${equipment.weapon.name}`
+              : equipment["two-handed"].twoHandedDamage
+              ? `${equipment["two-handed"].twoHandedDamage?.damage_dice} ${equipment["two-handed"].name}`
               : equipment["two-handed"]
-              ? `${equipment["two-handed"].twoHandedDamage.damage_dice} ${equipment["two-handed"].name}`
-              : "1d4"}
+              ? `${equipment["two-handed"].status} ${equipment["two-handed"].name}`
+              : "1D4"}
             )
+            {equipment.offHand && ` e secundaria + ${equipment.offHand.status} ${equipment.offHand.name}`}
           </button>
           <button onClick={() => ataquePorBotao("pesado")}>
             Ataque Pesado
@@ -205,7 +244,7 @@ function CombatePage() {
       </div>
 
       {/* Loot / drop aparece sempre que o combate acabar */}
-      {derrota && <DropComponent CR={0} />}
+      {derrota && <DropComponent CR={"derrota"} />}
       {dropReady && <DropComponent CR={enemy.challenge_rating} />}
     </div>
   );

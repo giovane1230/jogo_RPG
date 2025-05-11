@@ -35,7 +35,6 @@ export const fetchItems = async () => {
       })
     );
 
-    console.log(itemsWithDetails)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsWithDetails));
     return itemsWithDetails;
   } catch (error) {

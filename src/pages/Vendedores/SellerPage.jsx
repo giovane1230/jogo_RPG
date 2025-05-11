@@ -136,7 +136,6 @@ function SellerPage() {
   }
 
   const testConsole = () => {
-    console.log(character.bag);
     localStorage.removeItem("lastUpdate");
     localStorage.removeItem("sellerItems");
     updateCharacter({

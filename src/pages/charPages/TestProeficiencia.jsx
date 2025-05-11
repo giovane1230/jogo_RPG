@@ -8,13 +8,11 @@ function TestProeficiencia() {
   const [selected, setSelected] = useState("");
 
   const handleRoll = (resultado) => {
-    console.log("Dado rolado:", resultado);
     setUltimoResultado(resultado);
   };
 
   const handleChange = (event) => {
     setSelected(event.target.value);
-    console.log(event.target.value);
   };
 
   return (

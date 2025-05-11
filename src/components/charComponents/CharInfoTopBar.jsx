@@ -72,9 +72,11 @@ function CharInfoTopBar() {
             {equipment["two-handed"]?.twoHandedDamage && "2H - "}
             {equipment.weapon?.name || equipment["two-handed"]?.name || "Sem arma equipada" }{" - "}
             {equipment.weapon?.status || equipment["two-handed"]?.twoHandedDamage?.damage_dice || equipment["two-handed"]?.status || ""}
+            <br />
+            {equipment.offHand?.status && `Secundaria - ${equipment.offHand.name} - ${equipment.offHand?.status}` }
           </span>
           <p>Bonus para acertar e dano:</p>
-          <span>Mod. de {dexMod > strMod ? `Dextreza +${dexMod}` : `Força +${strMod}`}</span>
+          <span>Mod. de {dexMod > strMod ? `Dextreza ${dexMod}` : `Força ${strMod}`}</span>
           <span>Proficiência: {character.proficienciesBonus && character.proficienciesBonus}</span>
         </>
       )}
