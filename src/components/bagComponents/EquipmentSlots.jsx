@@ -95,7 +95,10 @@ const EquipmentSlots = () => {
       profs.includes(itemCategory) ||
       (profs.includes("all armor") && itemType === "armor" && !isShield) ||
       (profs.includes("all weapons") && itemType === "weapon") ||
-      profs.includes(itemName);
+      profs.includes("quarterstaffs");
+    profs.includes(itemName);
+
+    console.log(isShield)
 
     return isProf;
   };
@@ -193,6 +196,7 @@ const EquipmentSlots = () => {
           });
           return;
         } else if (!isShield && !usingTwoHandedWeapon) {
+          console.log("console", usingTwoHandedWeapon)
           updateEquipStorage({
             ...equipment,
             shield: item,
@@ -306,7 +310,7 @@ const EquipmentSlots = () => {
         {equipment.armor ? (
           <div>
             {equipment.armor.name}
-            {equipment.armor.category &&  equipment.armor.category}
+            {equipment.armor.category && equipment.armor.category}
             <button onClick={() => unequipItem("armor")}>Remover</button>
           </div>
         ) : (

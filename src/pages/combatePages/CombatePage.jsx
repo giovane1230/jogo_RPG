@@ -6,6 +6,8 @@ import DropComponent from "../../components/monsterComponents/dropComponent";
 import { useCharEquip } from "../../context/charEquipContext";
 import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
+import SpellTolltip from "../../components/SpellsComponents/SpellsTolltip";
+import EquipmentSlots from "../../components/bagComponents/EquipmentSlots";
 
 function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP } = useCombat();
@@ -19,6 +21,7 @@ function CombatePage() {
   const [derrota, setDerrota] = useState(false);
   const [round, setRound] = useState(1);
   const [precisaRecarregar, setPrecisaRecarregar] = useState(true);
+  const [selectedSpell, setSelectedSpell] = useState(null);
 
   if (!enemy)
     return <p>Combate Interrompido, por favor saia desta página...</p>;
@@ -132,10 +135,10 @@ function CombatePage() {
       ? equipment.weapon.status
       : equipment["two-handed"]?.twoHandedDamage?.damage_dice || "1d4";
 
-    const isAmmunition = equipment["two-handed"].properties?.some(
+    const isAmmunition = equipment["two-handed"]?.properties?.some(
       (p) => p.index === "ammunition"
     );
-    const isLoading = equipment["two-handed"].properties?.some(
+    const isLoading = equipment["two-handed"]?.properties?.some(
       (p) => p.index === "loading"
     );
 
@@ -183,10 +186,7 @@ function CombatePage() {
 
   const recarregarArma = () => {
     setPrecisaRecarregar(true);
-        setMensagens((prev) => [
-      ...prev,
-        "Você recarregou sua arma!"
-    ]);
+    setMensagens((prev) => [...prev, "Você recarregou sua arma!"]);
     setTimeout(turnoInimigo, 1000);
   };
 
@@ -220,10 +220,41 @@ function CombatePage() {
       />
 
       {/* Se o combate não finalizou, mostra controles */}
+      {character.spells && (
+        <p>
+          <strong>Magias:</strong>{" "}
+          <EquipmentSlots />
+          <select
+            onChange={(e) =>
+              setSelectedSpell(
+                character.spells.find((sp) => sp.index === e.target.value)
+              )
+            }
+          >
+            <option value="">Selecione uma magia</option>
+            {character.spells.map((sp) => (
+              <option key={sp.index} value={sp.index}>
+                {sp.name}
+              </option>
+            ))}
+          </select>
+          {selectedSpell && (
+            <span style={{ marginLeft: "8px" }}>
+              <SpellTolltip spell={selectedSpell.index}>?</SpellTolltip>
+            </span>
+          )}
+          <button
+            onClick={() => selectedSpell}
+            disabled={!selectedSpell}
+            style={{ marginLeft: "8px" }}
+          >
+            Usar
+          </button>
+        </p>
+      )}
       {!combateFinalizado && (
         <>
-          <CombatPotions />
-
+          <strong>Poção:</strong> <CombatPotions />
           <h2>Ataques</h2>
           <p>
             Modificador de ataque: +
@@ -234,7 +265,6 @@ function CombatePage() {
             <br />
             Proficiência: +{character.proficienciesBonus}
           </p>
-
           <button onClick={recarregarArma} disabled={precisaRecarregar}>
             Recarregar
           </button>
@@ -245,7 +275,7 @@ function CombatePage() {
             Ataque Principal (
             {equipment.weapon
               ? `${equipment.weapon.status} ${equipment.weapon.name}`
-              : equipment["two-handed"].twoHandedDamage
+              : equipment["two-handed"]?.twoHandedDamage
               ? `${equipment["two-handed"].twoHandedDamage?.damage_dice} ${equipment["two-handed"].name}`
               : equipment["two-handed"]
               ? `${equipment["two-handed"].status} ${equipment["two-handed"].name}`

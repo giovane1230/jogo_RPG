@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCombat } from "../../context/CombateContext";
 import { useNavigate } from "react-router-dom";
+import SpellTolltip from "../../components/SpellsComponents/SpellsTolltip";
 
 function TreinoPage() {
   const { setPlayer, setEnemy, playerHP, setPlayerHP, player } = useCombat();
@@ -61,13 +62,14 @@ function TreinoPage() {
     navigate("/combate");
   };
 
-
   useEffect(() => {
-  {carregando ? (
-      <p>Carregando playerHP...</p>
-    ) : playerHP === 0 ? (
-      <button onClick={() => setPlayerHP(player / 1.5)}>RECURA VIDA</button>
-    ) : null}
+    {
+      carregando ? (
+        <p>Carregando playerHP...</p>
+      ) : playerHP === 0 ? (
+        <button onClick={() => setPlayerHP(player / 1.5)}>RECURA VIDA</button>
+      ) : null;
+    }
   }, []);
 
   return (
@@ -111,8 +113,9 @@ function TreinoPage() {
       {personagemSelecionado && (
         <div style={{ marginTop: "20px" }}>
           <h2>Seu Personagem: {personagemSelecionado.name || "Sem nome"}</h2>
-                    <p>
-            <strong>Vida:</strong> {playerHP}/{personagemSelecionado.vidaInicial}
+          <p>
+            <strong>Vida:</strong> {playerHP}/
+            {personagemSelecionado.vidaInicial}
           </p>
           <p>
             <strong>Classe:</strong> {personagemSelecionado.class?.name}
@@ -123,10 +126,26 @@ function TreinoPage() {
           <p>
             <strong>AC:</strong> {personagemSelecionado.cArmor}
           </p>
+          {personagemSelecionado.spells && (
+            <p>
+              <strong>Magias:</strong>{" "}
+              <ul>
+                {personagemSelecionado.spells.map((potion) => (
+                  <li key={potion.index}>
+                    <SpellTolltip spell={potion.index}> {potion.name}</SpellTolltip>
+                  </li>
+                ))}
+              </ul>
+            </p>
+          )}
           {/* etc, dependendo de como está estruturado seu objeto */}
         </div>
       )}
-      {playerHP <= 0 && <button onClick={() => setPlayerHP(Math.floor(player.vidaInicial / 2))}>Se cure antes de iniciar o combate (50%)</button>}
+      {playerHP <= 0 && (
+        <button onClick={() => setPlayerHP(Math.floor(player.vidaInicial / 2))}>
+          Se cure antes de iniciar o combate (50%)
+        </button>
+      )}
       <button
         disabled={!inimigoSelecionado || playerHP <= 0}
         onClick={handleAvancarParaCombate}
