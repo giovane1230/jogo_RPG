@@ -12,6 +12,7 @@ function dataBase() {
         <Link to="/monsters"><li>Monstros</li></Link>
         <Link to="/skills"><li>Habilidades</li></Link>
         <Link to="/spells"><li>Magias</li></Link>
+                <Link to="/tracos"><li>Traços</li></Link>
       </ul>
     </div>
   );
