@@ -7,7 +7,7 @@ import { useCharEquip } from "../../context/charEquipContext";
 import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
 import SpellTolltip from "../../components/SpellsComponents/SpellsTolltip";
-import EquipmentSlots from "../../components/bagComponents/EquipmentSlots";
+import CombatActions from "../../components/combateComponents/combatActions";
 
 function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP } = useCombat();
@@ -190,6 +190,18 @@ function CombatePage() {
     setTimeout(turnoInimigo, 1000);
   };
 
+  const handleEscapeResult = (fugiu) => {
+    if (fugiu) {
+      console.log("Personagem escapou com sucesso!", combateFinalizado);
+      setMensagens((prev) => [...prev, "Personagem escapou com sucesso!"]);
+      setDerrota(true);
+    } else {
+      console.log("Falhou na fuga, sofreu ataque!");
+      setMensagens((prev) => [...prev, "Falhou na fuga, sofreu ataque!"]);
+      setTimeout(turnoInimigo, 1000);
+    }
+  };
+
   return (
     <div>
       <h1>Combate</h1>
@@ -223,7 +235,6 @@ function CombatePage() {
       {character.spells && (
         <p>
           <strong>Magias:</strong>{" "}
-          <EquipmentSlots />
           <select
             onChange={(e) =>
               setSelectedSpell(
@@ -265,9 +276,11 @@ function CombatePage() {
             <br />
             Proficiência: +{character.proficienciesBonus}
           </p>
-          <button onClick={recarregarArma} disabled={precisaRecarregar}>
-            Recarregar
-          </button>
+          {!precisaRecarregar && (
+            <button onClick={recarregarArma} disabled={precisaRecarregar}>
+              Recarregar
+            </button>
+          )}
           <button
             onClick={() => ataquePorBotao("leve")}
             disabled={!precisaRecarregar}
@@ -287,6 +300,12 @@ function CombatePage() {
           <button onClick={() => ataquePorBotao("pesado")}>
             Ataque Pesado
           </button>
+          <div>
+            <CombatActions onEscapeAttempt={handleEscapeResult} />
+            {combateFinalizado && (
+              <><p>Fugiu do combate</p><button onClick={() => console.log('fuiug')}>fuga</button></>
+            )}
+          </div>
         </>
       )}
 
@@ -298,7 +317,16 @@ function CombatePage() {
             .slice()
             .reverse()
             .map((m, i) => (
-              <li key={i}>{m}</li>
+              <ol
+                key={i}
+                style={{
+                  backgroundColor: i % 2 === 0 ? "beige" : "#b9b9b8",
+                  textAlign: "center",
+                  padding: "2px",
+                }}
+              >
+                {m}
+              </ol>
             ))}
         </ul>
       </div>

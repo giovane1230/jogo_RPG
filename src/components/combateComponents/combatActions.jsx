@@ -1,7 +1,7 @@
 import React from "react";
 import { useCharacter } from "../../context/CharacterContext";
 
-const CombatActions = () => {
+const CombatActions = ({ onEscapeAttempt }) => {
   const { character } = useCharacter();
 
   function rolarDado(lados) {
@@ -11,13 +11,17 @@ const CombatActions = () => {
   const fugirBtn = () => {
     const result = rolarDado(20) + character.attributes.dex.mod;
 
-    if (result >= 10) {
-      console.log("fugiu");
-      return;
+    const sucesso = result >= 10;
+
+    if (onEscapeAttempt) {
+      onEscapeAttempt(sucesso); // envia true ou false para o pai
     }
 
-    console.log("você sofreu ataque de oportunidade dano dobrado");
-    return;
+    if (sucesso) {
+      console.log("fugiu???????????", result);
+    } else {
+      console.log("você sofreu ataque de oportunidade");
+    }
   };
 
   return (

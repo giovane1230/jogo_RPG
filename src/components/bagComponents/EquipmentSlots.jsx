@@ -98,8 +98,6 @@ const EquipmentSlots = () => {
       profs.includes("quarterstaffs");
     profs.includes(itemName);
 
-    console.log(isShield)
-
     return isProf;
   };
 
@@ -196,7 +194,6 @@ const EquipmentSlots = () => {
           });
           return;
         } else if (!isShield && !usingTwoHandedWeapon) {
-          console.log("console", usingTwoHandedWeapon)
           updateEquipStorage({
             ...equipment,
             shield: item,
@@ -293,12 +290,28 @@ const EquipmentSlots = () => {
     if (filtered.length === 0)
       return <p>Nenhum item disponível para {slotType}</p>;
 
-    return filtered.map((item, i) => (
-      <div key={i}>
-        {item.name}
-        <button onClick={() => equipItem(item)}>Equipar</button>
-      </div>
-    ));
+    console.log(equipment);
+
+    return (
+      <select
+        onChange={(e) => {
+          const selectedIndex = e.target.value;
+          if (selectedIndex !== "") {
+            equipItem(filtered[selectedIndex]);
+          }
+        }}
+        defaultValue=""
+      >
+        <option value="" disabled>
+          {slotType}
+        </option>
+        {filtered.map((item, i) => (
+          <option key={i} value={i}>
+            {item.name}
+          </option>
+        ))}
+      </select>
+    );
   };
 
   return (
@@ -318,7 +331,7 @@ const EquipmentSlots = () => {
         )}
       </div>
       <div>
-        <h3>Mão direita</h3>
+        <h3>Duas Mãos</h3>
         {equipment["two-handed"] ? (
           <div>
             {equipment["two-handed"].name}
@@ -327,7 +340,7 @@ const EquipmentSlots = () => {
         ) : (
           <>{renderAvailableItems("two-handed")}</>
         )}
-
+        <h3>Mão Direita</h3>
         {!equipment["two-handed"] && equipment.weapon ? (
           <div>
             {equipment.weapon.name}

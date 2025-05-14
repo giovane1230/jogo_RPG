@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useCombat } from "../../context/CombateContext";
 import { useNavigate } from "react-router-dom";
 import SpellTolltip from "../../components/SpellsComponents/SpellsTolltip";
+import EquipmentSlots from "../../components/bagComponents/EquipmentSlots";
 
 function TreinoPage() {
   const { setPlayer, setEnemy, playerHP, setPlayerHP, player } = useCombat();
