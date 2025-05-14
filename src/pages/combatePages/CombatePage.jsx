@@ -86,8 +86,8 @@ function CombatePage() {
             critico ? "CRÍTICO" : "acertou"
           } 🎲${acerto}+${bonusTotal} = ${
             acerto + bonusTotal
-          }, causou ⚔️${danoTotal}!`
-        : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}.`,
+          }, causou ${danoTotal}⚔️`
+        : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
     ]);
 
     if (sucesso) {
@@ -121,10 +121,10 @@ function CombatePage() {
             critico ? "CRÍTICO" : "acertou"
           } 🎲${acerto}+${bonusTotal} = ${
             acerto + bonusTotal
-          }, causou ⚔️${danoTotal}!`
+          }, causou ${danoTotal}⚔️`
         : `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${
             acerto + bonusTotal
-          }.`,
+          }🛡️`,
     ]);
 
     if (sucesso) setEnemyHP((hp) => Math.max(0, hp - danoTotal));
@@ -167,8 +167,27 @@ function CombatePage() {
 
     const acerto = rolarDado(20);
     const crit = acerto === 20;
-    const sucesso = acerto + 5 > player.cArmor;
+    let sucesso = acerto + 5 > player.cArmor;
     const danoTotal = crit ? dano * 2 : dano;
+
+    const buffDefensivo = character.buff.includes("defender");
+
+    if (buffDefensivo) {
+      sucesso = acerto + 5 > player.cArmor * 2;
+      console.log(player.cArmor * 2, acerto, "defendeu");
+      setCharacter((prev) => ({
+        ...prev,
+        buff: prev.buff.filter((item) => item !== "defender"),
+      }));
+      setMensagens((prev) => [
+        ...prev,
+        sucesso
+          ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
+              acerto + 5
+            }, causou ⚔️${danoTotal}!`
+          : `${player.name} defendeu! 🎲${acerto}+5 = ${acerto + 5}🛡️`,
+      ]);
+    }
 
     setRound((r) => r + 1);
     setMensagens((prev) => [
@@ -177,7 +196,7 @@ function CombatePage() {
         ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
             acerto + 5
           }, causou ⚔️${danoTotal}!`
-        : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}.`,
+        : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}🛡️`,
       `--- Fim do ${round}° Round ---`,
     ]);
 
@@ -303,7 +322,10 @@ function CombatePage() {
           <div>
             <CombatActions onEscapeAttempt={handleEscapeResult} />
             {combateFinalizado && (
-              <><p>Fugiu do combate</p><button onClick={() => console.log('fuiug')}>fuga</button></>
+              <>
+                <p>Fugiu do combate</p>
+                <button onClick={() => console.log("fuiug")}>fuga</button>
+              </>
             )}
           </div>
         </>

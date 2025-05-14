@@ -323,7 +323,6 @@ const EquipmentSlots = () => {
         {equipment.armor ? (
           <div>
             {equipment.armor.name}
-            {equipment.armor.category && equipment.armor.category}
             <button onClick={() => unequipItem("armor")}>Remover</button>
           </div>
         ) : (
