@@ -8,9 +8,11 @@ import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
 import SpellTolltip from "../../components/SpellsComponents/SpellsTolltip";
 import CombatActions from "../../components/combateComponents/combatActions";
+import BuffUtils from "../../components/combateComponents/BuffUtils";
 
 function CombatePage() {
-  const { player, enemy, playerHP, setPlayerHP } = useCombat();
+  const { player, enemy, playerHP, setPlayerHP, setBuff, setPlayer } =
+    useCombat();
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
 
@@ -29,6 +31,10 @@ function CombatePage() {
   useEffect(() => {
     if (!combateFinalizado) {
       if (enemyHP <= 0) {
+        setPlayer((prev) => ({
+          ...prev,
+          buff: {},
+        }));
         finalizarCombate(true);
       } else if (playerHP <= 0) {
         finalizarCombate(false);
@@ -161,6 +167,7 @@ function CombatePage() {
 
   function turnoInimigo() {
     if (!enemy.actions?.length || combateFinalizado) return;
+
     const atk = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
     const lados = parseInt(atk.damage?.[0]?.damage_dice.split("d")[1], 10) || 6;
     const dano = rolarDado(lados);
@@ -170,15 +177,20 @@ function CombatePage() {
     let sucesso = acerto + 5 > player.cArmor;
     const danoTotal = crit ? dano * 2 : dano;
 
-    const buffDefensivo = character.buff.includes("defender");
+    const temBuff = player.buff["defender"]?.timeEffect > 0;
 
-    if (buffDefensivo) {
+    if (temBuff) {
       sucesso = acerto + 5 > player.cArmor * 2;
       console.log(player.cArmor * 2, acerto, "defendeu");
-      setCharacter((prev) => ({
+
+      const novoBuffs = { ...player.buff };
+      delete novoBuffs["defender"]; // remove o efeito defensivo após uso
+
+      setPlayer((prev) => ({
         ...prev,
-        buff: prev.buff.filter((item) => item !== "defender"),
+        buff: novoBuffs,
       }));
+
       setMensagens((prev) => [
         ...prev,
         sucesso
@@ -187,9 +199,11 @@ function CombatePage() {
             }, causou ⚔️${danoTotal}!`
           : `${player.name} defendeu! 🎲${acerto}+5 = ${acerto + 5}🛡️`,
       ]);
+      setBuff(false);
     }
 
     setRound((r) => r + 1);
+
     setMensagens((prev) => [
       ...prev,
       sucesso
@@ -201,6 +215,11 @@ function CombatePage() {
     ]);
 
     if (sucesso) setPlayerHP((hp) => Math.max(0, hp - danoTotal));
+    const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
+    setPlayer((prev) => ({
+      ...prev,
+      buff: buffsAtualizados,
+    }));
   }
 
   const recarregarArma = () => {

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { useCharEquip } from "../../context/charEquipContext";
+import { useCombat } from "../../context/CombateContext";
+import BuffUtils from "./BuffUtils";
 
 const CombatActions = ({ onEscapeAttempt, removeDefender }) => {
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
-  const [ defendendo, setDefendendo ] = useState(false);
+  const { buff, setBuff, player, setPlayer } = useCombat();
 
   function rolarDado(lados) {
     return Math.floor(Math.random() * lados) + 1;
@@ -27,39 +29,57 @@ const CombatActions = ({ onEscapeAttempt, removeDefender }) => {
     }
   };
 
-  const defenderComEscudo = () => {
-    if (equipment.shield) {
-      const tentaDefender = rolarDado(2);
-      const buffDefensivo = tentaDefender === 1;
-      // 50% de chance de defender o proximo ataque CD 5 turnos;
-
-      if (buffDefensivo) {
-        const BuffDefenderComEscudo = [...character.buff, "defender"];
-        setCharacter((prev) => ({
-          ...prev,
-          buff: BuffDefenderComEscudo,
-        }));
-        setDefendendo(true);
-        console.log("Sucesso");
-        return;
-      }
-         console.log("Falhou");
-      return;
-    }
-    console.log("Escudo não esta equipado");
+const defenderComEscudo = () => {
+  if (!equipment.shield) {
+    console.log("Escudo não está equipado");
     return;
+  }
+
+  if (!BuffUtils.podeUsarBuff(player, "defender")) {
+    console.log("Defender em recarga");
+    return;
+  }
+
+  const tentaDefender = rolarDado(2);
+  const buffDefensivo = tentaDefender === 1;
+
+  if (buffDefensivo) {
+    const novoBuff = {
+      ...player.buff,
+      defender: {
+        CD: 5,
+        timeEffect: 1 // ou 0 se quiser efeito apenas imediato
+      }
+    };
+
+    setPlayer((prev) => ({
+      ...prev,
+      buff: novoBuff
+    }));
+
+    setBuff(true);
+    console.log("Sucesso");
+  } else {
+    console.log("Falhou");
+  }
+};
+
+
+  const distancia = () => {
+    console.log("player", player.buff);
+    console.log("character", character.buff);
   };
 
   return (
     <div style={{ marginBottom: "8px" }}>
       <button onClick={fugirBtn}>Fugir</button>
-      <button>Criar distancia</button>
+      <button onClick={distancia}>Criar distancia</button>
       <button>Esconder-se</button>
       <button>Esquivar-se</button>
       <button>Pesquisa</button>
       <button>Empurrão</button>
-      <button onClick={defenderComEscudo} disabled={defendendo} setDefendendo(removeDefender)>
-        {defendendo ? 'Defendendo o proximo ataque' : 'Defender (requer escudo)'}
+      <button onClick={defenderComEscudo} disabled={!BuffUtils.podeUsarBuff(player, "defender")}>
+        {!BuffUtils.podeUsarBuff(player, "defender") ? "Defendendo o proximo ataque" : "Defender (requer escudo)"}
       </button>
     </div>
   );

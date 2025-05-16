@@ -8,6 +8,7 @@ export function CombatProvider({ children }) {
   const [player, setPlayer] = useState(null);
   const [enemy, setEnemy] = useState(null);
   const [playerHP, setPlayerHP] = useState(character?.vidaAtual || 0);
+  const [buff, setBuff] = useState();
 
   // Atualiza o localStorage sempre que o player muda
   useEffect(() => {
@@ -17,7 +18,18 @@ export function CombatProvider({ children }) {
   // Outras funções podem ser adicionadas aqui (ex: perder vida, etc)
 
   return (
-    <CombatContext.Provider value={{ player, setPlayer, enemy, setEnemy, playerHP, setPlayerHP }}>
+    <CombatContext.Provider
+      value={{
+        player,
+        setPlayer,
+        enemy,
+        setEnemy,
+        playerHP,
+        setPlayerHP,
+        buff,
+        setBuff,
+      }}
+    >
       {children}
     </CombatContext.Provider>
   );

@@ -1,4 +1,4 @@
-const personagemPronto ={
+const personagemPronto = {
     "name": "808080",
     "race": {
         "name": "Half-Orc",
@@ -42,12 +42,12 @@ const personagemPronto ={
             "mod": 2
         },
         "con": {
-            "mod": -1,
-            "value": 8
+            "value": 20,
+            "mod": 5
         },
         "int": {
-            "mod": -1,
-            "value": 8
+            "value": 10,
+            "mod": 0
         },
         "wis": {
             "mod": -1,
@@ -155,6 +155,260 @@ const personagemPronto ={
             "twoHandedDamage": null,
             "strengthRequirement": null,
             "stealthDisadvantage": "No"
+        },
+        {
+            "index": "leather-armor",
+            "name": "Leather Armor",
+            "price": 10,
+            "url": "/api/2014/equipment/leather-armor",
+            "type": "armor",
+            "category": "Light",
+            "status": 11,
+            "bonusDex": true,
+            "properties": [],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "breastplate",
+            "name": "Breastplate",
+            "price": 400,
+            "url": "/api/2014/equipment/breastplate",
+            "type": "armor",
+            "category": "Medium",
+            "status": 14,
+            "bonusDex": true,
+            "properties": [],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "studded-leather-armor",
+            "name": "Studded Leather Armor",
+            "price": 45,
+            "url": "/api/2014/equipment/studded-leather-armor",
+            "type": "armor",
+            "category": "Light",
+            "status": 12,
+            "bonusDex": true,
+            "properties": [],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "shortbow",
+            "name": "Shortbow",
+            "price": 25,
+            "url": "/api/2014/equipment/shortbow",
+            "type": "weapon",
+            "category": "Simple",
+            "status": "1d6",
+            "bonusDex": null,
+            "properties": [
+                {
+                    "index": "ammunition",
+                    "name": "Ammunition",
+                    "url": "/api/2014/weapon-properties/ammunition"
+                },
+                {
+                    "index": "two-handed",
+                    "name": "Two-Handed",
+                    "url": "/api/2014/weapon-properties/two-handed"
+                }
+            ],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "quarterstaff",
+            "name": "Quarterstaff",
+            "price": 2,
+            "url": "/api/2014/equipment/quarterstaff",
+            "type": "weapon",
+            "category": "Simple",
+            "status": "1d6",
+            "bonusDex": null,
+            "properties": [
+                {
+                    "index": "versatile",
+                    "name": "Versatile",
+                    "url": "/api/2014/weapon-properties/versatile"
+                },
+                {
+                    "index": "monk",
+                    "name": "Monk",
+                    "url": "/api/2014/weapon-properties/monk"
+                }
+            ],
+            "twoHandedDamage": {
+                "damage_dice": "1d8",
+                "damage_type": {
+                    "index": "bludgeoning",
+                    "name": "Bludgeoning",
+                    "url": "/api/2014/damage-types/bludgeoning"
+                }
+            },
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "pike",
+            "name": "Pike",
+            "price": 5,
+            "url": "/api/2014/equipment/pike",
+            "type": "weapon",
+            "category": "Martial",
+            "status": "1d10",
+            "bonusDex": null,
+            "properties": [
+                {
+                    "index": "heavy",
+                    "name": "Heavy",
+                    "url": "/api/2014/weapon-properties/heavy"
+                },
+                {
+                    "index": "reach",
+                    "name": "Reach",
+                    "url": "/api/2014/weapon-properties/reach"
+                },
+                {
+                    "index": "two-handed",
+                    "name": "Two-Handed",
+                    "url": "/api/2014/weapon-properties/two-handed"
+                }
+            ],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "morningstar",
+            "name": "Morningstar",
+            "price": 15,
+            "url": "/api/2014/equipment/morningstar",
+            "type": "weapon",
+            "category": "Martial",
+            "status": "1d8",
+            "bonusDex": null,
+            "properties": [],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "maul",
+            "name": "Maul",
+            "price": 10,
+            "url": "/api/2014/equipment/maul",
+            "type": "weapon",
+            "category": "Martial",
+            "status": "2d6",
+            "bonusDex": null,
+            "properties": [
+                {
+                    "index": "heavy",
+                    "name": "Heavy",
+                    "url": "/api/2014/weapon-properties/heavy"
+                },
+                {
+                    "index": "two-handed",
+                    "name": "Two-Handed",
+                    "url": "/api/2014/weapon-properties/two-handed"
+                }
+            ],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "chain-shirt",
+            "name": "Chain Shirt",
+            "price": 50,
+            "url": "/api/2014/equipment/chain-shirt",
+            "type": "armor",
+            "category": "Medium",
+            "status": 13,
+            "bonusDex": true,
+            "properties": [],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "padded-armor",
+            "name": "Padded Armor",
+            "price": 5,
+            "url": "/api/2014/equipment/padded-armor",
+            "type": "armor",
+            "category": "Light",
+            "status": 11,
+            "bonusDex": true,
+            "properties": [],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "Yes",
+            "quantity": 1
+        },
+        {
+            "index": "trident",
+            "name": "Trident",
+            "price": 5,
+            "url": "/api/2014/equipment/trident",
+            "type": "weapon",
+            "category": "Martial",
+            "status": "1d6",
+            "bonusDex": null,
+            "properties": [
+                {
+                    "index": "thrown",
+                    "name": "Thrown",
+                    "url": "/api/2014/weapon-properties/thrown"
+                },
+                {
+                    "index": "versatile",
+                    "name": "Versatile",
+                    "url": "/api/2014/weapon-properties/versatile"
+                }
+            ],
+            "twoHandedDamage": {
+                "damage_dice": "1d8",
+                "damage_type": {
+                    "index": "piercing",
+                    "name": "Piercing",
+                    "url": "/api/2014/damage-types/piercing"
+                }
+            },
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
+        },
+        {
+            "index": "shield",
+            "name": "Shield",
+            "price": 10,
+            "url": "/api/2014/equipment/shield",
+            "type": "armor",
+            "category": "Shield",
+            "status": 2,
+            "bonusDex": false,
+            "properties": [],
+            "twoHandedDamage": null,
+            "strengthRequirement": null,
+            "stealthDisadvantage": "No",
+            "quantity": 1
         }
     ],
     "potions": [
@@ -177,19 +431,19 @@ const personagemPronto ={
             ],
             "url": "/api/2014/magic-items/oil-of-etherealness",
             "updated_at": "2025-04-08T21:14:05.798Z",
-            "quantity": 5
+            "quantity": 4
         }
     ],
     "background": "80808080",
     "alignment": "Chaotic Good",
-    "gold": 998386,
+    "gold": 902491,
     "exp": 3157.5,
-    "nivel": 6,
+    "nivel": 3,
     "up": false,
-    "proficienciesBonus": 3,
-    "cArmor": 14,
-    "vidaInicial": 5,
-    "vidaAtual": 5,
+    "proficienciesBonus": 2,
+    "cArmor": 18,
+    "vidaInicial": 27,
+    "vidaAtual": 1,
     "initialSlots": {
         "armor": null,
         "mainHand": null,
@@ -592,7 +846,11 @@ const personagemPronto ={
             "url": "/api/2014/spells/detect-magic",
             "updated_at": "2025-04-08T21:14:16.147Z"
         }
-    ]
+    ],
+    "buff": {
+        "defender": { "CD": 0, "timeEffect": 0 },
+        "outroBuff": { "CD": 0, "timeEffect": 0 },
+    }
 }
 
 export default personagemPronto;
