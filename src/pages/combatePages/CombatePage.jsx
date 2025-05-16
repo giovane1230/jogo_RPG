@@ -177,10 +177,10 @@ function CombatePage() {
     let sucesso = acerto + 5 > player.cArmor;
     const danoTotal = crit ? dano * 2 : dano;
 
-    const temBuff = player.buff["defender"]?.timeEffect > 0;
-
-    if (temBuff) {
-      sucesso = acerto + 5 > player.cArmor * 2;
+    const temBuffDefender = player.buff["defender"]?.timeEffect > 0;
+    if (temBuffDefender) {
+      console.log("mod", player.attributes.con.mod);
+      sucesso = acerto + 5 > player.cArmor + player.attributes.con.mod;
       console.log(player.cArmor * 2, acerto, "defendeu");
 
       const novoBuffs = { ...player.buff };
@@ -238,6 +238,12 @@ function CombatePage() {
       setMensagens((prev) => [...prev, "Falhou na fuga, sofreu ataque!"]);
       setTimeout(turnoInimigo, 1000);
     }
+  };
+
+  const iniciaTurnoInimigo = () => {
+    console.log("Usou o buff com sucesso!");
+    setMensagens((prev) => [...prev, `${player.name} esta se defendendo modificador de constituição adicionado ao CA!`]);
+    setTimeout(turnoInimigo, 1000);
   };
 
   return (
@@ -339,7 +345,10 @@ function CombatePage() {
             Ataque Pesado
           </button>
           <div>
-            <CombatActions onEscapeAttempt={handleEscapeResult} />
+            <CombatActions
+              onEscapeAttempt={handleEscapeResult}
+              iniciaTurnoInimigo={iniciaTurnoInimigo}
+            />
             {combateFinalizado && (
               <>
                 <p>Fugiu do combate</p>
