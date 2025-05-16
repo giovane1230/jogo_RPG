@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCombat } from "../../context/CombateContext";
 import { useNavigate } from "react-router-dom";
-import SpellTolltip from "../../components/SpellsComponents/SpellsTolltip";
-import EquipmentSlots from "../../components/bagComponents/EquipmentSlots";
+import SpellTooltip from "../../components/SpellsComponents/SpellsTooltip";
 
 function TreinoPage() {
   const { setPlayer, setEnemy, playerHP, setPlayerHP, player } = useCombat();
@@ -128,16 +127,16 @@ function TreinoPage() {
             <strong>AC:</strong> {personagemSelecionado.cArmor}
           </p>
           {personagemSelecionado.spells && (
-            <p>
+            <>
               <strong>Magias:</strong>{" "}
               <ul>
                 {personagemSelecionado.spells.map((potion) => (
                   <li key={potion.index}>
-                    <SpellTolltip spell={potion.index}> {potion.name}</SpellTolltip>
+                    <SpellTooltip spell={potion.index}> {potion.name}</SpellTooltip>
                   </li>
                 ))}
               </ul>
-            </p>
+            </>
           )}
           {/* etc, dependendo de como está estruturado seu objeto */}
         </div>

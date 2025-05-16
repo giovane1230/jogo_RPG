@@ -6,7 +6,7 @@ import DropComponent from "../../components/monsterComponents/dropComponent";
 import { useCharEquip } from "../../context/charEquipContext";
 import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
-import SpellTolltip from "../../components/SpellsComponents/SpellsTolltip";
+import SpellTolltip from "../../components/SpellsComponents/SpellsTooltip";
 import CombatActions from "../../components/combateComponents/combatActions";
 import BuffUtils from "../../components/combateComponents/BuffUtils";
 

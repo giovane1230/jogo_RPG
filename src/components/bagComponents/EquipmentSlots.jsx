@@ -290,8 +290,6 @@ const EquipmentSlots = () => {
     if (filtered.length === 0)
       return <p>Nenhum item disponível para {slotType}</p>;
 
-    console.log(equipment);
-
     return (
       <select
         onChange={(e) => {
