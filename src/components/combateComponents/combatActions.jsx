@@ -97,7 +97,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
     }
   };
 
-    const esconderAtivar = () => {
+  const esconderAtivar = () => {
     if (!BuffUtils.podeUsarBuff(player, "sumir")) {
       console.log("Sumir em recarga");
       return;
@@ -128,11 +128,47 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
     }
   };
 
+  const empurrarAtivar = () => {
+    if (!BuffUtils.podeUsarBuff(player, "sumir")) {
+      console.log("Sumir em recarga");
+      return;
+    }
+
+    const tentativa = rolarDado(2);
+    const sucesso = tentativa === 1;
+
+    if (sucesso) {
+      const novoBuff = {
+        ...player.buff,
+        empurrar: {
+          CD: 2,
+          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
+          desc: "Atordoa o inimigo",
+        },
+      };
+
+      setPlayer((prev) => ({
+        ...prev,
+        buff: novoBuff,
+      }));
+
+      console.log("Sucesso");
+    } else {
+      console.log("Falhou");
+      iniciaTurnoInimigo(!sucesso);
+    }
+  };
+
   return (
     <div style={{ marginBottom: "8px" }}>
       <button onClick={fugirBtn}>Fugir</button>
       <button>Criar distancia</button>
-      <button onClick={esconderAtivar}         disabled={!BuffUtils.podeUsarBuff(player, "sumir")}>Esconder-se</button>
+      <button
+        onClick={esconderAtivar}
+        disabled={!BuffUtils.podeUsarBuff(player, "sumir")}
+      >
+        Esconder-se
+      </button>
       <button
         onClick={esquivarAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "esquiva")}
@@ -140,7 +176,12 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         Esquivar-se
       </button>
       <button>Pesquisa</button>
-      <button>Empurrão</button>
+      <button
+        onClick={empurrarAtivar}
+        disabled={!BuffUtils.podeUsarBuff(player, "empurrar")}
+      >
+        Empurrar
+      </button>
       <button
         onClick={defenderComEscudo}
         disabled={!BuffUtils.podeUsarBuff(player, "defender")}

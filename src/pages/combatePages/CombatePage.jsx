@@ -193,7 +193,21 @@ function CombatePage() {
 
   function turnoInimigo() {
     if (!enemy.actions?.length || combateFinalizado) return;
-
+    setRound((r) => r + 1);
+    const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
+    setPlayer((prev) => ({
+      ...prev,
+      buff: buffsAtualizados,
+    }));
+    const temBuffEmpurrar = player.buff["empurrar"]?.timeEffect > 0;
+    if (temBuffEmpurrar) {
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "buff", texto: `${enemy.name} atordoado!` },
+        { tipo: "sistema", texto: `--- Fim do ${round}° Round ---` },
+      ]);
+      return;
+    }
     const atk = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
     const lados = parseInt(atk.damage?.[0]?.damage_dice.split("d")[1], 10) || 6;
     const dano = rolarDado(lados);
@@ -218,14 +232,6 @@ function CombatePage() {
     if (temBuffDefender) {
       sucesso = acerto + 5 > player.cArmor + player.attributes.con.mod;
 
-      const novoBuffs = { ...player.buff };
-      delete novoBuffs["defender"]; // remove o efeito defensivo após uso
-
-      setPlayer((prev) => ({
-        ...prev,
-        buff: novoBuffs,
-      }));
-
       setMensagens((prev) => [
         ...prev,
         sucesso
@@ -241,8 +247,6 @@ function CombatePage() {
             },
       ]);
     }
-
-    setRound((r) => r + 1);
 
     setMensagens((prev) => [
       ...prev,
@@ -261,11 +265,6 @@ function CombatePage() {
     ]);
 
     if (sucesso) setPlayerHP((hp) => Math.max(0, hp - danoTotal));
-    const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
-    setPlayer((prev) => ({
-      ...prev,
-      buff: buffsAtualizados,
-    }));
   }
 
   const recarregarArma = () => {
