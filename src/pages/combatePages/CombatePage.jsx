@@ -9,6 +9,7 @@ import xpLevels from "../../api/regras";
 import SpellTolltip from "../../components/SpellsComponents/SpellsTooltip";
 import CombatActions from "../../components/combateComponents/combatActions";
 import BuffUtils from "../../components/combateComponents/BuffUtils";
+import TrocarDeArma from "../../components/combateComponents/trocarDeArma";
 
 function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP, setPlayer } = useCombat();
@@ -23,6 +24,7 @@ function CombatePage() {
   const [round, setRound] = useState(1);
   const [precisaRecarregar, setPrecisaRecarregar] = useState(true);
   const [selectedSpell, setSelectedSpell] = useState(null);
+  const [trocarDeArma, setTrocaDeArma] = useState(false);
 
   if (!enemy)
     return <p>Combate Interrompido, por favor saia desta página...</p>;
@@ -315,6 +317,28 @@ function CombatePage() {
     setTimeout(turnoInimigo, 1000);
   };
 
+  const TrocarDeArmaBtn = () => {
+    if (trocarDeArma) {
+  const hasShield = !!equipment.shield;
+      if(hasShield) {
+        console.log("botou escudo CA:", character.cArmor)
+      } else {
+        console.log('tirou o escudo CA:', character.cArmor)
+      }
+      setTrocaDeArma(false);
+      setMensagens((prev) => [
+        ...prev,
+        {
+          tipo: "jogador",
+          texto: `Trocou de arma`,
+        },
+      ]);
+      setTimeout(turnoInimigo, 1000);
+      return;
+    }
+    setTrocaDeArma(true);
+  }
+
   return (
     <div>
       <h1>Combate</h1>
@@ -384,7 +408,7 @@ function CombatePage() {
           </button>
         </p>
       )}
-      {!combateFinalizado && (
+      {!combateFinalizado && !trocarDeArma ? (
         <>
           <strong>Poção:</strong> <CombatPotions />
           <h2>Ataques</h2>
@@ -426,6 +450,7 @@ function CombatePage() {
               onEscapeAttempt={handleEscapeResult}
               iniciaTurnoInimigo={iniciaTurnoInimigo}
             />
+            <button onClick={TrocarDeArmaBtn}> Troca de arma </button>
             {combateFinalizado && (
               <>
                 <p>Fugiu do combate</p>
@@ -433,6 +458,11 @@ function CombatePage() {
               </>
             )}
           </div>
+        </>
+      ) : (
+        <>
+          <button onClick={TrocarDeArmaBtn}>Confirmar troca</button>
+          <TrocarDeArma />
         </>
       )}
       {/* Loot / drop aparece sempre que o combate acabar */}

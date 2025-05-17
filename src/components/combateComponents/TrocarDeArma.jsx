@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useCharEquip } from "../../context/charEquipContext";
 
-const EquipmentSlots = () => {
+const TrocarDeArma = () => {
   const [character, setCharacter] = useState(() => {
     const savedData = localStorage.getItem("charData");
     return savedData ? JSON.parse(savedData) : null;
@@ -320,20 +320,6 @@ const EquipmentSlots = () => {
 
   return (
     <div>
-      <h2>Equipamentos</h2>
-
-      <div>
-        <h3>Armadura</h3>
-        {equipment.armor ? (
-          <div>
-            {equipment.armor.name}
-            <button onClick={() => unequipItem("armor")}>Remover</button>
-          </div>
-        ) : (
-          renderAvailableItems("armor")
-        )}
-      </div>
-
       {/* Arma de duas mãos */}
       {!hasShield && !hasMainWeapon && (
         <div>
@@ -348,65 +334,52 @@ const EquipmentSlots = () => {
           )}
         </div>
       )}
-      <>
-        {/* Mão Direita (arma principal) */}
-        {!hasTwoHanded && (
-          <div>
-            <h3>Mão Direita</h3>
-            {hasMainWeapon ? (
-              <div>
-                {equipment.weapon.name}
-                <button onClick={() => unequipItem("weapon")}>Remover</button>
-              </div>
-            ) : (
-              renderAvailableItems("weapon")
-            )}
-          </div>
-        )}
+      {/* Mão Direita (arma principal) */}
+      {!hasTwoHanded && (
+        <div>
+          <h3>Mão Direita</h3>
+          {hasMainWeapon ? (
+            <div>
+              {equipment.weapon.name}
+              <button onClick={() => unequipItem("weapon")}>Remover</button>
+            </div>
+          ) : (
+            renderAvailableItems("weapon")
+          )}
+        </div>
+      )}
 
-        {/* Mão Esquerda (arma secundária) */}
-        {!hasShield && hasMainWeapon && !hasTwoHanded && (
-          <div>
-            <h3>Mão Esquerda</h3>
-            {hasOffHand ? (
-              <div>
-                {equipment.offHand.name}
-                <button onClick={() => unequipItem("offHand")}>Remover</button>
-              </div>
-            ) : (
-              renderAvailableItems("weapon")
-            )}
-          </div>
-        )}
+      {/* Mão Esquerda (arma secundária) */}
+      {!hasShield && hasMainWeapon && !hasTwoHanded && (
+        <div>
+          <h3>Mão Esquerda</h3>
+          {hasOffHand ? (
+            <div>
+              {equipment.offHand.name}
+              <button onClick={() => unequipItem("offHand")}>Remover</button>
+            </div>
+          ) : (
+            renderAvailableItems("weapon")
+          )}
+        </div>
+      )}
 
-        {/* Escudo */}
-        {!hasTwoHanded && !hasOffHand && (
-          <div>
-            <h3>Escudo</h3>
-            {hasShield ? (
-              <div>
-                {equipment.shield.name}
-                <button onClick={() => unequipItem("shield")}>Remover</button>
-              </div>
-            ) : (
-              renderAvailableItems("shield")
-            )}
-          </div>
-        )}
-      </>
-
-      {/* Outros slots */}
-      <div>
-        <h3>Anéis</h3>
-        {equipment.ring.map((ring, i) => (
-          <div key={i}>
-            {ring.name}
-            <button onClick={() => unequipItem("ring", i)}>Remover</button>
-          </div>
-        ))}
-      </div>
+      {/* Escudo */}
+      {!hasTwoHanded && !hasOffHand && (
+        <div>
+          <h3>Escudo</h3>
+          {hasShield ? (
+            <div>
+              {equipment.shield.name}
+              <button onClick={() => unequipItem("shield")}>Remover</button>
+            </div>
+          ) : (
+            renderAvailableItems("shield")
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-export default EquipmentSlots;
+export default TrocarDeArma;

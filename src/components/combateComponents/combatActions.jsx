@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { useCharEquip } from "../../context/charEquipContext";
 import { useCombat } from "../../context/CombateContext";
@@ -158,7 +158,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
     }
   };
 
-    const pesquisarAtivar = () => {
+  const pesquisarAtivar = () => {
     if (!BuffUtils.podeUsarBuff(player, "pesquisar")) {
       console.log("Pesquisar em recarga");
       return;
@@ -197,25 +197,33 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         onClick={esconderAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "sumir")}
       >
-        {BuffUtils.podeUsarBuff(player, "sumir") ? "Esconder-se" : "Esconder-se (ativado)"}
+        {BuffUtils.podeUsarBuff(player, "sumir")
+          ? "Esconder-se"
+          : "Esconder-se (ativado)"}
       </button>
       <button
         onClick={esquivarAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "esquiva")}
       >
-        {BuffUtils.podeUsarBuff(player, "esquiva") ? "Esquivar" : "Esquivar (ativado)"}
+        {BuffUtils.podeUsarBuff(player, "esquiva")
+          ? "Esquivar"
+          : "Esquivar (ativado)"}
       </button>
       <button
         onClick={pesquisarAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "pesquisar")}
       >
-        {BuffUtils.podeUsarBuff(player, "pesquisar") ? "pesquisar" : "pesquisar (ativado)"}
+        {BuffUtils.podeUsarBuff(player, "pesquisar")
+          ? "pesquisar"
+          : "pesquisar (ativado)"}
       </button>
       <button
         onClick={empurrarAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "empurrar")}
       >
-        {BuffUtils.podeUsarBuff(player, "empurrar") ? "empurrar" : "empurrar (ativado)"}
+        {BuffUtils.podeUsarBuff(player, "empurrar")
+          ? "empurrar"
+          : "empurrar (ativado)"}
       </button>
       <button
         onClick={defenderComEscudo}
