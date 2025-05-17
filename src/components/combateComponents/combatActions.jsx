@@ -7,7 +7,7 @@ import BuffUtils from "./BuffUtils";
 const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   const { character } = useCharacter();
   const { equipment } = useCharEquip();
-  const { setBuff, player, setPlayer } = useCombat();
+  const { player, setPlayer } = useCombat();
 
   function rolarDado(lados) {
     return Math.floor(Math.random() * lados) + 1;
@@ -58,7 +58,6 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         buff: novoBuff,
       }));
 
-      setBuff(true);
       console.log("Sucesso");
     } else {
       console.log("Falhou");
@@ -129,7 +128,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   };
 
   const empurrarAtivar = () => {
-    if (!BuffUtils.podeUsarBuff(player, "sumir")) {
+    if (!BuffUtils.podeUsarBuff(player, "empurrar")) {
       console.log("Sumir em recarga");
       return;
     }
@@ -159,6 +158,37 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
     }
   };
 
+    const pesquisarAtivar = () => {
+    if (!BuffUtils.podeUsarBuff(player, "pesquisar")) {
+      console.log("Pesquisar em recarga");
+      return;
+    }
+
+    const tentativa = rolarDado(2);
+    const sucesso = tentativa === 1;
+
+    if (sucesso) {
+      const novoBuff = {
+        ...player.buff,
+        pesquisar: {
+          CD: 2,
+          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
+          desc: "Foca no inimigo, mod acerto dobrado",
+        },
+      };
+
+      setPlayer((prev) => ({
+        ...prev,
+        buff: novoBuff,
+      }));
+
+      console.log("Sucesso");
+    } else {
+      console.log("Falhou");
+      iniciaTurnoInimigo(!sucesso);
+    }
+  };
+
   return (
     <div style={{ marginBottom: "8px" }}>
       <button onClick={fugirBtn}>Fugir</button>
@@ -167,27 +197,32 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         onClick={esconderAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "sumir")}
       >
-        Esconder-se
+        {BuffUtils.podeUsarBuff(player, "sumir") ? "Esconder-se" : "Esconder-se (ativado)"}
       </button>
       <button
         onClick={esquivarAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "esquiva")}
       >
-        Esquivar-se
+        {BuffUtils.podeUsarBuff(player, "esquiva") ? "Esquivar" : "Esquivar (ativado)"}
       </button>
-      <button>Pesquisa</button>
+      <button
+        onClick={pesquisarAtivar}
+        disabled={!BuffUtils.podeUsarBuff(player, "pesquisar")}
+      >
+        {BuffUtils.podeUsarBuff(player, "pesquisar") ? "pesquisar" : "pesquisar (ativado)"}
+      </button>
       <button
         onClick={empurrarAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "empurrar")}
       >
-        Empurrar
+        {BuffUtils.podeUsarBuff(player, "empurrar") ? "empurrar" : "empurrar (ativado)"}
       </button>
       <button
         onClick={defenderComEscudo}
         disabled={!BuffUtils.podeUsarBuff(player, "defender")}
       >
         {!BuffUtils.podeUsarBuff(player, "defender")
-          ? "Defendendo o proximo ataque"
+          ? "Defendendo"
           : "Defender (requer escudo)"}
       </button>
     </div>

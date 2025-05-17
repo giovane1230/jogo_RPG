@@ -81,7 +81,24 @@ function CombatePage() {
     if (combateFinalizado) return;
 
     let acerto = rolarDado(20);
+    const modAtk = Math.max(
+      character.attributes.dex.mod,
+      character.attributes.str.mod
+    );
     const temBuffSumir = player.buff["sumir"]?.timeEffect > 0;
+    const temBuffPesquisar = player.buff["pesquisar"]?.timeEffect > 0;
+    let bonusTotal = modAtk + character.proficienciesBonus;
+    if (temBuffPesquisar) {
+      bonusTotal = modAtk + modAtk + acerto + character.proficienciesBonus;
+      console.log(bonusTotal);
+      setMensagens((prev) => [
+        ...prev,
+        {
+          tipo: "buff",
+          texto: `${player.name} dobra o modificador de acerto! acerto: +${modAtk}`,
+        },
+      ]);
+    }
     if (temBuffSumir) {
       acerto = 20;
       setMensagens((prev) => [
@@ -89,12 +106,7 @@ function CombatePage() {
         { tipo: "buff", texto: `${player.name} ataque de oportunidade!` },
       ]);
     }
-    const modAtk = Math.max(
-      character.attributes.dex.mod,
-      character.attributes.str.mod
-    );
 
-    const bonusTotal = modAtk + character.proficienciesBonus;
     const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
 
     const critico = acerto === 20;
@@ -109,7 +121,7 @@ function CombatePage() {
               critico ? "CRÍTICO" : "acertou"
             } 🎲${acerto}+${bonusTotal} = ${
               acerto + bonusTotal
-            }, causou ${danoTotal}⚔️`,
+            }, causou ${danoTotal}💥`,
           }
         : {
             tipo: "jogador",
@@ -149,7 +161,7 @@ function CombatePage() {
               critico ? "CRÍTICO" : "acertou"
             } 🎲${acerto}+${bonusTotal} = ${
               acerto + bonusTotal
-            }, causou ${danoTotal}⚔️`,
+            }, causou ${danoTotal}💥`,
           }
         : {
             tipo: "jogador",
@@ -239,7 +251,7 @@ function CombatePage() {
               tipo: "inimigo",
               texto: `${enemy.name} ${
                 crit ? "CRÍTICO" : "acertou"
-              } 🎲${acerto}+5 = ${acerto + 5}, causou ⚔️${danoTotal}!`,
+              } 🎲${acerto}+5 = ${acerto + 5}, causou ${danoTotal}💥`,
             }
           : {
               tipo: "jogador",
@@ -255,7 +267,7 @@ function CombatePage() {
             tipo: "inimigo",
             texto: `${enemy.name} ${
               crit ? "CRÍTICO" : "acertou"
-            } 🎲${acerto}+5 = ${acerto + 5}, causou ⚔️${danoTotal}!`,
+            } 🎲${acerto}+5 = ${acerto + 5}, causou ${danoTotal}💥`,
           }
         : {
             tipo: "inimigo",
@@ -297,7 +309,7 @@ function CombatePage() {
       ...prev,
       {
         tipo: "jogador",
-        texto: `Tentou usar buff mas falhou e sofreu um ataque`,
+        texto: `Tentou usar uma ação mas falhou e sofreu um ataque de oportunidade`,
       },
     ]);
     setTimeout(turnoInimigo, 1000);
