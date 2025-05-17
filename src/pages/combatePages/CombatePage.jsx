@@ -41,7 +41,7 @@ function CombatePage() {
     }
   }, [enemyHP, playerHP, combateFinalizado]);
 
-function finalizarCombate(jogadorVenceu) {
+  function finalizarCombate(jogadorVenceu) {
     setCombateFinalizado(true);
 
     if (jogadorVenceu) {
@@ -80,13 +80,23 @@ function finalizarCombate(jogadorVenceu) {
   function ataqueJogador(dano) {
     if (combateFinalizado) return;
 
-    const acerto = rolarDado(20);
+    let acerto = rolarDado(20);
+    const temBuffSumir = player.buff["sumir"]?.timeEffect > 0;
+    if (temBuffSumir) {
+      acerto = 20;
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "buff", texto: `${player.name} ataque de oportunidade!` },
+      ]);
+    }
     const modAtk = Math.max(
       character.attributes.dex.mod,
       character.attributes.str.mod
     );
+
     const bonusTotal = modAtk + character.proficienciesBonus;
     const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
+
     const critico = acerto === 20;
     const danoTotal = critico ? dano * 2 : dano;
 
@@ -117,7 +127,7 @@ function finalizarCombate(jogadorVenceu) {
     }
   }
 
-function ataqueJogadorOffHand(dano) {
+  function ataqueJogadorOffHand(dano) {
     if (combateFinalizado) return;
 
     const acerto = rolarDado(20);
@@ -181,7 +191,7 @@ function ataqueJogadorOffHand(dano) {
     ataqueJogador(dano);
   }
 
-function turnoInimigo() {
+  function turnoInimigo() {
     if (!enemy.actions?.length || combateFinalizado) return;
 
     const atk = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
@@ -195,10 +205,12 @@ function turnoInimigo() {
 
     const temBuffDefender = player.buff["defender"]?.timeEffect > 0;
     const temBuffEsquiva = player.buff["esquiva"]?.timeEffect > 0;
-    if (temBuffEsquiva) {
+    const temBuffSumir = player.buff["sumir"]?.timeEffect > 0;
+
+    if (temBuffEsquiva || temBuffSumir) {
       setMensagens((prev) => [
         ...prev,
-        { tipo: "buff", texto: `${player.name} esquivou!` },
+        { tipo: "buff", texto: `${player.name} intangivel!` },
       ]);
       sucesso = false;
     }
@@ -219,9 +231,9 @@ function turnoInimigo() {
         sucesso
           ? {
               tipo: "inimigo",
-              texto: `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
-                acerto + 5
-              }, causou ⚔️${danoTotal}!`,
+              texto: `${enemy.name} ${
+                crit ? "CRÍTICO" : "acertou"
+              } 🎲${acerto}+5 = ${acerto + 5}, causou ⚔️${danoTotal}!`,
             }
           : {
               tipo: "jogador",
@@ -237,9 +249,9 @@ function turnoInimigo() {
       sucesso
         ? {
             tipo: "inimigo",
-            texto: `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
-              acerto + 5
-            }, causou ⚔️${danoTotal}!`,
+            texto: `${enemy.name} ${
+              crit ? "CRÍTICO" : "acertou"
+            } 🎲${acerto}+5 = ${acerto + 5}, causou ⚔️${danoTotal}!`,
           }
         : {
             tipo: "inimigo",
@@ -256,7 +268,7 @@ function turnoInimigo() {
     }));
   }
 
-const recarregarArma = () => {
+  const recarregarArma = () => {
     setPrecisaRecarregar(true);
     setMensagens((prev) => [
       ...prev,
@@ -265,7 +277,7 @@ const recarregarArma = () => {
     setTimeout(turnoInimigo, 1000);
   };
 
-const handleEscapeResult = (fugiu) => {
+  const handleEscapeResult = (fugiu) => {
     if (fugiu) {
       setMensagens((prev) => [
         ...prev,
@@ -286,7 +298,7 @@ const handleEscapeResult = (fugiu) => {
       ...prev,
       {
         tipo: "jogador",
-        texto: `${player.name} esta se defendendo modificador de constituição adicionado ao CA!`,
+        texto: `Tentou usar buff mas falhou e sofreu um ataque`,
       },
     ]);
     setTimeout(turnoInimigo, 1000);
@@ -412,6 +424,9 @@ const handleEscapeResult = (fugiu) => {
           </div>
         </>
       )}
+      {/* Loot / drop aparece sempre que o combate acabar */}
+      {derrota && <DropComponent CR={"derrota"} />}
+      {dropReady && <DropComponent CR={enemy.challenge_rating} />}
 
       {/* Mensagens de combate */}
       <div style={{ marginTop: 20 }}>
@@ -445,7 +460,7 @@ const handleEscapeResult = (fugiu) => {
                 corDeFundo = "#rgb(24 217 197 / 73%)"; // vermelho claro
                 corTexto = "#rgb(36 56 77)";
                 titulo = "buffs";
-                emoji = "👹";
+                emoji = "✨";
               }
 
               return (
@@ -460,7 +475,7 @@ const handleEscapeResult = (fugiu) => {
                     margin: "4px 8px",
                     textAlign: "left",
                     fontFamily: "monospace",
-                    fontSize: "18px"
+                    fontSize: "18px",
                   }}
                 >
                   <strong>
@@ -472,10 +487,6 @@ const handleEscapeResult = (fugiu) => {
             })}
         </ul>
       </div>
-
-      {/* Loot / drop aparece sempre que o combate acabar */}
-      {derrota && <DropComponent CR={"derrota"} />}
-      {dropReady && <DropComponent CR={enemy.challenge_rating} />}
     </div>
   );
 }

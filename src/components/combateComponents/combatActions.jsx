@@ -90,7 +90,6 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         buff: novoBuff,
       }));
 
-      // setBuff(true);
       console.log("Sucesso");
     } else {
       console.log("Falhou");
@@ -98,16 +97,42 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
     }
   };
 
-  const distancia = () => {
-    console.log("player", player.buff);
-    console.log("character", character.buff);
+    const esconderAtivar = () => {
+    if (!BuffUtils.podeUsarBuff(player, "sumir")) {
+      console.log("Sumir em recarga");
+      return;
+    }
+
+    const tentaSumir = rolarDado(2);
+    const sucesso = tentaSumir === 1;
+
+    if (sucesso) {
+      const novoBuff = {
+        ...player.buff,
+        sumir: {
+          CD: 2,
+          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
+          desc: "Some e causa dano de furtividade.",
+        },
+      };
+
+      setPlayer((prev) => ({
+        ...prev,
+        buff: novoBuff,
+      }));
+
+      console.log("Sucesso");
+    } else {
+      console.log("Falhou");
+      iniciaTurnoInimigo(!sucesso);
+    }
   };
 
   return (
     <div style={{ marginBottom: "8px" }}>
       <button onClick={fugirBtn}>Fugir</button>
-      <button onClick={distancia}>Criar distancia</button>
-      <button>Esconder-se</button>
+      <button>Criar distancia</button>
+      <button onClick={esconderAtivar}         disabled={!BuffUtils.podeUsarBuff(player, "sumir")}>Esconder-se</button>
       <button
         onClick={esquivarAtivar}
         disabled={!BuffUtils.podeUsarBuff(player, "esquiva")}
