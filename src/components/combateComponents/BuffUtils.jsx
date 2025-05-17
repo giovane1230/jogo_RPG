@@ -19,7 +19,6 @@ function AtualizarBuffs(buffDetails) {
 
 function podeUsarBuff(player, nomeDoBuff) {
   const buff = player.buff[nomeDoBuff];
-  console.log('defender', buff)
   return !buff || buff.CD === 0; // true se não existir ou se estiver pronto
 }
 

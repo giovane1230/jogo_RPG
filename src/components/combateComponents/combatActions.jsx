@@ -4,10 +4,7 @@ import { useCharEquip } from "../../context/charEquipContext";
 import { useCombat } from "../../context/CombateContext";
 import BuffUtils from "./BuffUtils";
 
-const CombatActions = ({
-  onEscapeAttempt,
-  iniciaTurnoInimigo,
-}) => {
+const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   const { character } = useCharacter();
   const { equipment } = useCharEquip();
   const { setBuff, player, setPlayer } = useCombat();
@@ -44,14 +41,15 @@ const CombatActions = ({
     }
 
     const tentaDefender = rolarDado(2);
-    const buffDefensivo = tentaDefender === 1;
+    const sucesso = tentaDefender === 1;
 
-    if (buffDefensivo) {
+    if (sucesso) {
       const novoBuff = {
         ...player.buff,
         defender: {
           CD: 5,
-          timeEffect: 3, // ou 0 se quiser efeito apenas imediato
+          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
+          desc: "CA + CON MOD.",
         },
       };
 
@@ -64,7 +62,39 @@ const CombatActions = ({
       console.log("Sucesso");
     } else {
       console.log("Falhou");
-      iniciaTurnoInimigo(!buffDefensivo);
+      iniciaTurnoInimigo(!sucesso);
+    }
+  };
+
+  const esquivarAtivar = () => {
+    if (!BuffUtils.podeUsarBuff(player, "esquiva")) {
+      console.log("Esquiva em recarga");
+      return;
+    }
+
+    const tentaDefender = rolarDado(2);
+    const sucesso = tentaDefender === 1;
+
+    if (sucesso) {
+      const novoBuff = {
+        ...player.buff,
+        esquiva: {
+          CD: 2,
+          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
+          desc: "Esquiva do proximo ataque.",
+        },
+      };
+
+      setPlayer((prev) => ({
+        ...prev,
+        buff: novoBuff,
+      }));
+
+      // setBuff(true);
+      console.log("Sucesso");
+    } else {
+      console.log("Falhou");
+      iniciaTurnoInimigo(!sucesso);
     }
   };
 
@@ -78,7 +108,12 @@ const CombatActions = ({
       <button onClick={fugirBtn}>Fugir</button>
       <button onClick={distancia}>Criar distancia</button>
       <button>Esconder-se</button>
-      <button>Esquivar-se</button>
+      <button
+        onClick={esquivarAtivar}
+        disabled={!BuffUtils.podeUsarBuff(player, "esquiva")}
+      >
+        Esquivar-se
+      </button>
       <button>Pesquisa</button>
       <button>Empurrão</button>
       <button

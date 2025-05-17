@@ -11,8 +11,7 @@ import CombatActions from "../../components/combateComponents/combatActions";
 import BuffUtils from "../../components/combateComponents/BuffUtils";
 
 function CombatePage() {
-  const { player, enemy, playerHP, setPlayerHP, setBuff, setPlayer } =
-    useCombat();
+  const { player, enemy, playerHP, setPlayerHP, setPlayer } = useCombat();
   const { character, setCharacter } = useCharacter();
   const { equipment } = useCharEquip();
 
@@ -42,11 +41,14 @@ function CombatePage() {
     }
   }, [enemyHP, playerHP, combateFinalizado]);
 
-  function finalizarCombate(jogadorVenceu) {
+function finalizarCombate(jogadorVenceu) {
     setCombateFinalizado(true);
 
     if (jogadorVenceu) {
-      setMensagens((prev) => [...prev, `Você derrotou ${enemy.name}!`]);
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "sistema", texto: `Você derrotou ${enemy.name}!` },
+      ]);
     } else {
       // derrota: Ouro perdido (aqui 5% do max)
       const ouroPerdido = Math.floor(character.gold / 20);
@@ -56,7 +58,10 @@ function CombatePage() {
       }));
       setMensagens((prev) => [
         ...prev,
-        `Você foi derrotado! E perdeu ${ouroPerdido} de ouro.`,
+        {
+          tipo: "sistema",
+          texto: `Você foi derrotado! E perdeu ${ouroPerdido} de ouro.`,
+        },
       ]);
     }
 
@@ -88,12 +93,20 @@ function CombatePage() {
     setMensagens((prev) => [
       ...prev,
       sucesso
-        ? `Você ${
-            critico ? "CRÍTICO" : "acertou"
-          } 🎲${acerto}+${bonusTotal} = ${
-            acerto + bonusTotal
-          }, causou ${danoTotal}⚔️`
-        : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
+        ? {
+            tipo: "jogador",
+            texto: `Você ${
+              critico ? "CRÍTICO" : "acertou"
+            } 🎲${acerto}+${bonusTotal} = ${
+              acerto + bonusTotal
+            }, causou ${danoTotal}⚔️`,
+          }
+        : {
+            tipo: "jogador",
+            texto: `Você errou 🎲${acerto}+${bonusTotal} = ${
+              acerto + bonusTotal
+            }🛡️`,
+          },
     ]);
 
     if (sucesso) {
@@ -104,7 +117,7 @@ function CombatePage() {
     }
   }
 
-  function ataqueJogadorOffHand(dano) {
+function ataqueJogadorOffHand(dano) {
     if (combateFinalizado) return;
 
     const acerto = rolarDado(20);
@@ -117,20 +130,23 @@ function CombatePage() {
     const critico = acerto === 20;
     const danoTotal = critico ? dano * 2 : dano;
 
-    // so da o dano bonus e acerto bonus se tiver a caracteristica
-    // caso tenha fazer a logica aqui
-
     setMensagens((prev) => [
       ...prev,
       sucesso
-        ? `Você usou sua SECUNDARIA ${
-            critico ? "CRÍTICO" : "acertou"
-          } 🎲${acerto}+${bonusTotal} = ${
-            acerto + bonusTotal
-          }, causou ${danoTotal}⚔️`
-        : `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${
-            acerto + bonusTotal
-          }🛡️`,
+        ? {
+            tipo: "jogador",
+            texto: `Você usou sua SECUNDARIA ${
+              critico ? "CRÍTICO" : "acertou"
+            } 🎲${acerto}+${bonusTotal} = ${
+              acerto + bonusTotal
+            }, causou ${danoTotal}⚔️`,
+          }
+        : {
+            tipo: "jogador",
+            texto: `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${
+              acerto + bonusTotal
+            }🛡️`,
+          },
     ]);
 
     if (sucesso) setEnemyHP((hp) => Math.max(0, hp - danoTotal));
@@ -165,7 +181,7 @@ function CombatePage() {
     ataqueJogador(dano);
   }
 
-  function turnoInimigo() {
+function turnoInimigo() {
     if (!enemy.actions?.length || combateFinalizado) return;
 
     const atk = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
@@ -178,10 +194,17 @@ function CombatePage() {
     const danoTotal = crit ? dano * 2 : dano;
 
     const temBuffDefender = player.buff["defender"]?.timeEffect > 0;
+    const temBuffEsquiva = player.buff["esquiva"]?.timeEffect > 0;
+    if (temBuffEsquiva) {
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "buff", texto: `${player.name} esquivou!` },
+      ]);
+      sucesso = false;
+    }
+
     if (temBuffDefender) {
-      console.log("mod", player.attributes.con.mod);
       sucesso = acerto + 5 > player.cArmor + player.attributes.con.mod;
-      console.log(player.cArmor * 2, acerto, "defendeu");
 
       const novoBuffs = { ...player.buff };
       delete novoBuffs["defender"]; // remove o efeito defensivo após uso
@@ -194,12 +217,17 @@ function CombatePage() {
       setMensagens((prev) => [
         ...prev,
         sucesso
-          ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
-              acerto + 5
-            }, causou ⚔️${danoTotal}!`
-          : `${player.name} defendeu! 🎲${acerto}+5 = ${acerto + 5}🛡️`,
+          ? {
+              tipo: "inimigo",
+              texto: `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
+                acerto + 5
+              }, causou ⚔️${danoTotal}!`,
+            }
+          : {
+              tipo: "jogador",
+              texto: `${player.name} defendeu! 🎲${acerto}+5 = ${acerto + 5}🛡️`,
+            },
       ]);
-      setBuff(false);
     }
 
     setRound((r) => r + 1);
@@ -207,11 +235,17 @@ function CombatePage() {
     setMensagens((prev) => [
       ...prev,
       sucesso
-        ? `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
-            acerto + 5
-          }, causou ⚔️${danoTotal}!`
-        : `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}🛡️`,
-      `--- Fim do ${round}° Round ---`,
+        ? {
+            tipo: "inimigo",
+            texto: `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} 🎲${acerto}+5 = ${
+              acerto + 5
+            }, causou ⚔️${danoTotal}!`,
+          }
+        : {
+            tipo: "inimigo",
+            texto: `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}🛡️`,
+          },
+      { tipo: "sistema", texto: `--- Fim do ${round}° Round ---` },
     ]);
 
     if (sucesso) setPlayerHP((hp) => Math.max(0, hp - danoTotal));
@@ -222,27 +256,39 @@ function CombatePage() {
     }));
   }
 
-  const recarregarArma = () => {
+const recarregarArma = () => {
     setPrecisaRecarregar(true);
-    setMensagens((prev) => [...prev, "Você recarregou sua arma!"]);
+    setMensagens((prev) => [
+      ...prev,
+      { tipo: "jogador", texto: "Você recarregou sua arma!" },
+    ]);
     setTimeout(turnoInimigo, 1000);
   };
 
-  const handleEscapeResult = (fugiu) => {
+const handleEscapeResult = (fugiu) => {
     if (fugiu) {
-      console.log("Personagem escapou com sucesso!", combateFinalizado);
-      setMensagens((prev) => [...prev, "Personagem escapou com sucesso!"]);
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "sistema", texto: "Personagem escapou com sucesso!" },
+      ]);
       setDerrota(true);
     } else {
-      console.log("Falhou na fuga, sofreu ataque!");
-      setMensagens((prev) => [...prev, "Falhou na fuga, sofreu ataque!"]);
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "sistema", texto: "Falhou na fuga, sofreu ataque!" },
+      ]);
       setTimeout(turnoInimigo, 1000);
     }
   };
 
   const iniciaTurnoInimigo = () => {
-    console.log("Usou o buff com sucesso!");
-    setMensagens((prev) => [...prev, `${player.name} esta se defendendo modificador de constituição adicionado ao CA!`]);
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "jogador",
+        texto: `${player.name} esta se defendendo modificador de constituição adicionado ao CA!`,
+      },
+    ]);
     setTimeout(turnoInimigo, 1000);
   };
 
@@ -261,6 +307,14 @@ function CombatePage() {
         CA={`| CA: ${player.cArmor}`}
         cor="blue"
       />
+      <ul>
+        {Object.entries(player.buff).map(([nomeBuff, detalhes]) => (
+          <li key={nomeBuff}>
+            <strong>{nomeBuff}</strong>: CD = {detalhes.CD} | TE ={" "}
+            {detalhes.timeEffect} | {detalhes.desc}
+          </li>
+        ))}
+      </ul>
       <BarraStatus
         label={enemy.name}
         valorAtual={enemyHP}
@@ -361,23 +415,61 @@ function CombatePage() {
 
       {/* Mensagens de combate */}
       <div style={{ marginTop: 20 }}>
-        <h2>Mensagens</h2>
-        <ul>
+        <h2 style={{ textAlign: "center" }}>Mensagens</h2>
+        <ul style={{ listStyle: "none", padding: 0 }}>
           {mensagens
             .slice()
             .reverse()
-            .map((m, i) => (
-              <ol
-                key={i}
-                style={{
-                  backgroundColor: i % 2 === 0 ? "beige" : "#b9b9b8",
-                  textAlign: "center",
-                  padding: "2px",
-                }}
-              >
-                {m}
-              </ol>
-            ))}
+            .map((m, i) => {
+              let corDeFundo = "#eee";
+              let corTexto = "#000";
+              let titulo = "";
+              let emoji = "";
+
+              if (m.tipo === "sistema") {
+                corDeFundo = "#cce5ff"; // azul claro
+                corTexto = "#004085";
+                titulo = "Sistema";
+                emoji = "⚙️";
+              } else if (m.tipo === "jogador") {
+                corDeFundo = "#d4edda"; // verde claro
+                corTexto = "#155724";
+                titulo = player.name;
+                emoji = "🧙‍♂️";
+              } else if (m.tipo === "inimigo") {
+                corDeFundo = "#f8d7da"; // vermelho claro
+                corTexto = "#721c24";
+                titulo = enemy.name;
+                emoji = "👹";
+              } else if (m.tipo === "buff") {
+                corDeFundo = "#rgb(24 217 197 / 73%)"; // vermelho claro
+                corTexto = "#rgb(36 56 77)";
+                titulo = "buffs";
+                emoji = "👹";
+              }
+
+              return (
+                <li
+                  key={i}
+                  style={{
+                    backgroundColor: corDeFundo,
+                    color: corTexto,
+                    border: `1px solid ${corTexto}`,
+                    borderRadius: "8px",
+                    padding: "8px",
+                    margin: "4px 8px",
+                    textAlign: "left",
+                    fontFamily: "monospace",
+                    fontSize: "18px"
+                  }}
+                >
+                  <strong>
+                    {emoji} {titulo}:
+                  </strong>{" "}
+                  {m.texto}
+                </li>
+              );
+            })}
         </ul>
       </div>
 

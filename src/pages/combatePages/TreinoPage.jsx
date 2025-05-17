@@ -113,6 +113,14 @@ function TreinoPage() {
       {personagemSelecionado && (
         <div style={{ marginTop: "20px" }}>
           <h2>Seu Personagem: {personagemSelecionado.name || "Sem nome"}</h2>
+          <ul>
+            {Object.entries(personagemSelecionado.buff).map(([nomeBuff, detalhes]) => (
+              <li key={nomeBuff}>
+                <strong>{nomeBuff}</strong>: CD = {detalhes.CD}, TE
+                = {detalhes.timeEffect}, {detalhes.desc}
+              </li>
+            ))}
+          </ul>
           <p>
             <strong>Vida:</strong> {playerHP}/
             {personagemSelecionado.vidaInicial}
@@ -132,7 +140,10 @@ function TreinoPage() {
               <ul>
                 {personagemSelecionado.spells.map((potion) => (
                   <li key={potion.index}>
-                    <SpellTooltip spell={potion.index}> {potion.name}</SpellTooltip>
+                    <SpellTooltip spell={potion.index}>
+                      {" "}
+                      {potion.name}
+                    </SpellTooltip>
                   </li>
                 ))}
               </ul>
