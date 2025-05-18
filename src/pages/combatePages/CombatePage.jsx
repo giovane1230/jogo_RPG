@@ -29,6 +29,51 @@ function CombatePage() {
   if (!enemy)
     return <p>Combate Interrompido, por favor saia desta página...</p>;
 
+    const calcularCA = (equipamentos, dexMod) => {
+      if (equipamentos.armor) {
+        if (equipamentos.armor?.category === "Medium") {
+          if (character.attributes.dex.mod > 2) dexMod = 2;
+        }
+      }
+  
+      let caBase = 10 + dexMod;
+  
+      const { armor, shield } = equipamentos;
+  
+      if (armor) {
+        caBase = armor.status;
+  
+        if (armor.bonusDex) {
+          caBase += dexMod;
+        }
+      }
+  
+      if (shield) {
+        caBase += shield.status;
+      }
+  
+      return caBase;
+    };
+  
+    const dexMod = character ? character.attributes.dex.mod : 0;
+    const maxDexMod =
+      character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
+    const strMod = character ? character.attributes.str.mod : 0;
+    const caFinal = calcularCA(equipment, dexMod);
+  
+    // Função para atualizar o cArmor no localStorage
+    const atualizarCArmorNoLocalStorage = (newCharacter) => {
+      newCharacter.cArmor = caFinal; // Atualiza o cArmor diretamente
+      localStorage.setItem("charData", JSON.stringify(newCharacter)); // Atualiza o localStorage com o novo cArmor
+    };
+  
+    // Efeito para atualizar o localStorage sempre que o equipamento mudar
+    useEffect(() => {
+      if (character) {
+        atualizarCArmorNoLocalStorage(character); // Atualiza o cArmor no localStorage
+      }
+    }, [equipment]); // Atualiza apenas quando o equipamento mudar
+
   useEffect(() => {
     if (!combateFinalizado) {
       if (enemyHP <= 0) {
@@ -351,7 +396,7 @@ function CombatePage() {
         label={player.name}
         valorAtual={playerHP}
         valorMaximo={character.vidaInicial || 100}
-        CA={`| CA: ${player.cArmor}`}
+        CA={`| CA: ${caFinal}`}
         cor="blue"
       />
       <ul>
