@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useCombat } from "../../context/CombateContext";
 import { useCharacter } from "../../context/CharacterContext";
 import BarraStatus from "../../components/barsComponents/BarraStatus";
@@ -10,6 +10,7 @@ import SpellTolltip from "../../components/SpellsComponents/SpellsTooltip";
 import CombatActions from "../../components/combateComponents/combatActions";
 import BuffUtils from "../../components/combateComponents/BuffUtils";
 import TrocarDeArma from "../../components/combateComponents/trocarDeArma";
+import { calcularCA } from "../../components/combateComponents/calcularCAUtils";
 
 function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP, setPlayer } = useCombat();
@@ -26,53 +27,15 @@ function CombatePage() {
   const [selectedSpell, setSelectedSpell] = useState(null);
   const [trocarDeArma, setTrocaDeArma] = useState(false);
 
+  
   if (!enemy)
     return <p>Combate Interrompido, por favor saia desta página...</p>;
-
-    const calcularCA = (equipamentos, dexMod) => {
-      if (equipamentos.armor) {
-        if (equipamentos.armor?.category === "Medium") {
-          if (character.attributes.dex.mod > 2) dexMod = 2;
-        }
-      }
   
-      let caBase = 10 + dexMod;
-  
-      const { armor, shield } = equipamentos;
-  
-      if (armor) {
-        caBase = armor.status;
-  
-        if (armor.bonusDex) {
-          caBase += dexMod;
-        }
-      }
-  
-      if (shield) {
-        caBase += shield.status;
-      }
-  
-      return caBase;
-    };
-  
-    const dexMod = character ? character.attributes.dex.mod : 0;
-    const maxDexMod =
-      character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
-    const strMod = character ? character.attributes.str.mod : 0;
-    const caFinal = calcularCA(equipment, dexMod);
-  
-    // Função para atualizar o cArmor no localStorage
-    const atualizarCArmorNoLocalStorage = (newCharacter) => {
-      newCharacter.cArmor = caFinal; // Atualiza o cArmor diretamente
-      localStorage.setItem("charData", JSON.stringify(newCharacter)); // Atualiza o localStorage com o novo cArmor
-    };
-  
-    // Efeito para atualizar o localStorage sempre que o equipamento mudar
-    useEffect(() => {
-      if (character) {
-        atualizarCArmorNoLocalStorage(character); // Atualiza o cArmor no localStorage
-      }
-    }, [equipment]); // Atualiza apenas quando o equipamento mudar
+  const dexMod = character ? character.attributes.dex.mod : 0;
+  const maxDexMod =
+  character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
+  const strMod = character ? character.attributes.str.mod : 0;
+  const caFinal = useMemo(() => calcularCA(equipment, dexMod, character), [equipment, dexMod, character]);
 
   useEffect(() => {
     if (!combateFinalizado) {
