@@ -44,6 +44,7 @@ function TreinoPage() {
       const res = await fetch(`https://www.dnd5eapi.co${url}`);
       const data = await res.json();
       setInimigoSelecionado(data);
+      console.log(inimigoSelecionado);
     } catch (erro) {
       console.error("Erro ao buscar detalhes do inimigo:", erro);
     }
@@ -71,6 +72,23 @@ function TreinoPage() {
       ) : null;
     }
   }, []);
+
+  // Função utilitária para gerar uma cor baseada no índice
+  const getColorByIndex = (idx) => {
+    const colors = [
+      "#FFB6C1", // rosa claro
+      "#ADD8E6", // azul claro
+      "#90EE90", // verde claro
+      "#FFD700", // amarelo
+      "#FFA07A", // salmão claro
+      "#DDA0DD", // roxo claro
+      "#F08080", // vermelho claro
+      "#E0FFFF", // ciano claro
+      "#FFE4B5", // bege claro
+      "#B0E0E6", // azul-petróleo claro
+    ];
+    return colors[idx % colors.length];
+  };
 
   return (
     <div>
@@ -102,11 +120,94 @@ function TreinoPage() {
             <strong>HP:</strong> {inimigoSelecionado.hit_points}
           </p>
           <p>
-            <strong>AC:</strong> {inimigoSelecionado.armor_class.value}
+            <strong>AC:</strong> {inimigoSelecionado.armor_class[0].value}
           </p>
           <p>
             <strong>Desafio:</strong> {inimigoSelecionado.challenge_rating}
           </p>
+          <p>
+            <strong>Açoes:</strong>
+          </p>
+          <ul>
+            {Array.isArray(inimigoSelecionado.actions) &&
+              inimigoSelecionado.actions.map((act, idx) => (
+                <li
+                  key={idx}
+                  style={{
+                    background: getColorByIndex(idx),
+                    padding: "4px",
+                    borderRadius: "4px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <strong>{act.name}</strong>
+
+                  {act.attack_bonus !== undefined && (
+                    <div>🎯 Bônus de Ataque: {act.attack_bonus}</div>
+                  )}
+
+                  {Array.isArray(act.damage) && act.damage.length > 0 && (
+                    <>
+                      <div>💥 Dano:</div>
+                      <ul>
+                        {act.damage.map((dmg, dmgIdx) => (
+                          <li key={dmgIdx}>
+                            {dmg.damage_type?.name || "Tipo desconhecido"} -{" "}
+                            {dmg.damage_dice || "Sem dado"}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  {act.dc && (
+                    <>
+                      <div>🧠 Salvaguarda:</div>
+                      <ul>
+                        <li>
+                          {act.dc.dc_type?.name || "Atributo desconhecido"} - CD{" "}
+                          {act.dc.dc_value || "?"} (
+                          {act.dc.success_type === "half"
+                            ? "Meio dano no sucesso"
+                            : "Total ou nenhum"}
+                          )
+                        </li>
+                      </ul>
+                    </>
+                  )}
+
+                  {act.usage && (
+                    <>
+                      <div>♻️ Uso:</div>
+                      <ul>
+                        <li>
+                          {act.usage.type} -{" "}
+                          {act.usage.dice
+                            ? `${act.usage.dice} (mínimo ${act.usage.min_value})`
+                            : "sem dados"}
+                        </li>
+                      </ul>
+                    </>
+                  )}
+
+                  {Array.isArray(act.actions) && act.actions.length > 0 && (
+                    <>
+                      <div>📦 Ações inclusas:</div>
+                      <ul>
+                        {act.actions.map((subAction, subIdx) => (
+                          <li key={subIdx}>
+                            {subAction.action_name} ×{subAction.count} (
+                            {subAction.type})
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  <p style={{ marginTop: "4px" }}>{act.desc}</p>
+                </li>
+              ))}
+          </ul>
         </div>
       )}
 
@@ -114,12 +215,22 @@ function TreinoPage() {
         <div style={{ marginTop: "20px" }}>
           <h2>Seu Personagem: {personagemSelecionado.name || "Sem nome"}</h2>
           <ul>
-            {Object.entries(personagemSelecionado.buff).map(([nomeBuff, detalhes]) => (
-              <li key={nomeBuff}>
-                <strong>{nomeBuff}</strong>: CD = {detalhes.CD}, TE
-                = {detalhes.timeEffect}, {detalhes.desc}
-              </li>
-            ))}
+            {Object.entries(personagemSelecionado.buff).map(
+              ([nomeBuff, detalhes], idx) => (
+                <li
+                  key={nomeBuff}
+                  style={{
+                    background: getColorByIndex(idx),
+                    padding: "4px",
+                    borderRadius: "4px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <strong>{nomeBuff}</strong>: CD = {detalhes.CD}, TE ={" "}
+                  {detalhes.timeEffect}, {detalhes.desc}
+                </li>
+              )
+            )}
           </ul>
           <p>
             <strong>Vida:</strong> {playerHP}/
@@ -138,8 +249,16 @@ function TreinoPage() {
             <>
               <strong>Magias:</strong>{" "}
               <ul>
-                {personagemSelecionado.spells.map((potion) => (
-                  <li key={potion.index}>
+                {personagemSelecionado.spells.map((potion, idx) => (
+                  <li
+                    key={potion.index}
+                    style={{
+                      background: getColorByIndex(idx),
+                      padding: "4px",
+                      borderRadius: "4px",
+                      marginBottom: "4px",
+                    }}
+                  >
                     <SpellTooltip spell={potion.index}>
                       {" "}
                       {potion.name}
@@ -149,7 +268,6 @@ function TreinoPage() {
               </ul>
             </>
           )}
-          {/* etc, dependendo de como está estruturado seu objeto */}
         </div>
       )}
       {playerHP <= 0 && (

@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import personagemPronto from "../api/injetarChar";
+import MonsterActionsPage from "./charPages/MonsterActionsPage";
+import AllMonsterActions from "../components/monsterComponents/AllMonsterActions";
 
 const Home = () => {
   const salvarNoLocalStorage = () => {
@@ -26,6 +28,8 @@ const Home = () => {
           NOVO PERSONAGEM
         </button>
       </Link>
+      <MonsterActionsPage />
+      <AllMonsterActions />
     </>
   );
 };
