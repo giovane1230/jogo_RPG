@@ -11,6 +11,13 @@ import CombatActions from "../../components/combateComponents/combatActions";
 import BuffUtils from "../../components/combateComponents/BuffUtils";
 import TrocarDeArma from "../../components/combateComponents/trocarDeArma";
 import { calcularCA } from "../../components/combateComponents/calcularCAUtils";
+import {
+  rolarDado,
+  ataqueJogador,
+  ataqueJogadorOffHand,
+  ataquePorBotao,
+  turnoInimigoUtil,
+} from "../../components/combateComponents/combateUtils";
 
 function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP, setPlayer } = useCombat();
@@ -27,15 +34,17 @@ function CombatePage() {
   const [selectedSpell, setSelectedSpell] = useState(null);
   const [trocarDeArma, setTrocaDeArma] = useState(false);
 
-  
   if (!enemy)
     return <p>Combate Interrompido, por favor saia desta página...</p>;
-  
+
   const dexMod = character ? character.attributes.dex.mod : 0;
   const maxDexMod =
-  character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
+    character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
   const strMod = character ? character.attributes.str.mod : 0;
-  const caFinal = useMemo(() => calcularCA(equipment, dexMod, character), [equipment, dexMod, character]);
+  const caFinal = useMemo(
+    () => calcularCA(equipment, dexMod, character),
+    [equipment, dexMod, character]
+  );
 
   useEffect(() => {
     if (!combateFinalizado) {
@@ -83,210 +92,51 @@ function CombatePage() {
     setDropReady(true);
   }
 
-  function rolarDado(lados) {
-    return Math.floor(Math.random() * lados) + 1;
-  }
-
-  function ataqueJogador(dano) {
-    if (combateFinalizado) return;
-
-    let acerto = rolarDado(20);
-    const modAtk = Math.max(
-      character.attributes.dex.mod,
-      character.attributes.str.mod
-    );
-    const temBuffSumir = player.buff["sumir"]?.timeEffect > 0;
-    const temBuffPesquisar = player.buff["pesquisar"]?.timeEffect > 0;
-    let bonusTotal = modAtk + character.proficienciesBonus;
-    if (temBuffPesquisar) {
-      bonusTotal = modAtk + modAtk + acerto + character.proficienciesBonus;
-      console.log(bonusTotal);
-      setMensagens((prev) => [
-        ...prev,
-        {
-          tipo: "buff",
-          texto: `${player.name} dobra o modificador de acerto! acerto: +${modAtk}`,
-        },
-      ]);
-    }
-    if (temBuffSumir) {
-      acerto = 20;
-      setMensagens((prev) => [
-        ...prev,
-        { tipo: "buff", texto: `${player.name} ataque de oportunidade!` },
-      ]);
-    }
-
-    const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
-
-    const critico = acerto === 20;
-    const danoTotal = critico ? dano * 2 : dano;
-
-    setMensagens((prev) => [
-      ...prev,
-      sucesso
-        ? {
-            tipo: "jogador",
-            texto: `Você ${
-              critico ? "CRÍTICO" : "acertou"
-            } 🎲${acerto}+${bonusTotal} = ${
-              acerto + bonusTotal
-            }, causou ${danoTotal}💥`,
-          }
-        : {
-            tipo: "jogador",
-            texto: `Você errou 🎲${acerto}+${bonusTotal} = ${
-              acerto + bonusTotal
-            }🛡️`,
-          },
-    ]);
-
-    if (sucesso) {
-      setEnemyHP((hp) => Math.max(0, hp - danoTotal));
-      if (enemyHP - danoTotal > 0) setTimeout(turnoInimigo, 1000);
-    } else {
-      if (enemyHP - danoTotal > 0) setTimeout(turnoInimigo, 1000);
-    }
-  }
-
-  function ataqueJogadorOffHand(dano) {
-    if (combateFinalizado) return;
-
-    const acerto = rolarDado(20);
-    const modAtk = Math.max(
-      character.attributes.dex.mod,
-      character.attributes.str.mod
-    );
-    const bonusTotal = modAtk;
-    const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
-    const critico = acerto === 20;
-    const danoTotal = critico ? dano * 2 : dano;
-
-    setMensagens((prev) => [
-      ...prev,
-      sucesso
-        ? {
-            tipo: "jogador",
-            texto: `Você usou sua SECUNDARIA ${
-              critico ? "CRÍTICO" : "acertou"
-            } 🎲${acerto}+${bonusTotal} = ${
-              acerto + bonusTotal
-            }, causou ${danoTotal}💥`,
-          }
-        : {
-            tipo: "jogador",
-            texto: `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${
-              acerto + bonusTotal
-            }🛡️`,
-          },
-    ]);
-
-    if (sucesso) setEnemyHP((hp) => Math.max(0, hp - danoTotal));
-  }
-
-  function ataquePorBotao() {
-    const diceExpr = equipment.weapon
-      ? equipment.weapon.status
-      : equipment["two-handed"]?.twoHandedDamage?.damage_dice || "1d4";
-
-    const isAmmunition = equipment["two-handed"]?.properties?.some(
-      (p) => p.index === "ammunition"
-    );
-    const isLoading = equipment["two-handed"]?.properties?.some(
-      (p) => p.index === "loading"
-    );
-
-    const lados = parseInt(diceExpr.split("d")[1], 10) || 6;
-    if (equipment.offHand) {
-      const diceExprOff = equipment.offHand.status;
-      const offLados = parseInt(diceExprOff.split("d")[1], 10) || 6;
-      const dano = rolarDado(offLados);
-      ataqueJogadorOffHand(dano);
-    }
-    if (isAmmunition) {
-      console.log("Precisa de munição, fazer a logica depois");
-    }
-    if (isLoading) {
-      setPrecisaRecarregar(false);
-    }
-    const dano = rolarDado(lados);
-    ataqueJogador(dano);
+  function handleAtaquePorBotao(tipo) {
+    ataquePorBotao({
+      tipo,
+      equipment,
+      setPrecisaRecarregar,
+      ataqueJogador: (dano) =>
+        ataqueJogador({
+          combateFinalizado,
+          rolarDado,
+          character,
+          player,
+          enemy,
+          setMensagens,
+          setEnemyHP,
+          enemyHP,
+          setTimeout,
+          turnoInimigo,
+          dano,
+        }),
+      ataqueJogadorOffHand: (dano) =>
+        ataqueJogadorOffHand({
+          combateFinalizado,
+          rolarDado,
+          character,
+          enemy,
+          setMensagens,
+          setEnemyHP,
+          dano,
+        }),
+      rolarDado,
+    });
   }
 
   function turnoInimigo() {
-    if (!enemy.actions?.length || combateFinalizado) return;
-    setRound((r) => r + 1);
-    const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
-    setPlayer((prev) => ({
-      ...prev,
-      buff: buffsAtualizados,
-    }));
-    const temBuffEmpurrar = player.buff["empurrar"]?.timeEffect > 0;
-    if (temBuffEmpurrar) {
-      setMensagens((prev) => [
-        ...prev,
-        { tipo: "buff", texto: `${enemy.name} atordoado!` },
-        { tipo: "sistema", texto: `--- Fim do ${round}° Round ---` },
-      ]);
-      return;
-    }
-    const atk = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
-    const lados = parseInt(atk.damage?.[0]?.damage_dice.split("d")[1], 10) || 6;
-    const dano = rolarDado(lados);
-
-    const acerto = rolarDado(20);
-    const crit = acerto === 20;
-    let sucesso = acerto + 5 > player.cArmor;
-    const danoTotal = crit ? dano * 2 : dano;
-
-    const temBuffDefender = player.buff["defender"]?.timeEffect > 0;
-    const temBuffEsquiva = player.buff["esquiva"]?.timeEffect > 0;
-    const temBuffSumir = player.buff["sumir"]?.timeEffect > 0;
-
-    if (temBuffEsquiva || temBuffSumir) {
-      setMensagens((prev) => [
-        ...prev,
-        { tipo: "buff", texto: `${player.name} intangivel!` },
-      ]);
-      sucesso = false;
-    }
-
-    if (temBuffDefender) {
-      sucesso = acerto + 5 > player.cArmor + player.attributes.con.mod;
-
-      setMensagens((prev) => [
-        ...prev,
-        sucesso
-          ? {
-              tipo: "inimigo",
-              texto: `${enemy.name} ${
-                crit ? "CRÍTICO" : "acertou"
-              } 🎲${acerto}+5 = ${acerto + 5}, causou ${danoTotal}💥`,
-            }
-          : {
-              tipo: "jogador",
-              texto: `${player.name} defendeu! 🎲${acerto}+5 = ${acerto + 5}🛡️`,
-            },
-      ]);
-    }
-
-    setMensagens((prev) => [
-      ...prev,
-      sucesso
-        ? {
-            tipo: "inimigo",
-            texto: `${enemy.name} ${
-              crit ? "CRÍTICO" : "acertou"
-            } 🎲${acerto}+5 = ${acerto + 5}, causou ${danoTotal}💥`,
-          }
-        : {
-            tipo: "inimigo",
-            texto: `${enemy.name} errou 🎲${acerto}+5 = ${acerto + 5}🛡️`,
-          },
-      { tipo: "sistema", texto: `--- Fim do ${round}° Round ---` },
-    ]);
-
-    if (sucesso) setPlayerHP((hp) => Math.max(0, hp - danoTotal));
+    turnoInimigoUtil({
+      enemy,
+      player,
+      round,
+      setRound,
+      setPlayer,
+      setMensagens,
+      setPlayerHP,
+      combateFinalizado,
+      BuffUtils,
+    });
   }
 
   const recarregarArma = () => {
@@ -327,11 +177,11 @@ function CombatePage() {
 
   const TrocarDeArmaBtn = () => {
     if (trocarDeArma) {
-  const hasShield = !!equipment.shield;
-      if(hasShield) {
-        console.log("botou escudo CA:", character.cArmor)
+      const hasShield = !!equipment.shield;
+      if (hasShield) {
+        console.log("botou escudo CA:", character.cArmor);
       } else {
-        console.log('tirou o escudo CA:', character.cArmor)
+        console.log("tirou o escudo CA:", character.cArmor);
       }
       setTrocaDeArma(false);
       setMensagens((prev) => [
@@ -345,7 +195,7 @@ function CombatePage() {
       return;
     }
     setTrocaDeArma(true);
-  }
+  };
 
   return (
     <div>
@@ -435,7 +285,7 @@ function CombatePage() {
             </button>
           )}
           <button
-            onClick={() => ataquePorBotao("leve")}
+            onClick={() => handleAtaquePorBotao("leve")}
             disabled={!precisaRecarregar}
           >
             Ataque Principal (
@@ -450,7 +300,7 @@ function CombatePage() {
             {equipment.offHand &&
               ` e secundaria + ${equipment.offHand.status} ${equipment.offHand.name}`}
           </button>
-          <button onClick={() => ataquePorBotao("pesado")}>
+          <button onClick={() => handleAtaquePorBotao("pesado")}>
             Ataque Pesado
           </button>
           <div>
