@@ -320,9 +320,9 @@ function CombatePage() {
       ) : (
         <>
           <button onClick={TrocarDeArmaBtn}>Confirmar troca</button>
-          <TrocarDeArma />
         </>
       )}
+      {trocarDeArma && <TrocarDeArma />}
       {/* Loot / drop aparece sempre que o combate acabar */}
       {derrota && <DropComponent CR={"derrota"} />}
       {dropReady && <DropComponent CR={enemy.challenge_rating} />}

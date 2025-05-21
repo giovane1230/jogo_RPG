@@ -176,120 +176,97 @@ export function ataquePorBotao({
   ataqueJogador(dano);
 }
 
-function parseHabilidade(texto) {
-  const lines = texto
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
+function detectConditions(texto) {
+  const conditionsList = [
+    "blinded",
+    "charmed",
+    "deafened",
+    "exhaustion",
+    "frightened",
+    "grappled",
+    "incapacitated",
+    "invisible",
+    "paralyzed",
+    "petrified",
+    "poisoned",
+    "prone",
+    "restrained",
+    "stunned",
+    "unconscious",
+  ];
 
-  // Objeto final que vamos montar
-  const habilidade = {
-    name: "",
-    type: null,
-    toHit: null,
-    reach: null,
-    range: null,
-    targets: 1,
-    damage: null,
-    effects: [],
-    description: "",
-  };
-
-  // O nome normalmente é a primeira linha
-  habilidade.name = lines[0];
-
-  // Unir todo texto para facilitar regex multiline
-  const fullText = lines.join(" ");
-
-  // --- TIPO E Atributos básicos ---
-  // Detecta ataques corpo a corpo (melee) e ataques à distância (ranged)
-  const attackMatch = fullText.match(
-    /(Melee|Ranged) Weapon Attack: \+(\d+) to hit, (reach|range) (\d+) ft\., (one|\d+) target/
+  const encontrados = conditionsList.filter((cond) =>
+    new RegExp(`\\b${cond}\\b`, "i").test(texto)
   );
-  if (attackMatch) {
-    habilidade.type = attackMatch[1].toLowerCase() + " attack"; // melee attack ou ranged attack
-    habilidade.toHit = parseInt(attackMatch[2]);
-    if (attackMatch[3] === "reach") habilidade.reach = parseInt(attackMatch[4]);
-    else habilidade.range = parseInt(attackMatch[4]);
-    habilidade.targets =
-      attackMatch[5] === "one" ? 1 : parseInt(attackMatch[5]);
+
+  return encontrados;
+}
+
+// Função auxiliar para parsear uma ação de monstro
+function parseAction(action) {
+  const texto = action.desc || "";
+  const name = action.name || "Ataque Desconhecido";
+
+  const bonusMatch = texto.match(/\+(\d+)\s+to hit/);
+  const attack_bonus = bonusMatch ? parseInt(bonusMatch[1]) : null;
+
+  // 2. Pega o DC
+  const dcMatch = texto.match(
+    /DC\s+(\d+)\s+(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)/i
+  );
+
+  let success_type = "none"; // valor padrão
+  if (/half\s+as\s+much\s+damage/i.test(texto)) {
+    success_type = true;
   }
 
-  // --- DANO ---
-  // Exemplo: Hit: 12 (2d6 + 5) bludgeoning damage.
-  // Pode ter múltiplos tipos, por isso vamos buscar todas as ocorrências
-  const damageRegex = /Hit: \d+ \(([\dd+\s]+)\) (\w+) damage/g;
-  let match;
-  const danos = [];
-  while ((match = damageRegex.exec(fullText)) !== null) {
-    danos.push({
-      amount: match[1].trim(),
-      type: match[2].trim(),
-    });
-  }
-  if (danos.length === 1) habilidade.damage = danos[0];
-  else if (danos.length > 1) habilidade.damage = danos; // array se múltiplos danos
+  const dc = dcMatch
+    ? {
+        dc_type: {
+          index: dcMatch[2].slice(0, 3).toLowerCase(),
+          name: dcMatch[2].toUpperCase(),
+          url: `/api/2014/ability-scores/${dcMatch[2]
+            .slice(0, 3)
+            .toLowerCase()}`,
+        },
+        dc_value: parseInt(dcMatch[1]),
+        success_type,
+      }
+    : null;
 
-  // --- EFEITOS / CONDIÇÕES ---
-  // Exemplos de padrões para doenças, charmes, salvamentos
-  // Você pode ir acrescentando regex para vários tipos de efeitos
+  const damageMatches = [
+    ...texto.matchAll(
+      /\(([\dd\s\+\-]+)\)\s*(bludgeoning|slashing|piercing|acid|fire|cold|lightning|poison|necrotic|radiant|force|psychic|thunder)\s+damage/gi
+    ),
+  ];
 
-  // Doença (diseased)
-  const diseasedMatch = fullText.match(/diseased/gi);
-  if (diseasedMatch) {
-    // Tentativa de extrair DC e teste de resistência
-    const dcMatch = fullText.match(/DC (\d+)/);
-    const saveMatch = fullText.match(
-      /(Constitution|Wisdom|Strength|Dexterity|Intelligence|Charisma) saving throw/
-    );
-    habilidade.effects.push({
-      type: "condition",
-      name: "diseased",
-      dc: dcMatch ? parseInt(dcMatch[1]) : null,
-      savingThrow: saveMatch ? saveMatch[1] : null,
-      description: "Aplica condição diseased conforme regras descritas.",
-    });
-  }
+  const damage = damageMatches.map((match) => ({
+    damage_type: {
+      index: match[2].toLowerCase(),
+      name: match[2].charAt(0).toUpperCase() + match[2].slice(1),
+    },
+    damage_dice: match[1].replace(/\s+/g, ""),
+  }));
 
-  // Charm (exemplo de Enslave)
-  const charmMatch = fullText.match(/charmed/gi);
-  if (charmMatch) {
-    const dcMatch = fullText.match(/DC (\d+)/);
-    const saveMatch = fullText.match(
-      /(Constitution|Wisdom|Strength|Dexterity|Intelligence|Charisma) saving throw/
-    );
-    habilidade.effects.push({
-      type: "condition",
-      name: "charmed",
-      dc: dcMatch ? parseInt(dcMatch[1]) : null,
-      savingThrow: saveMatch ? saveMatch[1] : null,
-      description: "Aplica condição charmed conforme regras descritas.",
-    });
-  }
+  const conditions = detectConditions ? detectConditions(texto) : [];
 
-  // Exemplo para detectar se é multiattack (número de ataques)
-  const multiattackMatch = fullText.match(/Multiattack/gi);
-  if (multiattackMatch) {
-    habilidade.type = "multiattack";
-    // Pode extrair quantos ataques são feitos
-    const countMatch = fullText.match(
-      /makes (\w+) (?:tentacle|melee|ranged) attacks?/i
-    );
-    if (countMatch) {
-      let countStr = countMatch[1];
-      let count = isNaN(parseInt(countStr))
-        ? countStr.toLowerCase() === "three"
-          ? 3
-          : null
-        : parseInt(countStr);
-      if (count) habilidade.multiattackCount = count;
-    }
-  }
+  const rangeMatch = texto.match(/(reach|range)\s+([\d\s\w\.]+)/i);
+  const targetMatch = texto.match(/(one|two|each|up to \d+)\s+target/i);
+  const areaMatch = texto.match(
+    /\b(\d{1,3})\s*ft\.\s*(radius|cone|line|sphere)/i
+  );
 
-  // --- OUTRAS INFORMAÇÕES / DESCRIÇÃO ---
-  habilidade.description = fullText;
-
-  return habilidade;
+  return {
+    name,
+    desc: texto,
+    ...(attack_bonus !== null && { attack_bonus }),
+    ...(dc && { dc }),
+    ...(damage.length > 0 && { damage }),
+    ...(conditions.length > 0 && { conditions }),
+    ...(rangeMatch && { range: rangeMatch[2].trim() }),
+    ...(targetMatch && { target: targetMatch[0] }),
+    ...(areaMatch && { area: `${areaMatch[1]}ft. ${areaMatch[2]}` }),
+  };
 }
 
 export function turnoInimigoUtil({
@@ -305,6 +282,9 @@ export function turnoInimigoUtil({
 }) {
   if (!enemy.actions?.length || combateFinalizado) return;
 
+  const acoesParseadas = enemy.actions.map(parseAction);
+  console.log("🧠 Ações Parseadas do Monstro:", acoesParseadas);
+
   setRound((r) => r + 1);
   const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
   setPlayer((prev) => ({ ...prev, buff: buffsAtualizados }));
@@ -319,27 +299,34 @@ export function turnoInimigoUtil({
     return;
   }
 
-  const atk = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
+  // Seleciona ação aleatória
+  const atkBruto =
+    enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
+  const atk = parseAction(atkBruto);
   const mensagens = [];
 
-  const acoesParaExecutar = atk.actions?.length
-    ? atk.actions
+  console.log("🎯 Ataque escolhido:", parseAction(atk));
+
+  const acoesParaExecutar = atkBruto.actions?.length
+    ? atkBruto.actions
         .map((sub) => enemy.actions.find((a) => a.name === sub.action_name))
         .filter(Boolean)
+        .map(parseAction)
     : [atk];
 
   let totalDano = 0;
 
   for (const acao of acoesParaExecutar) {
-    console.log("todas acoes", enemy);
-    console.log("acao", acao);
     const acerto = rolarDado(20);
     const crit = acerto === 20;
-    const bonusAtaque = acao.attack_bonus ?? 0;
+    const bonusAtaque = parseAction(atk).attack_bonus ?? 0;
     const modificador = acerto + bonusAtaque;
+
     const esquivaAtiva = player.buff["esquiva"]?.timeEffect > 0;
     const sumirAtivo = player.buff["sumir"]?.timeEffect > 0;
     let sucesso = !(esquivaAtiva || sumirAtivo) && modificador > player.cArmor;
+
+    console.log("ca:",player.cArmor, "ata", modificador);
 
     if (esquivaAtiva || sumirAtivo) {
       mensagens.push({ tipo: "buff", texto: `${player.name} intangível!` });
@@ -347,6 +334,7 @@ export function turnoInimigoUtil({
 
     if (sucesso) {
       let danoAcao = 0;
+
       for (const d of acao.damage || []) {
         const dano = rolarDanoPersonalizado(d.damage_dice);
         danoAcao += dano;
@@ -361,6 +349,13 @@ export function turnoInimigoUtil({
           acao.name
         } 🎲${acerto}+${bonusAtaque} = ${modificador}, causando ${danoAcao}💥`,
       });
+
+      if (acao.conditions?.length) {
+        mensagens.push({
+          tipo: "efeito",
+          texto: `Condicional: ${acao.conditions.join(", ")}`,
+        });
+      }
     } else {
       mensagens.push({
         tipo: "inimigo",
@@ -375,17 +370,31 @@ export function turnoInimigoUtil({
 
   mensagens.push({ tipo: "sistema", texto: `--- Fim do ${round}° Round ---` });
   setMensagens((prev) => [...prev, ...mensagens]);
-
-  const textoAbolethTentacle = `The dragon exhales lightning in a 90-foot line that is 5 ft. wide. Each creature in that line must make a DC 19 Dexterity saving throw, taking 66 (12d10) lightning damage on a failed save, or half as much damage on a successful one.`;
-
-  console.log("isso aqui ta muito bom", parseHabilidade(textoAbolethTentacle));
 }
 
 function rolarDanoPersonalizado(diceExpr) {
-  const [quantidade, lados] = diceExpr.split("d").map(Number);
+  const match = diceExpr.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
+  if (!match) {
+    console.error("Expressão inválida de dado:", diceExpr);
+    return 0;
+  }
+
+  const quantidade = parseInt(match[1], 10);
+  const lados = parseInt(match[2], 10);
+  const modificador = match[3] ? parseInt(match[3], 10) : 0;
+
   let total = 0;
   for (let i = 0; i < quantidade; i++) {
     total += rolarDado(lados);
   }
+
+  total += modificador;
+
+  console.log(
+    `Rolou ${quantidade}.d${lados}.${
+      modificador >= 0 ? "+" : ""
+    }${modificador}:`,
+    total
+  );
   return total;
 }
