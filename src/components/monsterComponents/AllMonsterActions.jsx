@@ -5,6 +5,7 @@ export default function AllMonsterActions() {
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(20); // Limite inicial
+  const [preLimit, setPreLimit] = useState(0);
 
   useEffect(() => {
     const fetchAllActions = async () => {
@@ -14,7 +15,7 @@ export default function AllMonsterActions() {
         const res = await fetch("https://www.dnd5eapi.co/api/monsters");
         const data = await res.json();
 
-        const limitedMonsters = data.results.slice(0, limit); // limitar a quantidade
+        const limitedMonsters = data.results.slice(preLimit, limit); // limitar a quantidade
         const monsterPromises = limitedMonsters.map(async (monster) => {
           const res = await fetch(`https://www.dnd5eapi.co${monster.url}`);
           return res.json();
@@ -30,10 +31,20 @@ export default function AllMonsterActions() {
           const legendaries = monster.legendary_actions || [];
 
           return [
-            ...normal.map((a) => ({ type: "Ação", name: a.name, desc: a.desc, monster: monster.name })),
-            ...specials.map((a) => ({ type: "Especial", name: a.name, desc: a.desc, monster: monster.name })),
-            ...reactions.map((a) => ({ type: "Reação", name: a.name, desc: a.desc, monster: monster.name })),
-            ...legendaries.map((a) => ({ type: "Lendária", name: a.name, desc: a.desc, monster: monster.name })),
+            // ...normal.map((a) => ({ type: "Ação", name: a.name, desc: a.desc, monster: monster.name })),
+            // ...specials.map((a) => ({
+            //   type: "Especial",
+            //   name: a.name,
+            //   desc: a.desc,
+            //   monster: monster.name,
+            // })),
+            // ...reactions.map((a) => ({ type: "Reação", name: a.name, desc: a.desc, monster: monster.name })),
+            ...legendaries.map((a) => ({
+              type: "Lendária",
+              name: a.name,
+              desc: a.desc,
+              monster: monster.name,
+            })),
           ];
         });
 
@@ -46,6 +57,18 @@ export default function AllMonsterActions() {
 
     fetchAllActions();
   }, [limit]);
+
+  const proximos = () => {
+    setLimit(limit + 10);
+    setPreLimit(preLimit + 10);
+  };
+
+  const anterior = () => {
+    if (limit > 20) {
+      setLimit(limit - 10);
+      setPreLimit(preLimit - 10);
+    }
+  };
 
   return (
     <div className="p-4">
@@ -65,10 +88,18 @@ export default function AllMonsterActions() {
         <p>Carregando ações...</p>
       ) : (
         <div className="space-y-4">
+          <button onClick={anterior} disabled={limit <= 20}>
+            Anterior
+          </button>
+          <button onClick={proximos}>PROXIMOS</button>
+          <p>
+            Mostando de {preLimit} até {limit}
+          </p>
           {actions.map((action, index) => (
             <div key={index} className="border p-2 rounded shadow-sm">
               <p className="text-sm text-gray-600">
-                <strong>{action.type}</strong> de <strong>{action.monster}</strong>
+                <strong>{action.type}</strong> de{" "}
+                <strong>{action.monster}</strong>
               </p>
               <p className="font-semibold">{action.name}</p>
               <p>{action.desc}</p>

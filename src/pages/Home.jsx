@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import personagemPronto from "../api/injetarChar";
 import AllMonsterActions from "../components/monsterComponents/AllMonsterActions";
 import MonsterDetail from "../components/monsterComponents/MonsterDetail";
+import LegendaryActionsList from "../api/LegendaryActionsList";
 
 const Home = () => {
   const salvarNoLocalStorage = () => {
@@ -33,6 +34,7 @@ const Home = () => {
           NOVO PERSONAGEM
         </button>
       </Link>
+      <LegendaryActionsList />
       <AllMonsterActions />
     </>
   );
