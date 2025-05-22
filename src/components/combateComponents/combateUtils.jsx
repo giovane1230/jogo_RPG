@@ -5,22 +5,6 @@ export function rolarDado(lados) {
   return Math.floor(Math.random() * lados) + 1;
 }
 
-function aplicarCondicao(player, nomeCondicao) {
-  const condicao = conditionsData[nomeCondicao];
-  if (!condicao) return player;
-
-  return {
-    ...player,
-    buff: {
-      ...player.buff,
-      [nomeCondicao]: {
-        ...condicao,
-        timeEffect: condicao.duracao,
-      },
-    },
-  };
-}
-
 // Ataque principal do jogador
 export function ataqueJogador({
   combateFinalizado,
@@ -177,30 +161,22 @@ export function ataquePorBotao({
 }
 
 function detectConditions(texto) {
-  const conditionsList = [
-    "blinded",
-    "charmed",
-    "deafened",
-    "exhaustion",
-    "frightened",
-    "grappled",
-    "incapacitated",
-    "invisible",
-    "paralyzed",
-    "petrified",
-    "poisoned",
-    "prone",
-    "restrained",
-    "stunned",
-    "unconscious",
-  ];
+  const conditionsEncontradas = [];
 
-  const encontrados = conditionsList.filter((cond) =>
-    new RegExp(`\\b${cond}\\b`, "i").test(texto)
-  );
+  for (const [key, condition] of Object.entries(conditionsData)) {
+    const regex = new RegExp(`\\b${key}\\b`, "i"); // procura pela palavra exata, ignorando case
+    if (regex.test(texto)) {
+      conditionsEncontradas.push({
+        index: key,
+        ...condition,
+      });
+    }
+  }
 
-  return encontrados;
+  return conditionsEncontradas;
 }
+
+export default detectConditions;
 
 // Função auxiliar para parsear uma ação de monstro
 function parseAction(action) {
@@ -282,13 +258,13 @@ export function turnoInimigoUtil({
 }) {
   if (!enemy.actions?.length || combateFinalizado) return;
 
-  const acoesParseadas = enemy.actions.map(parseAction);
-  console.log("🧠 Ações Parseadas do Monstro:", acoesParseadas);
-
   setRound((r) => r + 1);
+
+  // Atualiza buffs do player
   const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
   setPlayer((prev) => ({ ...prev, buff: buffsAtualizados }));
 
+  // Se estiver atordoado por "empurrar"
   const temBuffEmpurrar = player.buff["empurrar"]?.timeEffect > 0;
   if (temBuffEmpurrar) {
     setMensagens((prev) => [
@@ -299,71 +275,117 @@ export function turnoInimigoUtil({
     return;
   }
 
-  // Seleciona ação aleatória
-  const atkBruto =
-    enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
+  // Seleciona ação (aqui foi fixado índice 4, mas pode usar aleatório)
+  const atkBruto = enemy.actions[Math.floor(Math.random() * enemy.actions.length)]; 
   const atk = parseAction(atkBruto);
+  console.log("Ação selecionada:", atk);
+
   const mensagens = [];
-
-  console.log("🎯 Ataque escolhido:", parseAction(atk));
-
-  const acoesParaExecutar = atkBruto.actions?.length
-    ? atkBruto.actions
+  const acoesParaExecutar = atk.actions?.length
+    ? atk.actions
         .map((sub) => enemy.actions.find((a) => a.name === sub.action_name))
         .filter(Boolean)
-        .map(parseAction)
     : [atk];
 
   let totalDano = 0;
 
   for (const acao of acoesParaExecutar) {
+    console.log("Inimigo:", enemy.name);
+    console.log("Ação escolhida:", acao.name);
+
+    // Ataque ou salvaguarda
     const acerto = rolarDado(20);
     const crit = acerto === 20;
-    const bonusAtaque = parseAction(atk).attack_bonus ?? 0;
+    const bonusAtaque = acao.attack_bonus ?? 0;
     const modificador = acerto + bonusAtaque;
+    const defesa = player.cArmor;
 
     const esquivaAtiva = player.buff["esquiva"]?.timeEffect > 0;
     const sumirAtivo = player.buff["sumir"]?.timeEffect > 0;
-    let sucesso = !(esquivaAtiva || sumirAtivo) && modificador > player.cArmor;
-
-    console.log("ca:",player.cArmor, "ata", modificador);
+    let sucesso = !(esquivaAtiva || sumirAtivo) && modificador > defesa;
 
     if (esquivaAtiva || sumirAtivo) {
       mensagens.push({ tipo: "buff", texto: `${player.name} intangível!` });
     }
 
-    if (sucesso) {
-      let danoAcao = 0;
-
-      for (const d of acao.damage || []) {
-        const dano = rolarDanoPersonalizado(d.damage_dice);
-        danoAcao += dano;
-      }
-
-      if (crit) danoAcao *= 2;
-      totalDano += danoAcao;
+    // Lógica de salvaguarda e efeitos
+    if (acao.dc) {
+      const modSalvaguarda = acao.dc.dc_type.index;
+      const atributoMod = player.attributes[modSalvaguarda]?.mod ?? 0;
+      const resultadoSalva = rolarDado(20) + atributoMod;
+      const dificuldade = acao.dc.dc_value ?? 10;
+      const passou = resultadoSalva >= dificuldade;
 
       mensagens.push({
-        tipo: "inimigo",
-        texto: `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} com ${
-          acao.name
-        } 🎲${acerto}+${bonusAtaque} = ${modificador}, causando ${danoAcao}💥`,
+        tipo: "sistema",
+        texto: `${player.name} rolou salvaguarda (${acao.dc.dc_type.name}): ${resultadoSalva} vs DC ${dificuldade}`,
       });
 
-      if (acao.conditions?.length) {
+      // Se falhar, aplicar condições
+      if (!passou && acao.conditions?.length) {
+        acao.conditions.forEach((cond) => {
+          const dataCond = conditionsData[cond.index];
+          if (!dataCond) return;
+
+          setPlayer((prev) => ({
+            ...prev,
+            buff: {
+              ...prev.buff,
+              [cond.index]: {
+                nome: dataCond.nome,
+                descricao: dataCond.descricao,
+                timeEffect: dataCond.duracao,
+                penalidades: dataCond.penalidades,
+              },
+            },
+          }));
+
+          mensagens.push({
+            tipo: "sistema",
+            texto: `${player.name} sofreu a condição ${dataCond.nome}: ${dataCond.descricao}`,
+          });
+        });
+      } else if (passou) {
         mensagens.push({
-          tipo: "efeito",
-          texto: `Condicional: ${acao.conditions.join(", ")}`,
+          tipo: "sistema",
+          texto: `${player.name} resistiu ao efeito de ${acao.name}!`,
         });
       }
-    } else {
-      mensagens.push({
-        tipo: "inimigo",
-        texto: `${enemy.name} errou ${acao.name} 🎲${acerto}+${bonusAtaque} = ${modificador}🛡️`,
-      });
+    }
+
+    // Se for ataque com bônus
+    if (acao.attack_bonus != null) {
+      if (sucesso) {
+        let danoAcao = 0;
+        for (const d of acao.damage || []) {
+          let dano = rolarDanoPersonalizado(d.damage_dice);
+          if (acao.dc && acao.dc.success_type === "half") {
+            // Recalcula salvaguarda para metade de dano
+            const modSal = player.attributes[acao.dc.dc_type.index]?.mod ?? 0;
+            const resSal = rolarDado(20) + modSal;
+            if (resSal >= (acao.dc.dc_value ?? 10)) dano = Math.floor(dano / 2);
+          }
+          danoAcao += dano;
+        }
+        if (crit) danoAcao *= 2;
+
+        mensagens.push({
+          tipo: "inimigo",
+          texto: `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} com ${
+            acao.name
+          } 🎲${acerto}+${bonusAtaque} = ${modificador}, causando ${danoAcao}💥`,
+        });
+        totalDano += danoAcao;
+      } else {
+        mensagens.push({
+          tipo: "inimigo",
+          texto: `${enemy.name} errou ${acao.name} 🎲${acerto}+${bonusAtaque} = ${modificador}🛡️`,
+        });
+      }
     }
   }
 
+  // Aplica dano acumulado
   if (totalDano > 0) {
     setPlayerHP((hp) => Math.max(0, hp - totalDano));
   }

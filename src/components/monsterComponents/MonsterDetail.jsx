@@ -155,7 +155,7 @@ const MonsterDetail = ({ monsterId }) => {
     <div className="monster-detail">
       <button onClick={useRegex}> monste </button>
       <h2>{monsterData.name || "Unnamed Monster"}</h2>
-      <img src={fotinha} width="300px"></img>
+      {fotinha && <img src={fotinha} width="300px"></img>}
 
       {/* Access specific properties instead of rendering the whole object */}
       <div>

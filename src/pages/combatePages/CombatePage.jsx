@@ -18,6 +18,7 @@ import {
   ataquePorBotao,
   turnoInimigoUtil,
 } from "../../components/combateComponents/combateUtils";
+import MonsterDetail from "../../components/monsterComponents/MonsterDetail";
 
 function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP, setPlayer } = useCombat();
@@ -200,6 +201,7 @@ function CombatePage() {
   return (
     <div>
       <h1>Combate</h1>
+      <MonsterDetail monsterId={enemy.index} />
       <button onClick={() => setPlayerHP(1)}>vida 1 player</button>
       <button onClick={() => setPlayerHP(100)}>vida 100 player</button>
       <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
