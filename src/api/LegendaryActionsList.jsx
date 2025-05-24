@@ -441,13 +441,13 @@ const repeatedActions = Object.entries(actionCount)
 
 const LegendaryActionsList = () => (
   <div>
-    <h2>Ações Únicas</h2>
+    <h2>Ações Únicas Lendarias</h2>
     <ul>
       {uniqueActions.map((name) => (
         <li key={name}>{name}</li>
       ))}
     </ul>
-    <h2>Ações Repetidas</h2>
+    <h2>Ações Repetidas Lendarias</h2>
     <ul>
       {repeatedActions.map(({ name, count }) => (
         <li key={name}>

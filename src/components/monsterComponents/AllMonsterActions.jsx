@@ -1,54 +1,82 @@
 import React, { useEffect, useState } from "react";
 
 export default function AllMonsterActions() {
-  const [monsters, setMonsters] = useState([]);
-  const [actions, setActions] = useState([]);
+  const [actionsByType, setActionsByType] = useState({
+    Ação: [],
+    Especial: [],
+    Reação: [],
+    Lendária: [],
+  });
   const [loading, setLoading] = useState(false);
-  const [limit, setLimit] = useState(20); // Limite inicial
-  const [preLimit, setPreLimit] = useState(0);
+  const [limit, setLimit] = useState(10); // Lote pequeno para evitar rate limit
+  const [offset, setOffset] = useState(0);
 
   useEffect(() => {
     const fetchAllActions = async () => {
       setLoading(true);
       try {
-        // 1. Buscar lista de monstros
+        // Buscar lista de monstros com paginação
         const res = await fetch("https://www.dnd5eapi.co/api/monsters");
         const data = await res.json();
 
-        const limitedMonsters = data.results.slice(preLimit, limit); // limitar a quantidade
-        const monsterPromises = limitedMonsters.map(async (monster) => {
+        const pagedMonsters = data.results.slice(offset, offset + limit);
+        const monsterPromises = pagedMonsters.map(async (monster) => {
           const res = await fetch(`https://www.dnd5eapi.co${monster.url}`);
           return res.json();
         });
 
         const monsterDetails = await Promise.all(monsterPromises);
 
-        // 2. Extrair todas as ações
-        const allActions = monsterDetails.flatMap((monster) => {
-          const normal = monster.actions || [];
-          const specials = monster.special_abilities || [];
-          const reactions = monster.reactions || [];
-          const legendaries = monster.legendary_actions || [];
+        // Agrupar ações por tipo
+        const newActions = {
+          Ação: [],
+          Especial: [],
+          Reação: [],
+          Lendária: [],
+        };
 
-          return [
-            // ...normal.map((a) => ({ type: "Ação", name: a.name, desc: a.desc, monster: monster.name })),
-            // ...specials.map((a) => ({
-            //   type: "Especial",
-            //   name: a.name,
-            //   desc: a.desc,
-            //   monster: monster.name,
-            // })),
-            // ...reactions.map((a) => ({ type: "Reação", name: a.name, desc: a.desc, monster: monster.name })),
-            ...legendaries.map((a) => ({
+        monsterDetails.forEach((monster) => {
+          (monster.actions || []).forEach((a) =>
+            newActions.Ação.push({
+              type: "Ação",
+              name: a.name,
+              desc: a.desc,
+              monster: monster.name,
+            })
+          );
+          (monster.special_abilities || []).forEach((a) =>
+            newActions.Especial.push({
+              type: "Especial",
+              name: a.name,
+              desc: a.desc,
+              monster: monster.name,
+            })
+          );
+          (monster.reactions || []).forEach((a) =>
+            newActions.Reação.push({
+              type: "Reação",
+              name: a.name,
+              desc: a.desc,
+              monster: monster.name,
+            })
+          );
+          (monster.legendary_actions || []).forEach((a) =>
+            newActions.Lendária.push({
               type: "Lendária",
               name: a.name,
               desc: a.desc,
               monster: monster.name,
-            })),
-          ];
+            })
+          );
         });
 
-        setActions(allActions);
+        // Acumula os resultados anteriores
+        setActionsByType((prev) => ({
+          Ação: [...prev.Ação, ...newActions.Ação],
+          Especial: [...prev.Especial, ...newActions.Especial],
+          Reação: [...prev.Reação, ...newActions.Reação],
+          Lendária: [...prev.Lendária, ...newActions.Lendária],
+        }));
       } catch (err) {
         console.error("Erro ao buscar ações dos monstros:", err);
       }
@@ -56,53 +84,39 @@ export default function AllMonsterActions() {
     };
 
     fetchAllActions();
-  }, [limit]);
+    // eslint-disable-next-line
+  }, [offset, limit]);
 
-  const proximos = () => {
-    setLimit(limit + 10);
-    setPreLimit(preLimit + 10);
-  };
-
-  const anterior = () => {
-    if (limit > 20) {
-      setLimit(limit - 10);
-      setPreLimit(preLimit - 10);
-    }
-  };
+  const proximos = () => setOffset(offset + limit);
+  const anterior = () => setOffset(Math.max(0, offset - limit));
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Todas as Ações de Monstros</h1>
-
-      <label className="mb-4 block">
-        Limite de monstros:{" "}
-        <input
-          type="number"
-          value={limit}
-          onChange={(e) => setLimit(Number(e.target.value))}
-          className="border p-1 w-20 ml-2"
-        />
-      </label>
-
+      <h1 className="text-2xl font-bold mb-4">Ações de Monstros por Tipo</h1>
+      <button onClick={anterior} disabled={offset === 0}>
+        Anterior
+      </button>
+      <button onClick={proximos}>Próximos</button>
+      <p>
+        Mostrando monstros de {offset} até {offset + limit}
+      </p>
       {loading ? (
         <p>Carregando ações...</p>
       ) : (
-        <div className="space-y-4">
-          <button onClick={anterior} disabled={limit <= 20}>
-            Anterior
-          </button>
-          <button onClick={proximos}>PROXIMOS</button>
-          <p>
-            Mostando de {preLimit} até {limit}
-          </p>
-          {actions.map((action, index) => (
-            <div key={index} className="border p-2 rounded shadow-sm">
-              <p className="text-sm text-gray-600">
-                <strong>{action.type}</strong> de{" "}
-                <strong>{action.monster}</strong>
-              </p>
-              <p className="font-semibold">{action.name}</p>
-              <p>{action.desc}</p>
+        <div>
+          {Object.entries(actionsByType).map(([tipo, lista]) => (
+            <div key={tipo}>
+              <h2 className="font-bold mt-4">{tipo}</h2>
+              {lista.map((action, idx) => (
+                <div key={idx} className="border p-2 rounded shadow-sm mb-2">
+                  <p className="text-sm text-gray-600">
+                    <strong>{action.type}</strong> de{" "}
+                    <strong>{action.monster}</strong>
+                  </p>
+                  <p className="font-semibold">{action.name}</p>
+                  <p>{action.desc}</p>
+                </div>
+              ))}
             </div>
           ))}
         </div>
