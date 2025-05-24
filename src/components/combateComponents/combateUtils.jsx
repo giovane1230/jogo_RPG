@@ -73,12 +73,19 @@ export function ataqueJogador({
   ]);
 
   if (sucesso) {
-    setEnemyHP((hp) => Math.max(0, hp - danoTotal));
-    if (enemyHP - danoTotal > 0) setTimeout(turnoInimigo, 1000);
+    const novaVida = Math.max(0, enemyHP - danoTotal);
+    setEnemyHP(novaVida);
+    if (novaVida > 0) {
+      setTimeout(turnoInimigo, 1000);
+    } else {
+      // inimigo morreu → não faz nada ou chama função de vitória
+    }
   } else {
-    if (enemyHP - danoTotal > 0) setTimeout(turnoInimigo, 1000);
+    // Errou o ataque → inimigo responde
+    setTimeout(turnoInimigo, 1000);
   }
 }
+
 
 // Ataque com arma secundária
 export function ataqueJogadorOffHand({

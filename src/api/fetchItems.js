@@ -1,7 +1,6 @@
 export const fetchItems = async () => {
-  const STORAGE_KEY = "sellerItems"; // agora igual ao usado no SellerPage
+  const STORAGE_KEY = "sellerItems";
 
-  // Verificar se há itens já salvos
   const storedItems = localStorage.getItem(STORAGE_KEY);
   if (storedItems) {
     return JSON.parse(storedItems);
@@ -11,7 +10,8 @@ export const fetchItems = async () => {
     const response = await fetch("https://www.dnd5eapi.co/api/equipment");
     const data = await response.json();
 
-    const shuffledItems = data.results.sort(() => Math.random() - 0.5); // removi .slice(0, 10) listar todos e para teste
+    // Sorteia 20 itens aleatórios
+    const shuffledItems = data.results.sort(() => Math.random() - 0.5).slice(0, 20);
 
     const itemsWithDetails = await Promise.all(
       shuffledItems.map(async (item) => {

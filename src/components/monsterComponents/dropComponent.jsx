@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
-import { fetchAllEquipments } from "../../api/equipments";
+import { fetchRandomEquipmentsByCategory } from "../../api/equipments";
 import { useNavigate } from "react-router-dom";
 import { useCombat } from "../../context/CombateContext";
 
@@ -15,6 +15,7 @@ function DropComponent({ CR }) {
   function rolarDado(lados) {
     return Math.floor(Math.random() * lados) + 1;
   }
+
   const hasDropped = useRef(false);
 
   useEffect(() => {
@@ -22,23 +23,20 @@ function DropComponent({ CR }) {
       if (!CR || hasDropped.current) return;
 
       hasDropped.current = true;
-
       setLoadingItem(true);
 
       try {
-        const equipamentos = await fetchAllEquipments();
+        const equipamentos = await fetchRandomEquipmentsByCategory("weapon", 10);
         const limiteValor = CR * 100;
 
         const filtrados = equipamentos.filter(
-          (eq) =>
-            eq.cost && eq.cost.unit === "gp" && eq.cost.quantity <= limiteValor
+          (eq) => eq.cost && eq.cost.unit === "gp" && eq.cost.quantity <= limiteValor
         );
 
         const RNG = rolarDado(20);
 
         if (filtrados.length > 0 && RNG >= 10) {
-          const sorteado =
-            filtrados[Math.floor(Math.random() * filtrados.length)];
+          const sorteado = filtrados[Math.floor(Math.random() * filtrados.length)];
           setItemRecompensa(sorteado);
         } else {
           setItemRecompensa(null);
@@ -58,9 +56,7 @@ function DropComponent({ CR }) {
     if (!CR) return;
 
     if (CR === "derrota") {
-      updateCharacter({
-        vidaAtual: 1,
-      });
+      updateCharacter({ vidaAtual: 1 });
       setPegou(true);
       navigate("/treino");
       return;
@@ -113,10 +109,10 @@ function DropComponent({ CR }) {
           ) : (
             <>
               {CR === "derrota" ? (
-                <p>Você morreu e não recebe recompensa</p>
+                <p>Você morreu e não recebe recompensa.</p>
               ) : (
                 <p>
-                  Você ganhou {Math.floor(CR * 10)}⭐️ e {Math.floor(CR * 10)}
+                  Você ganhou {Math.floor(CR * 10)}⭐️ e {Math.floor(CR * 10)}🪙
                 </p>
               )}
               {itemRecompensa ? (

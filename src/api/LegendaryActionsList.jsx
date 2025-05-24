@@ -458,7 +458,6 @@ function agruparLendariasPorCriatura(acoesLendarias) {
 import acoesEspeciais from "./especiais.js";
 // import acoesReacao from "./reacao.js";
 const agrupado = agruparLendariasPorCriatura(acoesEspeciais);
-console.log(agrupado);
 
 const actionCount = {};
 agrupado.forEach((monster) => {
