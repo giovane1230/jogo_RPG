@@ -1,4 +1,4 @@
-const lendarias = [
+const acoesLendarias = [
   {
     "monstro": "Aboleth",
     "nome": "Detect",
@@ -630,3 +630,5 @@ const lendarias = [
     "desc": "The vampire makes one bite attack."
   }
 ]
+
+export default acoesLendarias;
