@@ -455,9 +455,9 @@ function agruparLendariasPorCriatura(acoesLendarias) {
 
 // Exemplo de uso:
 // import acoesLendarias from "./lendarias.js";
-// import acoesEspeciais from "./especiais.js";
-import acoesReacao from "./reacao.js";
-const agrupado = agruparLendariasPorCriatura(acoesReacao);
+import acoesEspeciais from "./especiais.js";
+// import acoesReacao from "./reacao.js";
+const agrupado = agruparLendariasPorCriatura(acoesEspeciais);
 console.log(agrupado);
 
 const actionCount = {};

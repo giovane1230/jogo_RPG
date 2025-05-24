@@ -179,71 +179,37 @@ function detectConditions(texto) {
 export default detectConditions;
 
 // Função auxiliar para parsear uma ação de monstro
-function parseAction(action) {
-  const texto = action.desc || "";
-  const name = action.name || "Ataque Desconhecido";
+export function parseAction(action) {
+  if (!action) return {};
 
-  const bonusMatch = texto.match(/\+(\d+)\s+to hit/);
-  const attack_bonus = bonusMatch ? parseInt(bonusMatch[1]) : null;
-
-  // 2. Pega o DC
-  const dcMatch = texto.match(
-    /DC\s+(\d+)\s+(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)/i
-  );
-
-  let success_type = "none"; // valor padrão
-  if (/half\s+as\s+much\s+damage/i.test(texto)) {
-    success_type = true;
+  // Caso seja Multiattack
+  if (action.multiattack_type) {
+    return {
+      name: action.name || "Multiattack",
+      multiattack_type: action.multiattack_type,
+      actions: action.actions?.map((sub) => ({
+        action_name: sub.action_name,
+        count: Number(sub.count) || 1,
+        type: sub.type || "melee",
+      })) || [],
+      desc: action.desc,
+      damage: [], // Multiattack geralmente não possui dano direto
+    };
   }
 
-  const dc = dcMatch
-    ? {
-        dc_type: {
-          index: dcMatch[2].slice(0, 3).toLowerCase(),
-          name: dcMatch[2].toUpperCase(),
-          url: `/api/2014/ability-scores/${dcMatch[2]
-            .slice(0, 3)
-            .toLowerCase()}`,
-        },
-        dc_value: parseInt(dcMatch[1]),
-        success_type,
-      }
-    : null;
-
-  const damageMatches = [
-    ...texto.matchAll(
-      /\(([\dd\s\+\-]+)\)\s*(bludgeoning|slashing|piercing|acid|fire|cold|lightning|poison|necrotic|radiant|force|psychic|thunder)\s+damage/gi
-    ),
-  ];
-
-  const damage = damageMatches.map((match) => ({
-    damage_type: {
-      index: match[2].toLowerCase(),
-      name: match[2].charAt(0).toUpperCase() + match[2].slice(1),
-    },
-    damage_dice: match[1].replace(/\s+/g, ""),
-  }));
-
-  const conditions = detectConditions ? detectConditions(texto) : [];
-
-  const rangeMatch = texto.match(/(reach|range)\s+([\d\s\w\.]+)/i);
-  const targetMatch = texto.match(/(one|two|each|up to \d+)\s+target/i);
-  const areaMatch = texto.match(
-    /\b(\d{1,3})\s*ft\.\s*(radius|cone|line|sphere)/i
-  );
-
+  // Caso seja uma ação normal
   return {
-    name,
-    desc: texto,
-    ...(attack_bonus !== null && { attack_bonus }),
-    ...(dc && { dc }),
-    ...(damage.length > 0 && { damage }),
-    ...(conditions.length > 0 && { conditions }),
-    ...(rangeMatch && { range: rangeMatch[2].trim() }),
-    ...(targetMatch && { target: targetMatch[0] }),
-    ...(areaMatch && { area: `${areaMatch[1]}ft. ${areaMatch[2]}` }),
+    name: action.name,
+    desc: action.desc,
+    attack_bonus: action.attack_bonus,
+    dc: action.dc,
+    damage: action.damage,
+    conditions: action.conditions,
+    type: action.type, 
+    // Outros campos relevantes
   };
 }
+
 
 export function turnoInimigoUtil({
   enemy,
@@ -264,7 +230,6 @@ export function turnoInimigoUtil({
   const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
   setPlayer((prev) => ({ ...prev, buff: buffsAtualizados }));
 
-  // Se estiver atordoado por "empurrar"
   const temBuffEmpurrar = player.buff["empurrar"]?.timeEffect > 0;
   if (temBuffEmpurrar) {
     setMensagens((prev) => [
@@ -275,16 +240,21 @@ export function turnoInimigoUtil({
     return;
   }
 
-  // Seleciona ação (aqui foi fixado índice 4, mas pode usar aleatório)
-  const atkBruto = enemy.actions[Math.floor(Math.random() * enemy.actions.length)]; 
+  // Seleciona ação aleatória
+  const atkBruto = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
   const atk = parseAction(atkBruto);
   console.log("Ação selecionada:", atk);
 
   const mensagens = [];
-  const acoesParaExecutar = atk.actions?.length
-    ? atk.actions
-        .map((sub) => enemy.actions.find((a) => a.name === sub.action_name))
-        .filter(Boolean)
+  
+  // ✅ Lógica para considerar Multiattack + count
+  const acoesParaExecutar = atk.multiattack_type
+    ? atk.actions.flatMap((sub) => {
+        const acaoCompleta = enemy.actions.find((a) => a.name === sub.action_name);
+        if (!acaoCompleta) return [];
+        const count = Number(sub.count) || 1;
+        return Array(count).fill(acaoCompleta);
+      })
     : [atk];
 
   let totalDano = 0;
@@ -293,7 +263,6 @@ export function turnoInimigoUtil({
     console.log("Inimigo:", enemy.name);
     console.log("Ação escolhida:", acao.name);
 
-    // Ataque ou salvaguarda
     const acerto = rolarDado(20);
     const crit = acerto === 20;
     const bonusAtaque = acao.attack_bonus ?? 0;
@@ -308,7 +277,7 @@ export function turnoInimigoUtil({
       mensagens.push({ tipo: "buff", texto: `${player.name} intangível!` });
     }
 
-    // Lógica de salvaguarda e efeitos
+    // Lógica de salvaguarda
     if (acao.dc) {
       const modSalvaguarda = acao.dc.dc_type.index;
       const atributoMod = player.attributes[modSalvaguarda]?.mod ?? 0;
@@ -321,7 +290,6 @@ export function turnoInimigoUtil({
         texto: `${player.name} rolou salvaguarda (${acao.dc.dc_type.name}): ${resultadoSalva} vs DC ${dificuldade}`,
       });
 
-      // Se falhar, aplicar condições
       if (!passou && acao.conditions?.length) {
         acao.conditions.forEach((cond) => {
           const dataCond = conditionsData[cond.index];
@@ -360,7 +328,6 @@ export function turnoInimigoUtil({
         for (const d of acao.damage || []) {
           let dano = rolarDanoPersonalizado(d.damage_dice);
           if (acao.dc && acao.dc.success_type === "half") {
-            // Recalcula salvaguarda para metade de dano
             const modSal = player.attributes[acao.dc.dc_type.index]?.mod ?? 0;
             const resSal = rolarDado(20) + modSal;
             if (resSal >= (acao.dc.dc_value ?? 10)) dano = Math.floor(dano / 2);
@@ -385,7 +352,6 @@ export function turnoInimigoUtil({
     }
   }
 
-  // Aplica dano acumulado
   if (totalDano > 0) {
     setPlayerHP((hp) => Math.max(0, hp - totalDano));
   }
@@ -393,6 +359,7 @@ export function turnoInimigoUtil({
   mensagens.push({ tipo: "sistema", texto: `--- Fim do ${round}° Round ---` });
   setMensagens((prev) => [...prev, ...mensagens]);
 }
+
 
 function rolarDanoPersonalizado(diceExpr) {
   const match = diceExpr.match(/^(\d+)d(\d+)([+-]\d+)?$/i);
