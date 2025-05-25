@@ -203,8 +203,9 @@ function CombatePage() {
       <h1>Combate</h1>
       <MonsterDetail monsterId={enemy.index} />
       <button onClick={() => setPlayerHP(1)}>vida 1 player</button>
-      <button onClick={() => setPlayerHP(100)}>vida 100 player</button>
+      <button onClick={() => setPlayerHP(10000)}>vida 10000 player</button>
       <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
+      <button onClick={() => setEnemyHP(1000)}>vida 1000 enemy</button>
 
       {/* Status */}
       <BarraStatus
