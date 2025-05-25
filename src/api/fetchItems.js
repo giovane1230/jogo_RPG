@@ -25,7 +25,7 @@ export const fetchItems = async () => {
           url: item.url,
           type: itemData.equipment_category?.name?.toLowerCase() || "unknown",
           category: itemData.weapon_category || itemData.armor_category || "Misc",
-          status: itemData.damage?.damage_dice || itemData.armor_class?.base || "Misc",
+          status: itemData?.damage || itemData.armor_class?.base || "Misc",
           bonusDex: itemData.armor_class?.dex_bonus ?? null,
           properties: itemData.properties || null,
           twoHandedDamage: itemData.two_handed_damage || null,

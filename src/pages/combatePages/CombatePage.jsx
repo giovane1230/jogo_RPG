@@ -215,14 +215,16 @@ function CombatePage() {
         CA={`| CA: ${caFinal}`}
         cor="blue"
       />
-      <ul>
-        {Object.entries(player.buff).map(([nomeBuff, detalhes]) => (
-          <li key={nomeBuff}>
-            <strong>{nomeBuff}</strong>: CD = {detalhes.CD} | TE ={" "}
-            {detalhes.timeEffect} | {detalhes.desc}
-          </li>
-        ))}
-      </ul>
+      {player.buff && (
+        <ul>
+          {Object.entries(player.buff).map(([nomeBuff, detalhes]) => (
+            <li key={nomeBuff}>
+              <strong>{nomeBuff}</strong>: CD = {detalhes.CD} | TE ={" "}
+              {detalhes.timeEffect} | {detalhes.desc}
+            </li>
+          ))}
+        </ul>
+      )}
       <BarraStatus
         label={enemy.name}
         valorAtual={enemyHP}
@@ -293,7 +295,7 @@ function CombatePage() {
           >
             Ataque Principal (
             {equipment.weapon
-              ? `${equipment.weapon.status} ${equipment.weapon.name}`
+              ? `${equipment.weapon.status.damage_dice} ${equipment.weapon.name}`
               : equipment["two-handed"]?.twoHandedDamage
               ? `${equipment["two-handed"].twoHandedDamage?.damage_dice} ${equipment["two-handed"].name}`
               : equipment["two-handed"]

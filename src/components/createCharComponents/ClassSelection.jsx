@@ -155,7 +155,7 @@ const ClassSelection = () => {
       url: item.url,
       type: item.equipment_category?.name?.toLowerCase() || "unknown",
       category: item.weapon_category || item.armor_category || "Misc",
-      status: item.damage?.damage_dice || item.armor_class?.base || "Misc",
+      status: item?.damage || item.armor_class?.base || "Misc",
       bonusDex: item.armor_class?.dex_bonus ?? null,
       properties: item.properties || null,
       twoHandedDamage: item.two_handed_damage || null,
@@ -174,6 +174,7 @@ const ClassSelection = () => {
       proficiencies,
       selectedProficiencies,
       bag: formattedEquipments,
+      buff: {},
     };
 
     updateCharacter(updatedData);

@@ -84,13 +84,24 @@ function CharInfoTopBar() {
               equipment["two-handed"]?.name ||
               "Sem arma equipada"}
             {" - "}
-            {equipment.weapon?.status ||
+            {equipment.weapon?.status?.damage_dice ||
               equipment["two-handed"]?.twoHandedDamage?.damage_dice ||
-              equipment["two-handed"]?.status ||
+              equipment["two-handed"]?.status?.damage_dice ||
               ""}
+            {equipment.weapon?.status?.damage_type?.name
+              ? ` (${equipment.weapon.status.damage_type.name})`
+              : equipment["two-handed"]?.twoHandedDamage?.damage_type?.name
+              ? ` (${equipment["two-handed"].twoHandedDamage.damage_type.name})`
+              : equipment["two-handed"]?.status?.damage_type?.name
+              ? ` (${equipment["two-handed"].status.damage_type.name})`
+              : ""}
             <br />
             {equipment.offHand?.status &&
-              `Secundaria - ${equipment.offHand.name} - ${equipment.offHand?.status}`}
+              `Secundaria - ${equipment.offHand.name} - ${equipment.offHand.status.damage_dice || ""}${
+                equipment.offHand.status.damage_type?.name
+                  ? ` (${equipment.offHand.status.damage_type.name})`
+                  : ""
+              }`}
           </span>
           <p>Bonus para acertar e dano:</p>
           <span>
