@@ -93,9 +93,9 @@ function CombatePage() {
     setDropReady(true);
   }
 
-  function handleAtaquePorBotao(tipo) {
+  function handleAtaquePorBotao() {
     ataquePorBotao({
-      tipo,
+      alvo: enemy,
       equipment,
       setPrecisaRecarregar,
       ataqueJogador: (dano) =>
@@ -290,7 +290,7 @@ function CombatePage() {
             </button>
           )}
           <button
-            onClick={() => handleAtaquePorBotao("leve")}
+            onClick={() => handleAtaquePorBotao()}
             disabled={!precisaRecarregar}
           >
             Ataque Principal (
@@ -305,7 +305,7 @@ function CombatePage() {
             {equipment.offHand &&
               ` e secundaria + ${equipment.offHand.status} ${equipment.offHand.name}`}
           </button>
-          <button onClick={() => handleAtaquePorBotao("pesado")}>
+          <button onClick={() => handleAtaquePorBotao()}>
             Ataque Pesado
           </button>
           <div>

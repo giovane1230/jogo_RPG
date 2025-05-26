@@ -7,6 +7,46 @@ export function rolarDado(lados, qual) {
   return result;
 }
 
+function aplicarDano(alvo, { dano, tipo }, setMensagens) {
+  if (alvo.vida == null) {
+    alvo.vida = alvo.hit_points;
+    console.log(`${alvo.name}.vida inicializada com hit_points: ${alvo.vida}`);
+  }
+  if (alvo.damage_immunities.includes(tipo)) {
+    console.log(`Imune a ${tipo}`);
+    setMensagens((prev) => [
+      ...prev,
+      { tipo: "sistema", texto: `Imune a ${tipo}` },
+    ]);
+    dano = 0;
+  } else if (alvo.damage_vulnerabilities.includes(tipo)) {
+    console.log(`Vulnerável a ${tipo}, dano dobrado`);
+    setMensagens((prev) => [
+      ...prev,
+      { tipo: "sistema", texto: `Vulnerável a ${tipo}, dano dobrado` },
+    ]);
+    dano = dano * 2;
+  } else if (alvo.damage_resistances.includes(tipo)) {
+    console.log(`Resistente a ${tipo}, dano reduzido pela metade`);
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "sistema",
+        texto: `Resistente a ${tipo}, dano reduzido pela metade`,
+      },
+    ]);
+    dano = Math.floor(dano / 2);
+  }
+  alvo.vida = Math.max(0, alvo.vida - dano);
+  setMensagens((prev) => [
+    ...prev,
+    {
+      tipo: "sistema",
+      texto: `${alvo.name} recebeu ${dano} de dano (${tipo}), vida agora ${alvo.vida}`,
+    },
+  ]);
+}
+
 // Ataque principal do jogador
 export function ataqueJogador({
   combateFinalizado,
@@ -19,76 +59,38 @@ export function ataqueJogador({
   enemyHP,
   setTimeout,
   turnoInimigo,
-  dano,
+  dano, // aqui chega { dano: número, tipo: string }
 }) {
   if (combateFinalizado) return;
 
-  // let acerto = rolarDado(20, "Acerto player");
-  let acerto = 20;
+  const acerto = 20; // fixo para teste
   const modAtk = Math.max(
     character.attributes.dex.mod,
     character.attributes.str.mod
   );
-  const temBuffSumir = player.buff["sumir"]?.timeEffect > 0;
-  const temBuffPesquisar = player.buff["pesquisar"]?.timeEffect > 0;
-  let bonusTotal = modAtk + character.proficienciesBonus;
-
-  if (temBuffPesquisar) {
-    bonusTotal += modAtk;
-    console.log("bonusTotal", bonusTotal);
-    setMensagens((prev) => [
-      ...prev,
-      {
-        tipo: "buff",
-        texto: `${player.name} dobra o modificador de acerto! acerto: +${modAtk}`,
-      },
-    ]);
-  }
-
-  if (temBuffSumir) {
-    acerto = 20;
-    setMensagens((prev) => [
-      ...prev,
-      { tipo: "buff", texto: `${player.name} ataque de oportunidade!` },
-    ]);
-  }
-
-  const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
+  const bonusTotal = modAtk + character.proficienciesBonus;
+  const sucesso = acerto + bonusTotal > enemy.armor_class[0].value;
   const critico = acerto === 20;
   const danoTotal = critico ? dano.dano * 2 : dano.dano;
 
-  console.log(danoTotal);
-
   setMensagens((prev) => [
     ...prev,
-    sucesso
-      ? {
-          tipo: "jogador",
-          texto: `Você ${
+    {
+      tipo: "jogador",
+      texto: sucesso
+        ? `Você ${
             critico ? "CRÍTICO" : "acertou"
-          } 🎲${acerto}+${bonusTotal} = ${
-            acerto + bonusTotal
-          }, causou ${danoTotal}💥`,
-        }
-      : {
-          tipo: "jogador",
-          texto: `Você errou 🎲${acerto}+${bonusTotal} = ${
-            acerto + bonusTotal
-          }🛡️`,
-        },
+          } 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
+        : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
+    },
   ]);
 
   if (sucesso) {
-    const novaVida = Math.max(0, enemyHP - danoTotal);
-    setEnemyHP(novaVida);
-    if (novaVida > 0) {
-      setTimeout(turnoInimigo, 1000);
-    } else {
-      // inimigo morreu → não faz nada ou chama função de vitória
-    }
-  } else {
-    // Errou o ataque → inimigo responde
-    setTimeout(turnoInimigo, 1000);
+    // danoTotal já considera o crítico
+    const tipo = dano.tipo;
+    aplicarDano(enemy, { dano: danoTotal, tipo }, setMensagens);
+    setEnemyHP(enemy.vida);
+    if (enemy.vida > 0) setTimeout(turnoInimigo, 1000);
   }
 }
 
@@ -100,41 +102,39 @@ export function ataqueJogadorOffHand({
   enemy,
   setMensagens,
   setEnemyHP,
-  dano,
+  dano, // { dano, tipo }
 }) {
   if (combateFinalizado) return;
 
-  // const acerto = rolarDado(20, "acerto offHand");
-  const acerto = 20;
+  const acerto = rolarDado(20, "ataqueJogadorOffHand");
   const modAtk = Math.max(
     character.attributes.dex.mod,
     character.attributes.str.mod
   );
   const bonusTotal = modAtk;
-  const sucesso = acerto + bonusTotal > enemy.armor_class?.[0]?.value;
+  const sucesso = acerto + bonusTotal > enemy.armor_class[0].value;
   const critico = acerto === 20;
-  const danoTotal = critico ? dano.dano * 2 : dano.dano;
 
   setMensagens((prev) => [
     ...prev,
-    sucesso
-      ? {
-          tipo: "jogador",
-          texto: `Você usou sua SECUNDARIA ${
+    {
+      tipo: "jogador",
+      texto: sucesso
+        ? `Você usou secundária ${
             critico ? "CRÍTICO" : "acertou"
-          } 🎲${acerto}+${bonusTotal} = ${
-            acerto + bonusTotal
-          }, causou ${danoTotal}💥`,
-        }
-      : {
-          tipo: "jogador",
-          texto: `Você errou SECUNDARIA 🎲${acerto}+${bonusTotal} = ${
+          } 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
+        : `Você errou secundária 🎲${acerto}+${bonusTotal} = ${
             acerto + bonusTotal
           }🛡️`,
-        },
+    },
   ]);
 
-  if (sucesso) setEnemyHP((hp) => Math.max(0, hp - danoTotal));
+  if (sucesso) {
+    const danoTotalOff = critico ? dano.dano * 2 : dano.dano;
+    const tipo = dano.tipo;
+    aplicarDano(enemy, { dano: danoTotalOff, tipo }, setMensagens);
+    setEnemyHP(enemy.vida);
+  }
 }
 
 // Função para ataque por botão
@@ -144,45 +144,34 @@ export function ataquePorBotao({
   ataqueJogador,
   ataqueJogadorOffHand,
   rolarDado,
+  alvo, // ex.: enemy
+  tipo, // ex.: "fire", "cold", etc.
 }) {
+  // arma principal ou two-handed
   const arma = equipment.weapon || equipment["two-handed"];
-
+  const armaTipo =
+    equipment.weapon.status.damage_type.index ||
+    equipment["two-handed"].status.damage_type.index;
   const diceExpr = arma?.status?.damage_dice || "1d4";
-  const tipoDano = arma?.status?.damage_type?.name || "Bludgeoning";
-
-  const isAmmunition = arma?.properties?.some((p) => p.index === "ammunition");
-  const isLoading = arma?.properties?.some((p) => p.index === "loading");
-
   const lados = parseInt(diceExpr.split("d")[1], 10) || 6;
 
+  // offHand, se houver
   if (equipment.offHand) {
-    const diceExprOff = equipment.offHand.status.damage_dice;
-    const tipoDanoOff = equipment.offHand.status.damage_type.name;
+    const diceExprOff = equipment.offHand.status.damage_dice || "1d4";
+    const tipoOff = equipment.offHand.status.damage_type.index || "Sem tipo";
     const offLados = parseInt(diceExprOff.split("d")[1], 10) || 6;
-    const dano = rolarDado(offLados, "offHand");
-
-    console.log(
-      "ataqueJogadorOffHand:",
-      diceExprOff,
-      "Tipo de dano:",
-      tipoDanoOff
-    );
-
-    ataqueJogadorOffHand({ dano, tipo: tipoDanoOff });
+    const danoOff = rolarDado(offLados, "dano offHand");
+    ataqueJogadorOffHand({ dano: danoOff, tipo: tipoOff });
   }
 
-  if (isAmmunition) {
-    // lógica de munição
-  }
+  // munição e recarga
+  const isLoading = arma?.properties?.some((p) => p.index === "loading");
+  if (isLoading) setPrecisaRecarregar(false);
 
-  if (isLoading) {
-    setPrecisaRecarregar(false);
-  }
-
-  const dano = rolarDado(lados, "dano player");
-  console.log("Ataque jogador:", diceExpr, "Tipo de dano:", tipoDano);
-
-  ataqueJogador({ dano, tipo: tipoDano });
+  // ataque principal
+  const danoValor = rolarDado(lados, "ataque principal");
+  // console.log("ataque jogador", diceExpr, "tipo:", armaTipo);
+  ataqueJogador({ dano: danoValor, tipo: armaTipo });
 }
 
 function detectConditionsFromDesc(desc) {
@@ -280,8 +269,8 @@ export function turnoInimigoUtil({
   }
 
   // 3) Escolhe e parseia a ação
-  // const raw = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
-  const raw = enemy.actions[4]; // escolher somente o ataque desejado
+  const raw = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
+  // const raw = enemy.actions[4]; // escolher somente o ataque desejado
   let atk = parseAction(raw);
 
   console.log("Ataque do inimigo:", atk);
@@ -413,8 +402,6 @@ export function turnoInimigoUtil({
 
       // 6. Testa salvaguarda
       if (saveRoll < DC) {
-        console.log("saveRoll < DC: falhou na salvaguarda");
-
         // Falhou: aplica condição se tiver
         if (acao.conditions.length > 0) {
           const cond = acao.conditions[0];
@@ -452,8 +439,6 @@ export function turnoInimigoUtil({
           totalDano += totalDmg;
         }
       } else {
-        console.log("saveRoll >= DC: passou na salvaguarda");
-
         // Passou: verifica se o sucesso leva meio dano
         if (acao.dc.success_type === "half") {
           let halfDmg = 0;
