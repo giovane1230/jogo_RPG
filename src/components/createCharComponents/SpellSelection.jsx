@@ -4,12 +4,15 @@ import { useCharacter } from "../../context/CharacterContext";
 
 const SpellSelection = () => {
   const navigate = useNavigate();
-  const { character } = useCharacter();
+  const { character, updateCharacter } = useCharacter();
+
   const [spells, setSpells] = useState([]);
+  const [cantrips, setCantrips] = useState([]);
   const [selectedSpells, setSelectedSpells] = useState([]);
+  const [selectedCantrips, setSelectedCantrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [maxSpells, setMaxSpells] = useState(0);
-  const { updateCharacter } = useCharacter();
+  const [maxCantrips, setMaxCantrips] = useState(0);
 
   useEffect(() => {
     const charData = JSON.parse(localStorage.getItem("charData"));
@@ -23,30 +26,50 @@ const SpellSelection = () => {
       return;
     }
 
-    const fetchSpells = async () => {
+    const fetchClassSpellData = async () => {
       try {
-        const response = await fetch(
-          "https://www.dnd5eapi.co/api/spells?level=1"
+        // Busca nível 1 para saber quantos pode escolher
+        const levelResponse = await fetch(
+          `https://www.dnd5eapi.co/api/classes/${charClass}/levels/1`
         );
-        const data = await response.json();
-        const spellsLevel1 = data.results;
+        const levelData = await levelResponse.json();
 
-        const detailedSpells = await Promise.all(
-          spellsLevel1.map(
-            (spell) =>
-              fetch(`https://www.dnd5eapi.co${spell.url}`)
-                .then((res) => res.json())
-                .catch(() => null) // evita quebra se uma falhar
-          )
+        const cantripsLimit = levelData.spellcasting?.cantrips_known || 0;
+        const spellSlotsLevel1 =
+          levelData.spellcasting?.spell_slots_level_1 || 0;
+
+        setMaxCantrips(cantripsLimit);
+        setMaxSpells(spellSlotsLevel1);
+
+        // Busca todas as magias da classe
+        const spellsResponse = await fetch(
+          `https://www.dnd5eapi.co/api/classes/${charClass}/spells`
         );
+        const spellsData = await spellsResponse.json();
 
-        const classSpells = detailedSpells.filter(
-          (spell) =>
-            spell && spell.classes?.some((cls) => cls.index === charClass)
-        );
+        // Separa todos os cantrips e magias de nível 1
+        const cantripSpells = spellsData.results.filter((spell) => spell.level === 0);
+        const level1Spells = spellsData.results.filter((spell) => spell.level === 1);
 
-        setSpells(classSpells);
-        setMaxSpells(getMaxSpellsByClass(charClass));
+        // Busca detalhes em série para evitar too many requests
+        const fetchDetailsSerial = async (spells) => {
+          const details = [];
+          for (const spell of spells) {
+            try {
+              const res = await fetch(`https://www.dnd5eapi.co${spell.url}`);
+              details.push(await res.json());
+            } catch {
+              details.push(null);
+            }
+          }
+          return details.filter(Boolean);
+        };
+
+        const detailedCantrips = await fetchDetailsSerial(cantripSpells);
+        const detailedLevel1Spells = await fetchDetailsSerial(level1Spells);
+
+        setCantrips(detailedCantrips);
+        setSpells(detailedLevel1Spells);
         setLoading(false);
       } catch (error) {
         console.error("Erro ao buscar magias:", error);
@@ -54,25 +77,12 @@ const SpellSelection = () => {
       }
     };
 
-    fetchSpells();
+    fetchClassSpellData();
   }, []);
-
-  const getMaxSpellsByClass = (charClass) => {
-    const limits = {
-      wizard: 6,
-      sorcerer: 2,
-      bard: 4,
-      cleric: 3,
-      druid: 2,
-      warlock: 2,
-      paladin: 2,
-      ranger: 2,
-    };
-    return limits[charClass] || 0;
-  };
 
   const toggleSpell = (spell) => {
     const alreadySelected = selectedSpells.find((s) => s.index === spell.index);
+
     if (alreadySelected) {
       setSelectedSpells(selectedSpells.filter((s) => s.index !== spell.index));
     } else if (selectedSpells.length < maxSpells) {
@@ -80,35 +90,57 @@ const SpellSelection = () => {
     }
   };
 
+  const toggleCantrip = (spell) => {
+    const alreadySelected = selectedCantrips.find((s) => s.index === spell.index);
+    if (alreadySelected) {
+      setSelectedCantrips(selectedCantrips.filter((s) => s.index !== spell.index));
+    } else if (selectedCantrips.length < maxCantrips) {
+      setSelectedCantrips([...selectedCantrips, spell]);
+    }
+  };
+
   const handleFinish = () => {
     const updatedCharacter = {
-      ...character, // Mantém todos dados existentes do contexto
-      spells: selectedSpells, // Atualiza apenas os spells
+      ...character,
+      spells: selectedSpells,
+      cantrips: selectedCantrips,
     };
 
     localStorage.setItem("charData", JSON.stringify(updatedCharacter));
-    updateCharacter(updatedCharacter); // Atualiza o contexto global
+    updateCharacter(updatedCharacter);
     navigate("/resumo");
   };
 
   if (loading) return <p>Carregando magias...</p>;
-  if (!loading && spells.length === 0)
-    return (
-      <button
-        onClick={handleFinish}
-        // disabled={selectedSpells.length !== maxSpells || selectedSpells === 0}
-      >
-        Finalizar Criação (Não possui magias)
-      </button>
-    );
 
   return (
     <div style={{ padding: 20 }}>
+      <h2>Seleção de Truques (Cantrips)</h2>
+      <p>Selecione até {maxCantrips} truques:</p>
+      <ul>
+        {cantrips.map((spell) => (
+          <li key={spell.index}>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedCantrips.some((s) => s.index === spell.index)}
+                onChange={() => toggleCantrip(spell)}
+                disabled={
+                  !selectedCantrips.some((s) => s.index === spell.index) &&
+                  selectedCantrips.length >= maxCantrips
+                }
+              />
+              {spell.name}
+            </label>
+          </li>
+        ))}
+      </ul>
+
       <h2>Seleção de Magias de Nível 1</h2>
       <p>Selecione até {maxSpells} magias:</p>
       <ul>
         {spells.map((spell) => (
-          <li key={spell.index} style={{ marginBottom: 10 }}>
+          <li key={spell.index}>
             <label>
               <input
                 type="checkbox"
@@ -119,14 +151,15 @@ const SpellSelection = () => {
                   selectedSpells.length >= maxSpells
                 }
               />
-              <strong> {spell.name}</strong> - {spell.desc[0]}
+              {spell.name}
             </label>
           </li>
         ))}
       </ul>
+
       <button
         onClick={handleFinish}
-        // disabled={selectedSpells.length !== maxSpells || selectedSpells === 0}
+        disabled={selectedSpells.length !== maxSpells}
       >
         Finalizar Criação
       </button>
