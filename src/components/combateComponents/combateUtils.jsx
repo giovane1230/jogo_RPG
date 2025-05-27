@@ -149,9 +149,36 @@ export function ataquePorBotao({
 }) {
   // arma principal ou two-handed
   const arma = equipment.weapon || equipment["two-handed"];
-  const armaTipo =
-    equipment.weapon.status.damage_type.index ||
-    equipment["two-handed"].status.damage_type.index;
+  console.log(arma);
+  let armaTipo;
+  if (equipment.weapon && equipment.weapon.status?.damage_type?.index) {
+    armaTipo = equipment.weapon.status.damage_type.index;
+  } else if (equipment["two-handed"] && equipment["two-handed"].status?.damage_type?.index) {
+    armaTipo = equipment["two-handed"].status.damage_type.index;
+  }
+
+  // Se two-handed tiver um segundo tipo de dano, adiciona também
+  let extraDamage = null;
+  if (
+    equipment["two-handed"] &&
+    Array.isArray(equipment["two-handed"].status?.extra_damage) &&
+    equipment["two-handed"].status.extra_damage.length > 0
+  ) {
+    // Suporta múltiplos tipos extras, mas pega só o primeiro para exemplo
+    extraDamage = equipment["two-handed"].status.extra_damage[0];
+  } else if (
+    equipment["two-handed"] &&
+    equipment["two-handed"].status?.damage_dice &&
+    equipment["two-handed"].status?.damage_type?.index &&
+    (!arma || arma !== equipment["two-handed"])
+  ) {
+    // Se não for a arma principal, mas tem dano, adiciona como extra
+    extraDamage = {
+      damage_dice: equipment["two-handed"].status.damage_dice,
+      damage_type: equipment["two-handed"].status.damage_type,
+    };
+  }
+  
   const diceExpr = arma?.status?.damage_dice || "1d4";
   const lados = parseInt(diceExpr.split("d")[1], 10) || 6;
 
