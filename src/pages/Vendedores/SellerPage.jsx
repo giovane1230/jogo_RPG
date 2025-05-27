@@ -11,6 +11,7 @@ function SellerPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [itemDetails, setItemDetails] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [inputIndex, setInputIndex] = useState(""); // Estado para o campo de busca
 
   const itensConsolidados = useConsolidarItens(character.bag || []);
   const itensConsolidadosSeller = useConsolidarItens(sellerItems || []);
@@ -146,18 +147,41 @@ function SellerPage() {
     window.location.reload();
   };
 
-  const itemInjetado = () => {
-    const newItem = {
-      index: "shieldInjetado",
-      name: "Shield",
-      price: 10,
-      url: "/api/2014/equipment/shield",
-      type: "armor",
-      category: "Shield",
-      status: 2,
-      dex_bonus: false,
-    };
-    setSellerItems([...sellerItems, newItem]);
+  const itemInjetado = async () => {
+    const index = inputIndex.trim();
+    if (!index) {
+      console.warn("Digite um index válido.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://www.dnd5eapi.co/api/equipment/${index}`);
+      if (!res.ok) {
+        console.error("Erro na requisição:", res.status);
+        return;
+      }
+      const itemData = await res.json();
+
+      const newItem = {
+        index: itemData.index,
+        name: itemData.name,
+        price: itemData.cost?.quantity || 0,
+        url: `/api/equipment/${itemData.index}`,
+        type: itemData.equipment_category?.name?.toLowerCase() || "unknown",
+        category: itemData.weapon_category || itemData.armor_category || "Misc",
+        status: itemData?.damage || itemData.armor_class?.base || "Misc",
+        bonusDex: itemData.armor_class?.dex_bonus ?? null,
+        properties: itemData.properties || null,
+        twoHandedDamage: itemData.two_handed_damage || null,
+        strengthRequirement: itemData.str_minimum || null,
+        stealthDisadvantage: itemData.stealth_disadvantage ? "Yes" : "No",
+      };
+
+      setSellerItems([...sellerItems, newItem]);
+      setInputIndex('');
+    } catch (err) {
+      console.error("Erro ao buscar item pelo index:", err);
+    }
   };
 
   return (
@@ -179,7 +203,13 @@ function SellerPage() {
       <div style={{ marginBottom: "20px" }}>
         <strong>Ouro atual:</strong> {character.gold} 🪙
       </div>
-      <button onClick={itemInjetado}>injetar</button>
+      <input
+        type="text"
+        placeholder="Digite o index do item"
+        value={inputIndex}
+        onChange={(e) => setInputIndex(e.target.value)}
+      />
+      <button onClick={itemInjetado}>Injetar</button>
       <button onClick={testConsole}>GANHA DINHEIRO</button>
       <button onClick={() => console.log(itensConsolidados)}>
         CONSOLIDADEOSO
