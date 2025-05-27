@@ -68,6 +68,9 @@ const EquipmentSlots = () => {
   };
 
   const isProficient = (item) => {
+    if (character.class?.index === "monk") {
+      return true; // Monges podem usar qualquer coisa.
+    }
     const profs = character.proficiencies.map((p) => p.name.toLowerCase());
     const itemName = item.name?.toLowerCase();
     const itemType = item.type?.toLowerCase(); // "armor", "weapon"
