@@ -20,8 +20,21 @@ export function ataqueJogador({
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  const acerto = 20; // Fixo para testes.
-  
+  const penalidades = interpretarPenalidades({ actor: player, tipo: "ataque" });
+
+  let acerto = 10;
+
+  if (penalidades.temDesvantagem) {
+    const r1 = rolarDado(20, "desvantagem1");
+    const r2 = rolarDado(20, "desvantagem2");
+    acerto = Math.min(r1, r2);
+  }
+  if (penalidades.vantagemAtaque && !penalidades.temDesvantagem) {
+    const r1 = rolarDado(20, "tem vantagem1");
+    const r2 = rolarDado(20, "tem vantagem2");
+    acerto = Math.max(r1, r2);
+  }
+
   // Calcula o maior modificador de ataque: Destreza ou Força.
   const modAtk = Math.max(
     character.attributes.dex.mod,
@@ -46,7 +59,9 @@ export function ataqueJogador({
     {
       tipo: "jogador",
       texto: sucesso
-        ? `Você ${critico ? "CRÍTICO" : "acertou"} 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
+        ? `Você ${
+            critico ? "CRÍTICO" : "acertou"
+          } 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
         : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
     },
   ]);
@@ -57,10 +72,9 @@ export function ataqueJogador({
 
     // Atualiza a vida do inimigo no estado.
     setEnemyHP(enemy.vida);
-
-    // Se o inimigo ainda estiver vivo, passa o turno.
-    if (enemy.vida > 0) setTimeout(turnoInimigo, 1000);
   }
+  // Se o inimigo ainda estiver vivo, passa o turno.
+  if (enemy.vida > 0) setTimeout(turnoInimigo, 1000);
 }
 
 /**
@@ -99,8 +113,12 @@ export function ataqueJogadorOffHand({
     {
       tipo: "jogador",
       texto: sucesso
-        ? `Você usou secundária ${critico ? "CRÍTICO" : "acertou"} 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
-        : `Você errou secundária 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
+        ? `Você usou secundária ${
+            critico ? "CRÍTICO" : "acertou"
+          } 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
+        : `Você errou secundária 🎲${acerto}+${bonusTotal} = ${
+            acerto + bonusTotal
+          }🛡️`,
     },
   ]);
 
@@ -130,7 +148,7 @@ export function ataquePorBotao({
   // Define arma principal ou de duas mãos.
   const arma = equipment.weapon || equipment["two-handed"];
 
-  console.log(arma); // Debug.
+  console.log(arma || "desarmador"); // Debug.
 
   let armaTipo;
 
