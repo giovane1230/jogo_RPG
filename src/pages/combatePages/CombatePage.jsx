@@ -11,14 +11,14 @@ import CombatActions from "../../components/combateComponents/combatActions";
 import BuffUtils from "../../components/combateComponents/BuffUtils";
 import TrocarDeArma from "../../components/combateComponents/trocarDeArma";
 import { calcularCA } from "../../components/combateComponents/calcularCAUtils";
+import MonsterDetail from "../../components/monsterComponents/MonsterDetail";
+import { rolarDado } from "../../components/combateComponents/rolarDados";
 import {
-  rolarDado,
   ataqueJogador,
   ataqueJogadorOffHand,
   ataquePorBotao,
-  turnoInimigoUtil,
-} from "../../components/combateComponents/combateUtils";
-import MonsterDetail from "../../components/monsterComponents/MonsterDetail";
+} from "../../components/combateComponents/turnoJogador";
+import { turnoInimigoUtil } from "../../components/combateComponents/turnoInimigoUtil";
 
 function CombatePage() {
   const { player, enemy, playerHP, setPlayerHP, setPlayer } = useCombat();
@@ -305,9 +305,7 @@ function CombatePage() {
             {equipment.offHand &&
               ` e secundaria + ${equipment.offHand.status} ${equipment.offHand.name}`}
           </button>
-          <button onClick={() => handleAtaquePorBotao()}>
-            Ataque Pesado
-          </button>
+          <button onClick={() => handleAtaquePorBotao()}>Ataque Pesado</button>
           <div>
             <CombatActions
               onEscapeAttempt={handleEscapeResult}

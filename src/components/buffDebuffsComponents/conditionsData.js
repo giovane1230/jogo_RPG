@@ -8,7 +8,7 @@ const conditionsData = {
   },
   poisoned: {
     nome: "Envenenado",
-    descricao: "Desvantagem em jogadas de ataque e testes de habilidade.",
+    descricao: "Desvantagem em jogadas de ataque, testes de habilidade e dano por turno (1% da vida).",
     duracao: 2,
     salvamento: "constituicao",
     penalidades: ["desvantagem"],
