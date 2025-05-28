@@ -8,7 +8,7 @@ import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
 import SpellTolltip from "../../components/SpellsComponents/SpellsTooltip";
 import CombatActions from "../../components/combateComponents/combatActions";
-import BuffUtils from "../../components/combateComponents/BuffUtils";
+import BuffUtils from "../../components/buffDebuffsComponents/BuffUtils";
 import TrocarDeArma from "../../components/combateComponents/trocarDeArma";
 import { calcularCA } from "../../components/combateComponents/calcularCAUtils";
 import MonsterDetail from "../../components/monsterComponents/MonsterDetail";

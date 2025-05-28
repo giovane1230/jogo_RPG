@@ -1,10 +1,13 @@
+import { interpretarPenalidades } from "../buffDebuffsComponents/interpretarPenalidades";
 import { aplicarDano } from "./aplicarDano";
 import { rolarDado } from "./rolarDados";
 
-// Ataque principal do jogador
+/**
+ * Função responsável pelo ataque principal do jogador.
+ * Realiza o cálculo de acerto, verifica crítico e aplica o dano ao inimigo.
+ */
 export function ataqueJogador({
   combateFinalizado,
-  rolarDado,
   character,
   player,
   enemy,
@@ -13,144 +16,179 @@ export function ataqueJogador({
   enemyHP,
   setTimeout,
   turnoInimigo,
-  dano, // aqui chega { dano: número, tipo: string }
+  dano, // { dano: número, tipo: string }
 }) {
-  if (combateFinalizado) return;
+  if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  const acerto = 20; // fixo para teste
+  const acerto = 20; // Fixo para testes.
+  
+  // Calcula o maior modificador de ataque: Destreza ou Força.
   const modAtk = Math.max(
     character.attributes.dex.mod,
     character.attributes.str.mod
   );
+
+  // Bônus total inclui o modificador e o bônus de proficiência.
   const bonusTotal = modAtk + character.proficienciesBonus;
+
+  // Verifica se o ataque foi bem-sucedido comparando com a CA do inimigo.
   const sucesso = acerto + bonusTotal > enemy.armor_class[0].value;
+
+  // Verifica se foi um ataque crítico.
   const critico = acerto === 20;
+
+  // Se for crítico, dobra o dano.
   const danoTotal = critico ? dano.dano * 2 : dano.dano;
 
+  // Atualiza mensagens no log.
   setMensagens((prev) => [
     ...prev,
     {
       tipo: "jogador",
       texto: sucesso
-        ? `Você ${
-            critico ? "CRÍTICO" : "acertou"
-          } 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
+        ? `Você ${critico ? "CRÍTICO" : "acertou"} 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
         : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
     },
   ]);
 
   if (sucesso) {
-    // danoTotal já considera o crítico
-    const tipo = dano.tipo;
-    aplicarDano(enemy, { dano: danoTotal, tipo }, setMensagens);
+    // Aplica o dano ao inimigo.
+    aplicarDano(enemy, { dano: danoTotal, tipo: dano.tipo }, setMensagens);
+
+    // Atualiza a vida do inimigo no estado.
     setEnemyHP(enemy.vida);
+
+    // Se o inimigo ainda estiver vivo, passa o turno.
     if (enemy.vida > 0) setTimeout(turnoInimigo, 1000);
   }
 }
 
-// Ataque com arma secundária
+/**
+ * Função responsável pelo ataque com arma secundária (off-hand).
+ * Realiza o cálculo de acerto, verifica crítico e aplica o dano ao inimigo.
+ */
 export function ataqueJogadorOffHand({
   combateFinalizado,
-  rolarDado,
   character,
   enemy,
   setMensagens,
   setEnemyHP,
-  dano, // { dano, tipo }
+  dano, // { dano: número, tipo: string }
 }) {
-  if (combateFinalizado) return;
+  if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  const acerto = rolarDado(20, "ataqueJogadorOffHand");
+  const acerto = rolarDado(20, "ataqueJogadorOffHand"); // Rola d20 para acerto.
+
+  // Calcula o modificador de ataque.
   const modAtk = Math.max(
     character.attributes.dex.mod,
     character.attributes.str.mod
   );
-  const bonusTotal = modAtk;
+
+  const bonusTotal = modAtk; // Sem bônus de proficiência.
+
+  // Verifica sucesso.
   const sucesso = acerto + bonusTotal > enemy.armor_class[0].value;
+
+  // Verifica crítico.
   const critico = acerto === 20;
 
+  // Log da mensagem do ataque.
   setMensagens((prev) => [
     ...prev,
     {
       tipo: "jogador",
       texto: sucesso
-        ? `Você usou secundária ${
-            critico ? "CRÍTICO" : "acertou"
-          } 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
-        : `Você errou secundária 🎲${acerto}+${bonusTotal} = ${
-            acerto + bonusTotal
-          }🛡️`,
+        ? `Você usou secundária ${critico ? "CRÍTICO" : "acertou"} 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
+        : `Você errou secundária 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
     },
   ]);
 
   if (sucesso) {
+    // Aplica dano considerando crítico.
     const danoTotalOff = critico ? dano.dano * 2 : dano.dano;
-    const tipo = dano.tipo;
-    aplicarDano(enemy, { dano: danoTotalOff, tipo }, setMensagens);
+    aplicarDano(enemy, { dano: danoTotalOff, tipo: dano.tipo }, setMensagens);
+
+    // Atualiza a vida do inimigo.
     setEnemyHP(enemy.vida);
   }
 }
 
-// Função para ataque por botão
+/**
+ * Função que dispara o ataque do jogador via botão.
+ * Realiza verificações de arma, propriedades, extra damage e off-hand.
+ */
 export function ataquePorBotao({
   equipment,
   setPrecisaRecarregar,
   ataqueJogador,
   ataqueJogadorOffHand,
   rolarDado,
-  alvo, // ex.: enemy
-  tipo, // ex.: "fire", "cold", etc.
+  alvo, // Exemplo: enemy
+  tipo, // Exemplo: "fire", "cold", etc.
 }) {
-  // arma principal ou two-handed
+  // Define arma principal ou de duas mãos.
   const arma = equipment.weapon || equipment["two-handed"];
-  console.log(arma);
+
+  console.log(arma); // Debug.
+
   let armaTipo;
-  if (equipment.weapon && equipment.weapon.status?.damage_type?.index) {
+
+  // Identifica o tipo de dano da arma principal.
+  if (equipment.weapon?.status?.damage_type?.index) {
     armaTipo = equipment.weapon.status.damage_type.index;
-  } else if (equipment["two-handed"] && equipment["two-handed"].status?.damage_type?.index) {
+  } else if (equipment["two-handed"]?.status?.damage_type?.index) {
     armaTipo = equipment["two-handed"].status.damage_type.index;
   }
 
-  // Se two-handed tiver um segundo tipo de dano, adiciona também
+  // Verifica dano extra de armas two-handed.
   let extraDamage = null;
-  if (
-    equipment["two-handed"] &&
-    Array.isArray(equipment["two-handed"].status?.extra_damage) &&
-    equipment["two-handed"].status.extra_damage.length > 0
-  ) {
-    // Suporta múltiplos tipos extras, mas pega só o primeiro para exemplo
+
+  if (equipment["two-handed"]?.status?.extra_damage?.length > 0) {
+    // Se tiver múltiplos extras, pega o primeiro.
     extraDamage = equipment["two-handed"].status.extra_damage[0];
   } else if (
-    equipment["two-handed"] &&
-    equipment["two-handed"].status?.damage_dice &&
-    equipment["two-handed"].status?.damage_type?.index &&
+    equipment["two-handed"]?.status?.damage_dice &&
+    equipment["two-handed"]?.status?.damage_type?.index &&
     (!arma || arma !== equipment["two-handed"])
   ) {
-    // Se não for a arma principal, mas tem dano, adiciona como extra
+    // Se não for arma principal, mas tem dano, adiciona como extra.
     extraDamage = {
       damage_dice: equipment["two-handed"].status.damage_dice,
       damage_type: equipment["two-handed"].status.damage_type,
     };
   }
-  
+
+  // Define expressão de dado da arma, ou padrão "1d4".
   const diceExpr = arma?.status?.damage_dice || "1d4";
+
+  // Extrai quantidade de lados do dado (ex.: "1d6" => 6).
   const lados = parseInt(diceExpr.split("d")[1], 10) || 6;
 
-  // offHand, se houver
+  // Verifica e executa ataque offHand.
   if (equipment.offHand) {
     const diceExprOff = equipment.offHand.status.damage_dice || "1d4";
     const tipoOff = equipment.offHand.status.damage_type.index || "Sem tipo";
     const offLados = parseInt(diceExprOff.split("d")[1], 10) || 6;
+
+    // Rola o dano para offHand.
     const danoOff = rolarDado(offLados, "dano offHand");
+
+    // Executa ataque offHand.
     ataqueJogadorOffHand({ dano: danoOff, tipo: tipoOff });
   }
 
-  // munição e recarga
+  // Verifica se a arma possui a propriedade "loading" e ajusta necessidade de recarregar.
   const isLoading = arma?.properties?.some((p) => p.index === "loading");
-  if (isLoading) setPrecisaRecarregar(false);
 
-  // ataque principal
+  if (isLoading) {
+    setPrecisaRecarregar(false); // Desativa flag de recarregamento.
+  }
+
+  // Executa ataque principal.
   const danoValor = rolarDado(lados, "ataque principal");
+
   // console.log("ataque jogador", diceExpr, "tipo:", armaTipo);
+
   ataqueJogador({ dano: danoValor, tipo: armaTipo });
 }

@@ -2,7 +2,6 @@ import conditionsData from "../buffDebuffsComponents/conditionsData";
 import { parseAction } from "./parseAction";
 import { rolarDado, rolarDadoPersonalizado } from "./rolarDados";
 
-
 export function turnoInimigoUtil({
   enemy,
   player,
@@ -14,15 +13,17 @@ export function turnoInimigoUtil({
   combateFinalizado,
   BuffUtils,
 }) {
+  // 0) Checa se inimigo tem ações e se o combate já acabou; caso sim, retorna sem fazer nada
   if (!enemy.actions?.length || combateFinalizado) return;
 
+  // 1) Incrementa o contador de rounds
   setRound((r) => r + 1);
 
-  // 1) Atualiza buffs do player
+  // 2) Atualiza os buffs do player no início do turno
   const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
   setPlayer((prev) => ({ ...prev, buff: buffsAtualizados }));
 
-  // 2) Se estiver sob o buff “empurrar/atordoado”, pula o turno
+  // 3) Se o player estiver sob o efeito do buff 'empurrar/atordoado', pula o turno do inimigo e exibe mensagens
   if (player.buff.empurrar?.timeEffect > 0) {
     setMensagens((prev) => [
       ...prev,
@@ -32,17 +33,14 @@ export function turnoInimigoUtil({
     return;
   }
 
-  // 3) Escolhe e parseia a ação
-  const raw = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
-  // const raw = enemy.actions[4]; // escolher somente o ataque desejado
+  // 4) Seleciona uma ação aleatória do inimigo e faz o parsing dessa ação
+  let raw = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
   let atk = parseAction(raw);
 
   console.log("Ataque do inimigo:", atk);
 
-  // 4) Se não tiver dano, DC ou multiattack, usa ataque básico
+  // 5) Verifica se a ação selecionada tem dano, DC ou multiattack, caso não, busca um fallback de ataque básico
   if (!atk.damage.length && !atk.dc && !atk.multiattack_type) {
-    // fallback não são só esses casos, tem que ver melhor isso depois.
-    // possivelmente gerar aleatorio de novo. Caso so tenha ataque "errado", ai fodase ne
     const fallback =
       enemy.actions.find((a) => /slam|bite|claw/i.test(a.name)) ||
       enemy.actions.find((a) => a.attack_bonus != null);
@@ -50,6 +48,8 @@ export function turnoInimigoUtil({
   }
 
   const mensagens = [];
+
+  // 6) Define quais ações serão executadas: se multiattack, cria uma lista com todas as subações repetidas conforme contagem
   const acoesParaExecutar = atk.multiattack_type
     ? atk.actions.flatMap((sub) => {
         const full = enemy.actions.find((a) => a.name === sub.action_name);
@@ -57,35 +57,44 @@ export function turnoInimigoUtil({
       })
     : [atk];
 
-  let totalDano = 0;
+  let totalDano = 0; // acumulador de dano total causado ao player
 
-  // 5) Processa cada sub-ação
+  // 7) Processa cada sub-ação da ação atual
   for (const rawA of acoesParaExecutar) {
     const acao = parseAction(rawA);
+
+    // 7.1) Rola o dado para acerto do inimigo e calcula se é crítico
     const roll = rolarDado(20, "acerto inimigo");
     const crit = roll === 20;
+
     const bonusAtk = acao.attack_bonus ?? 0;
     const modRoll = roll + bonusAtk;
     const defesa = player.cArmor;
+
+    // 7.2) Verifica se o player tem buffs de esquiva ou invisibilidade que impedem o acerto
     const esquiva = player.buff.esquiva?.timeEffect > 0;
     const invis = player.buff.sumir?.timeEffect > 0;
+
+    // 7.3) Verifica se o ataque acertou, considerando buffs de esquiva/invisibilidade e a defesa do player
     const acertou = !esquiva && !invis && modRoll > defesa;
 
+    // 7.4) Caso o player esteja intangible (esquiva ou invisível), adiciona mensagem e não causa dano
     if (esquiva || invis) {
       mensagens.push({ tipo: "buff", texto: `${player.name} intangível!` });
     }
 
-    let danoAcao = 0;
+    let danoAcao = 0; // dano causado pela ação atual
 
-    // 5.1) Ataque físico
+    // 7.5) Caso a ação seja um ataque físico com bônus de ataque
     if (acao.attack_bonus != null) {
       if (acertou) {
-        // calcula dano
+        // 7.5.1) Calcula dano rolando os dados definidos na ação
         for (const d of acao.damage) {
           danoAcao += rolarDadoPersonalizado(d.damage_dice);
         }
-        if (crit) danoAcao *= 2;
+        if (crit) danoAcao *= 2; // dano em dobro em caso de crítico
 
+        // 7.5.2) Mensagem do ataque bem-sucedido
         mensagens.push({
           tipo: "inimigo",
           texto: `${enemy.name} ${crit ? "CRÍTICO" : "acertou"} com ${
@@ -93,13 +102,14 @@ export function turnoInimigoUtil({
           } 🎲${roll}+${bonusAtk} = ${modRoll}, causando ${danoAcao}💥`,
         });
 
-        // aplica dano imediato
+        // 7.5.3) Acumula o dano da ação para aplicar depois
         totalDano += danoAcao;
 
-        // 5.1.1) Salvaguarda + condição (aplica apenas a primeira)
+        // 7.5.4) Caso a ação tenha salvaguarda (DC) e condições, realiza a checagem e aplica a condição se falhar
         if (acao.dc && acao.conditions.length) {
           let idx = acao.dc.dc_type?.index || "dexterity";
           if (!player.attributes[idx]) idx = "dexterity";
+
           const modSal = player.attributes[idx].mod;
           const saveRoll = rolarDado(20, "salvamento") + modSal;
           const DC = acao.dc.dc_value;
@@ -110,7 +120,7 @@ export function turnoInimigoUtil({
           });
 
           if (saveRoll < DC) {
-            // aplica apenas a primeira condição
+            // Aplica a primeira condição da lista
             const cond = acao.conditions[0];
             const data = conditionsData[cond.index];
             setPlayer((prev) => ({
@@ -137,36 +147,29 @@ export function turnoInimigoUtil({
           }
         }
       } else {
+        // 7.5.5) Caso ataque físico erre
         mensagens.push({
           tipo: "inimigo",
           texto: `${enemy.name} errou ${acao.name} 🎲${roll}+${bonusAtk} = ${modRoll}🛡️`,
         });
       }
     }
-    // 5.2) Ação baseada só em DC (sopro, magia de status...)
+    // 7.6) Caso a ação seja apenas baseada em salvaguarda (DC), como sopro ou magia de status
     else if (acao.dc) {
-      // 1. Descobre qual atributo usar na salvaguarda
       let idx = acao.dc.dc_type?.index || "dexterity";
       if (!player.attributes[idx]) idx = "dexterity";
 
-      // 2. Pega modificador de salvaguarda
       const modSal = player.attributes[idx].mod;
-
-      // 3. Faz rolagem fixa (ou poderia ser um d20 depois)
       const saveRoll = rolarDado(20, "salvamento") + modSal;
-
-      // 4. Valor de dificuldade
       const DC = acao.dc.dc_value;
 
-      // 5. Mostra mensagem da rolagem
       mensagens.push({
         tipo: "sistema",
         texto: `${player.name} rolou salvaguarda (${idx}): ${saveRoll} vs DC ${DC}`,
       });
 
-      // 6. Testa salvaguarda
       if (saveRoll < DC) {
-        // Falhou: aplica condição se tiver
+        // Falhou: aplica condição se houver
         if (acao.conditions.length > 0) {
           const cond = acao.conditions[0];
           const data = conditionsData[cond.index];
@@ -188,11 +191,10 @@ export function turnoInimigoUtil({
           });
         }
 
-        // Aplica DANO TOTAL
+        // Aplica dano total rolando os dados de dano da ação
         let totalDmg = 0;
         for (const d of acao.damage) {
-          let tmp = rolarDadoPersonalizado(d.damage_dice);
-          totalDmg += tmp;
+          totalDmg += rolarDadoPersonalizado(d.damage_dice);
         }
 
         if (totalDmg) {
@@ -203,13 +205,13 @@ export function turnoInimigoUtil({
           totalDano += totalDmg;
         }
       } else {
-        // Passou: verifica se o sucesso leva meio dano
+        // Caso salvaguarda tenha sucesso
+
+        // Verifica se a regra da ação permite meio dano no sucesso
         if (acao.dc.success_type === "half") {
           let halfDmg = 0;
           for (const d of acao.damage) {
-            let tmp = rolarDadoPersonalizado(d.damage_dice);
-            tmp = Math.floor(tmp / 2);
-            halfDmg += tmp;
+            halfDmg += Math.floor(rolarDadoPersonalizado(d.damage_dice) / 2);
           }
 
           if (halfDmg) {
@@ -221,15 +223,14 @@ export function turnoInimigoUtil({
           }
         }
 
-        // Passou: NÃO sofre condição.
+        // Não aplica condição em caso de sucesso na salvaguarda
         mensagens.push({
           tipo: "sistema",
           texto: `${player.name} resistiu ao efeito de ${acao.name}!`,
         });
       }
     }
-
-    // 5.3) Outras ações (buffs, etc.)
+    // 7.7) Caso a ação não seja ataque físico nem baseada em DC (exemplo: buffs, habilidades passivas)
     else {
       mensagens.push({
         tipo: "inimigo",
@@ -238,11 +239,14 @@ export function turnoInimigoUtil({
     }
   }
 
-  // 6) Aplica dano acumulado
+  // 8) Aplica o dano acumulado no HP do player, evitando que fique abaixo de zero
   if (totalDano > 0) {
     setPlayerHP((hp) => Math.max(0, hp - totalDano));
   }
 
+  // 9) Mensagem indicando o fim do round
   mensagens.push({ tipo: "sistema", texto: `--- Fim do ${round}° Round ---` });
+
+  // 10) Atualiza as mensagens de evento no estado
   setMensagens((prev) => [...prev, ...mensagens]);
 }

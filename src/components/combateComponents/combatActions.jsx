@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import { useCharEquip } from "../../context/charEquipContext";
 import { useCombat } from "../../context/CombateContext";
-import BuffUtils from "./BuffUtils";
+import BuffUtils from "../buffDebuffsComponents/BuffUtils";
 
 const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   const { character } = useCharacter();
