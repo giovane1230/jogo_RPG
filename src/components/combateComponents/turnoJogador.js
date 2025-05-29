@@ -22,16 +22,18 @@ export function ataqueJogador({
 
   const penalidades = interpretarPenalidades({ actor: player, tipo: "ataque" });
 
-  let acerto = 10;
-
-  if (penalidades.temDesvantagem) {
+  // let acerto = rolarDado(20, "normal");
+  let acerto = 19;
+  if (penalidades.temDesvantagem && penalidades.vantagemAtaque) {
+    // Se tiver ambos, anulam
+    acerto = rolarDado(20, "normal");
+  } else if (penalidades.temDesvantagem) {
     const r1 = rolarDado(20, "desvantagem1");
     const r2 = rolarDado(20, "desvantagem2");
     acerto = Math.min(r1, r2);
-  }
-  if (penalidades.vantagemAtaque && !penalidades.temDesvantagem) {
-    const r1 = rolarDado(20, "tem vantagem1");
-    const r2 = rolarDado(20, "tem vantagem2");
+  } else if (penalidades.vantagemAtaque) {
+    const r1 = rolarDado(20, "vantagem1");
+    const r2 = rolarDado(20, "vantagem2");
     acerto = Math.max(r1, r2);
   }
 
@@ -45,7 +47,7 @@ export function ataqueJogador({
   const bonusTotal = modAtk + character.proficienciesBonus;
 
   // Verifica se o ataque foi bem-sucedido comparando com a CA do inimigo.
-  const sucesso = acerto + bonusTotal > enemy.armor_class[0].value;
+  const sucesso = acerto + bonusTotal >= enemy.armor_class[0].value;
 
   // Verifica se foi um ataque crítico.
   const critico = acerto === 20;
@@ -66,15 +68,16 @@ export function ataqueJogador({
     },
   ]);
 
-  if (sucesso) {
-    // Aplica o dano ao inimigo.
-    aplicarDano(enemy, { dano: danoTotal, tipo: dano.tipo }, setMensagens);
-
-    // Atualiza a vida do inimigo no estado.
-    setEnemyHP(enemy.vida);
-  }
-  // Se o inimigo ainda estiver vivo, passa o turno.
-  if (enemy.vida > 0) setTimeout(turnoInimigo, 1000);
+if (sucesso) {
+  aplicarDano(enemy, { dano: danoTotal, tipo: dano.tipo }, setMensagens);
+  setEnemyHP(enemy.vida);
+}
+// Força o turno a seguir se inimigo ainda está vivo.
+if (enemy.vida > 0) {
+  setTimeout(turnoInimigo, 1000);
+} else {
+  setMensagens(prev => [...prev, { tipo: "combate", texto: "Você venceu o inimigo!" }]);
+}
 }
 
 /**
@@ -128,7 +131,7 @@ export function ataqueJogadorOffHand({
     aplicarDano(enemy, { dano: danoTotalOff, tipo: dano.tipo }, setMensagens);
 
     // Atualiza a vida do inimigo.
-    setEnemyHP(enemy.vida);
+    enemy.vida = Math.max(0, enemy.vida - dano.dano);
   }
 }
 

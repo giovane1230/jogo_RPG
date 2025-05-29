@@ -8,6 +8,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   const { character } = useCharacter();
   const { equipment } = useCharEquip();
   const { player, setPlayer } = useCombat();
+  const [buffInput, setBuffInput] = useState();
 
   function rolarDado(lados) {
     return Math.floor(Math.random() * lados) + 1;
@@ -233,6 +234,35 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
           ? "Defendendo"
           : "Defender (requer escudo)"}
       </button>
+      <div style={{ marginTop: "8px" }}>
+        <input
+          type="text"
+          placeholder="Nome do buff"
+          value={buffInput || ""}
+          onChange={e => setBuffInput(e.target.value)}
+          style={{ marginRight: "4px" }}
+        />
+        <button
+          onClick={() => {
+            if (!buffInput) return;
+            const novoBuff = {
+              ...player.buff,
+              [buffInput]: {
+                CD: 1,
+                timeEffect: 2,
+                desc: "Buff personalizado",
+              },
+            };
+            setPlayer(prev => ({
+              ...prev,
+              buff: novoBuff,
+            }));
+            setBuffInput("");
+          }}
+        >
+          Aplicar Buff
+        </button>
+      </div>
     </div>
   );
 };
