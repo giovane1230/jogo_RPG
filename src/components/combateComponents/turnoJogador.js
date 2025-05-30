@@ -20,7 +20,10 @@ export function ataqueJogador({
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  const penalidades = interpretarPenalidades({ actor: player, tipo: "ataque" });
+  const penalidades = interpretarPenalidades(player);
+
+  // const buffs = player.buff || {};
+  // console.log("Buffs encontrados:", buffs);
 
   // let acerto = rolarDado(20, "normal");
   let acerto = 19;
@@ -68,16 +71,14 @@ export function ataqueJogador({
     },
   ]);
 
-if (sucesso) {
-  aplicarDano(enemy, { dano: danoTotal, tipo: dano.tipo }, setMensagens);
-  setEnemyHP(enemy.vida);
-}
-// Força o turno a seguir se inimigo ainda está vivo.
-if (enemy.vida > 0) {
-  setTimeout(turnoInimigo, 1000);
-} else {
-  setMensagens(prev => [...prev, { tipo: "combate", texto: "Você venceu o inimigo!" }]);
-}
+  if (sucesso) {
+    aplicarDano(enemy, { dano: danoTotal, tipo: dano.tipo }, setMensagens);
+    setEnemyHP(enemy.vida);
+  }
+  // Força o turno a seguir se inimigo ainda está vivo.
+  if (enemy.vida > 0) {
+    setTimeout(turnoInimigo, 1000);
+  }
 }
 
 /**
@@ -126,13 +127,11 @@ export function ataqueJogadorOffHand({
   ]);
 
   if (sucesso) {
-    // Aplica dano considerando crítico.
     const danoTotalOff = critico ? dano.dano * 2 : dano.dano;
     aplicarDano(enemy, { dano: danoTotalOff, tipo: dano.tipo }, setMensagens);
-
-    // Atualiza a vida do inimigo.
-    enemy.vida = Math.max(0, enemy.vida - dano.dano);
+    setEnemyHP(enemy.vida);
   }
+
 }
 
 /**

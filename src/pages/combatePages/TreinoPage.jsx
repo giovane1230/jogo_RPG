@@ -214,26 +214,32 @@ function TreinoPage() {
       {personagemSelecionado && (
         <div style={{ marginTop: "20px" }}>
           <h2>Seu Personagem: {personagemSelecionado.name || "Sem nome"}</h2>
-          {personagemSelecionado.buff && Object.keys(personagemSelecionado.buff).length > 0 && (
-            <ul>
-              {Object.entries(personagemSelecionado.buff).map(
-                ([nomeBuff, detalhes], idx) => (
-                  <li
-                    key={nomeBuff}
-                    style={{
-                      background: getColorByIndex(idx),
-                      padding: "4px",
-                      borderRadius: "4px",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    <strong>{nomeBuff}</strong>: CD = {detalhes.CD}, TE ={" "}
-                    {detalhes.timeEffect}, {detalhes.desc}
-                  </li>
-                )
-              )}
-            </ul>
-          )}
+          {personagemSelecionado.buff &&
+            Object.keys(personagemSelecionado.buff).length > 0 && (
+              <ul>
+                {Object.entries(personagemSelecionado.buff).map(
+                  ([nomeBuff, detalhes], idx) => (
+                    <li
+                      key={nomeBuff}
+                      style={{
+                        background: getColorByIndex(idx),
+                        padding: "4px",
+                        borderRadius: "4px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <strong>{nomeBuff}</strong>: CD = {detalhes.CD}, TE ={" "}
+                      {detalhes.timeEffect}, {detalhes.desc}
+                      <ul>
+                        {detalhes.penalidades.map((penalidade, index) => (
+                          <li key={index}>{penalidade}</li>
+                        ))}
+                      </ul>
+                    </li>
+                  )
+                )}
+              </ul>
+            )}
           <p>
             <strong>Vida:</strong> {playerHP}/
             {personagemSelecionado.vidaInicial}

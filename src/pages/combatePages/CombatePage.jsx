@@ -208,6 +208,9 @@ function CombatePage() {
       <button onClick={() => setEnemyHP(1000)}>vida 1000 enemy</button>
 
       {/* Status */}
+      <button onClick={() => console.log("player", player.buff)}>Ver Buffs do Player</button>
+      <button onClick={() => console.log("character", character.buff)}>Ver Buffs do Personagem</button>
+
       <BarraStatus
         label={player.name}
         valorAtual={playerHP}
@@ -215,16 +218,25 @@ function CombatePage() {
         CA={`| CA: ${caFinal}`}
         cor="blue"
       />
-      {player.buff && (
+
+      {/* Exibe buffs ativos do player, se houver */}
+      {player.buff && Object.keys(player.buff).length > 0 && (
         <ul>
           {Object.entries(player.buff).map(([nomeBuff, detalhes]) => (
             <li key={nomeBuff}>
-              <strong>{nomeBuff}</strong>: CD = {detalhes.CD} | TE ={" "}
-              {detalhes.timeEffect} | {detalhes.desc}
+              <strong>{nomeBuff}</strong>: CD = {detalhes.CD} | TE = {detalhes.timeEffect}
+              {detalhes.penalidades && detalhes.penalidades.length > 0 && (
+                <ul>
+                  {detalhes.penalidades.map((penalidade, index) => (
+                    <li key={index}>{penalidade}</li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
       )}
+
       <BarraStatus
         label={enemy.name}
         valorAtual={enemyHP}
@@ -235,11 +247,11 @@ function CombatePage() {
       <BarraStatus
         label="Experiência"
         valorAtual={character.exp}
-        valorMaximo={xpLevels[character.nivel + 1].xp}
+        valorMaximo={xpLevels[character.nivel + 1]?.xp || 0}
         cor="yellow"
       />
 
-      {/* Se o combate não finalizou, mostra controles */}
+      {/* Se o combate não finalizou, mostra controles */}}
       {character.spells && (
         <p>
           <strong>Magias:</strong>{" "}

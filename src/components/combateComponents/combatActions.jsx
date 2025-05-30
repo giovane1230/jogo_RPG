@@ -3,12 +3,13 @@ import { useCharacter } from "../../context/CharacterContext";
 import { useCharEquip } from "../../context/charEquipContext";
 import { useCombat } from "../../context/CombateContext";
 import BuffUtils from "../buffDebuffsComponents/BuffUtils";
+import conditionsData from "../buffDebuffsComponents/conditionsData";
 
 const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   const { character } = useCharacter();
   const { equipment } = useCharEquip();
   const { player, setPlayer } = useCombat();
-  const [buffInput, setBuffInput] = useState();
+  const [debuffInput, setDebuffInput] = useState();
 
   function rolarDado(lados) {
     return Math.floor(Math.random() * lados) + 1;
@@ -237,30 +238,41 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
       <div style={{ marginTop: "8px" }}>
         <input
           type="text"
-          placeholder="Nome do buff"
-          value={buffInput || ""}
-          onChange={e => setBuffInput(e.target.value)}
+          placeholder="Nome do debuff (ex: poisoned)"
+          value={debuffInput || ""}
+          onChange={(e) => setDebuffInput(e.target.value)}
           style={{ marginRight: "4px" }}
         />
         <button
           onClick={() => {
-            if (!buffInput) return;
-            const novoBuff = {
-              ...player.buff,
-              [buffInput]: {
+            if (!debuffInput) return;
+
+            const condition = conditionsData[debuffInput];
+            if (!condition) {
+              alert("Debuff não encontrado.");
+              return;
+            }
+
+            const novoDebuff = {
+              ...player.debuff,
+              [debuffInput]: {
                 CD: 1,
-                timeEffect: 2,
-                desc: "Buff personalizado",
+                timeEffect: condition.duracao,
+                desc: condition.descricao,
+                penalidades: condition.penalidades,
+                salvamento: condition.salvamento,
               },
             };
-            setPlayer(prev => ({
+
+            setPlayer((prev) => ({
               ...prev,
-              buff: novoBuff,
+              debuff: novoDebuff,
             }));
-            setBuffInput("");
+
+            setDebuffInput("");
           }}
         >
-          Aplicar Buff
+          Aplicar Debuff
         </button>
       </div>
     </div>
