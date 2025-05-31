@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-
+import { useCharacter } from "../../context/CharacterContext";
 
 const EquipmentSlots = () => {
-  const [character, updateCharacter, addEquipment] = useState(() => {
+  const [character, updateCharacter] = useState(() => {
     const savedData = localStorage.getItem("characterData");
     return savedData ? JSON.parse(savedData) : null;
   });
+
+  const { addEquipment } = useCharacter();
 
   if (!character || !character.bag) {
     return <p>Carregando personagem e itens...</p>;
@@ -103,8 +105,19 @@ const EquipmentSlots = () => {
   };
 
   const updateEquipStorage = (newEquipment) => {
-    addEquipment(newEquipment); // atualiza para renderizar
-    localStorage.setItem("charEquip", JSON.stringify(newEquipment)); // persiste
+    updateCharacter((prev) => ({
+      ...prev,
+      equipment: newEquipment,
+    }));
+
+    // Se quiser persistir no localStorage:
+    localStorage.setItem(
+      "characterData",
+      JSON.stringify({
+        ...character,
+        equipment: newEquipment,
+      })
+    );
   };
 
   const equipItem = (item) => {

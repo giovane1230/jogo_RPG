@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 import personagemPronto from "../api/injetarChar";
 
@@ -15,20 +14,27 @@ export const CharacterProvider = ({ children }) => {
   }, [character]);
 
   const updateCharacter = (updates) => {
-    setCharacter(prev => ({ ...prev, ...updates }));
+    setCharacter((prev) => ({ ...prev, ...updates }));
   };
 
-  const addEquipment = (equip) => {
-    setCharacter(prev => ({
+  const addEquipment = (equip, slot) => {
+    setCharacter((prev) => ({
       ...prev,
-      equipment: [...prev.equipment, equip]
+      equipment: {
+        ...prev.equipment,
+        [slot]: Array.isArray(prev.equipment[slot])
+          ? [...prev.equipment[slot], equip] // ex.: para "ring"
+          : equip, // para slots simples: "armor", "mainHand" etc.
+      },
     }));
   };
 
   // outros métodos...
 
   return (
-    <CharacterContext.Provider value={{ character, updateCharacter, addEquipment }}>
+    <CharacterContext.Provider
+      value={{ character, updateCharacter, addEquipment }}
+    >
       {children}
     </CharacterContext.Provider>
   );
