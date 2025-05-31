@@ -104,7 +104,6 @@ function SellerPage() {
     };
 
     updateCharacter(updatedCharacter);
-    localStorage.setItem("characterData", JSON.stringify(updatedCharacter)); // <- Aqui
 
     const updatedItems = sellerItems.filter(
       (sellerItem) => sellerItem.index !== item.index
@@ -127,7 +126,6 @@ function SellerPage() {
     };
 
     updateCharacter(updatedCharacter);
-    localStorage.setItem("characterData", JSON.stringify(updatedCharacter)); // <- Aqui
 
     const updatedItems = [...sellerItems, item];
     setSellerItems(updatedItems);
@@ -178,7 +176,7 @@ function SellerPage() {
       };
 
       setSellerItems([...sellerItems, newItem]);
-      setInputIndex('');
+      setInputIndex("");
     } catch (err) {
       console.error("Erro ao buscar item pelo index:", err);
     }

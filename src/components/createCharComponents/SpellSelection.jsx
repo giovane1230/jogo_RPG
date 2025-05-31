@@ -48,8 +48,12 @@ const SpellSelection = () => {
         const spellsData = await spellsResponse.json();
 
         // Separa todos os cantrips e magias de nível 1
-        const cantripSpells = spellsData.results.filter((spell) => spell.level === 0);
-        const level1Spells = spellsData.results.filter((spell) => spell.level === 1);
+        const cantripSpells = spellsData.results.filter(
+          (spell) => spell.level === 0
+        );
+        const level1Spells = spellsData.results.filter(
+          (spell) => spell.level === 1
+        );
 
         // Busca detalhes em série para evitar too many requests
         const fetchDetailsSerial = async (spells) => {
@@ -91,9 +95,13 @@ const SpellSelection = () => {
   };
 
   const toggleCantrip = (spell) => {
-    const alreadySelected = selectedCantrips.find((s) => s.index === spell.index);
+    const alreadySelected = selectedCantrips.find(
+      (s) => s.index === spell.index
+    );
     if (alreadySelected) {
-      setSelectedCantrips(selectedCantrips.filter((s) => s.index !== spell.index));
+      setSelectedCantrips(
+        selectedCantrips.filter((s) => s.index !== spell.index)
+      );
     } else if (selectedCantrips.length < maxCantrips) {
       setSelectedCantrips([...selectedCantrips, spell]);
     }
@@ -106,7 +114,8 @@ const SpellSelection = () => {
       cantrips: selectedCantrips,
     };
 
-    localStorage.setItem("characterData", JSON.stringify(updatedCharacter));
+    updateCharacter(updatedCharacter);
+
     updateCharacter(updatedCharacter);
     navigate("/resumo");
   };

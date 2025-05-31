@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 
 import "../../../styles/charCss/CharStatus.css";
+import { useCharacter } from "../../context/CharacterContext";
 
 function CharInfoTopBar() {
-  const [character, updateCharacter] = useState(() => {
-    const savedData = localStorage.getItem("characterData");
-    return savedData ? JSON.parse(savedData) : null;
-  });
+const { character, updateCharacter } = useCharacter();
 
   const calcularCA = (equipment, dexMod) => {
     if (equipment.armor) {
@@ -41,17 +39,17 @@ function CharInfoTopBar() {
   const caFinal = character?.equipment ? calcularCA(character.equipment, dexMod) : 0;
 
   // Função para atualizar o cArmor no localStorage
-  const atualizarCArmorNoLocalStorage = (newCharacter) => {
-    newCharacter.cArmor = caFinal; // Atualiza o cArmor diretamente
-    localStorage.setItem("characterData", JSON.stringify(newCharacter)); // Atualiza o localStorage com o novo cArmor
-  };
+  // const atualizarCArmorNoLocalStorage = (newCharacter) => {
+  //   newCharacter.cArmor = caFinal; // Atualiza o cArmor diretamente
+  //   updateCharacter(newCharacter);
+  // };
 
-  // Efeito para atualizar o localStorage sempre que o equipamento mudar
-  useEffect(() => {
-    if (character) {
-      atualizarCArmorNoLocalStorage(character); // Atualiza o cArmor no localStorage
-    }
-  }, [character]); // Atualiza apenas quando o equipamento mudar
+  // // Efeito para atualizar o localStorage sempre que o equipamento mudar
+  // useEffect(() => {
+  //   if (character) {
+  //     atualizarCArmorNoLocalStorage(character); // Atualiza o cArmor no localStorage
+  //   }
+  // }, [character]); // Atualiza apenas quando o equipamento mudar
 
   return (
     <>

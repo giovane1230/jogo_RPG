@@ -1,8 +1,14 @@
 import { useEffect } from "react";
 
-function ShopManager({ character, sellerItems, setSellerItems, updateCharacter }) {
+function ShopManager({
+  character,
+  sellerItems,
+  setSellerItems,
+  updateCharacter,
+}) {
   const saveToLocalStorage = (characterData, items) => {
-    localStorage.setItem("characterData", JSON.stringify(characterData));
+    updateCharacter(characterData);
+
     localStorage.setItem("sellerItems", JSON.stringify(items));
   };
 
@@ -25,7 +31,9 @@ function ShopManager({ character, sellerItems, setSellerItems, updateCharacter }
       gold: currentGold,
     };
 
-    const updatedItems = sellerItems.filter((sellerItem) => sellerItem.index !== item.index);
+    const updatedItems = sellerItems.filter(
+      (sellerItem) => sellerItem.index !== item.index
+    );
 
     updateCharacter(updatedCharacter);
     setSellerItems(updatedItems);

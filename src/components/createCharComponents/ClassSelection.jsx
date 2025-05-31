@@ -179,9 +179,10 @@ const ClassSelection = () => {
 
     updateCharacter(updatedData);
 
-    const existingData = JSON.parse(localStorage.getItem("characterData")) || {};
-    const newCharData = { ...existingData, ...updatedData };
-    localStorage.setItem("characterData", JSON.stringify(newCharData));
+    const existingData =
+      JSON.parse(localStorage.getItem("characterData")) || {};
+    const newCharacter = { ...existingData, ...updatedData };
+    updateCharacter(newCharacter);
 
     navigate("/char-create-ptns");
   };

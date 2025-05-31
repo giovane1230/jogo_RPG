@@ -23,8 +23,20 @@ export const CharacterProvider = ({ children }) => {
       equipment: {
         ...prev.equipment,
         [slot]: Array.isArray(prev.equipment[slot])
-          ? [...prev.equipment[slot], equip] // ex.: para "ring"
-          : equip, // para slots simples: "armor", "mainHand" etc.
+          ? [...prev.equipment[slot], equip]
+          : equip,
+      },
+    }));
+  };
+
+  const removeEquipment = (slot, equip) => {
+    setCharacter((prev) => ({
+      ...prev,
+      equipment: {
+        ...prev.equipment,
+        [slot]: Array.isArray(prev.equipment[slot])
+          ? prev.equipment[slot].filter((e) => e !== equip)
+          : null,
       },
     }));
   };
@@ -33,7 +45,7 @@ export const CharacterProvider = ({ children }) => {
 
   return (
     <CharacterContext.Provider
-      value={{ character, updateCharacter, addEquipment }}
+      value={{ character, updateCharacter, addEquipment, removeEquipment, setCharacter }}
     >
       {children}
     </CharacterContext.Provider>

@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import EquipmentSlots from "../bagComponents/EquipmentSlots";
 import ItemTooltip from "../itemsComponents/ItemTolltip";
 import useConsolidarItens from "../itemsComponents/removeDuplicatas";
+import { useCharacter } from "../../context/CharacterContext";
 
 function CharBag() {
-  const [character, updateCharacter] = useState(() => {
-    const savedData = localStorage.getItem("characterData");
-    return savedData ? JSON.parse(savedData) : null;
-  });
+const { character, updateCharacter } = useCharacter();
+
   const [itemDetails, setItemDetails] = useState(null);
   const [potionDetails, setPotionDetails] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);

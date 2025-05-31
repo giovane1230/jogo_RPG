@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
-
+import { useCharacter } from "../../context/CharacterContext";
 
 const TrocarDeArma = () => {
-  const [character, updateCharacter] = useState(() => {
-    const savedData = localStorage.getItem("characterData");
-    return savedData ? JSON.parse(savedData) : null;
-  });
+  const { character, updateCharacter } = useCharacter();
 
   if (!character || !character.bag) {
     return <p>Carregando personagem e itens...</p>;

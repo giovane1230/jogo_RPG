@@ -20,28 +20,28 @@ const personagemPronto = {
     },
     "attributes": {
         "str": {
-            "mod": -1,
-            "value": 8
+            "value": 10,
+            "mod": 0
         },
         "dex": {
-            "mod": -1,
-            "value": 8
+            "value": 20,
+            "mod": 5
         },
         "con": {
-            "mod": -1,
-            "value": 8
+            "value": 10,
+            "mod": 0
         },
         "int": {
-            "mod": -1,
-            "value": 8
+            "value": 10,
+            "mod": 0
         },
         "wis": {
-            "mod": -1,
-            "value": 8
+            "value": 10,
+            "mod": 0
         },
         "cha": {
-            "mod": -1,
-            "value": 8
+            "value": 15,
+            "mod": 2
         }
     },
     "proficiencies": [
@@ -314,19 +314,22 @@ const personagemPronto = {
     "alignment": "Chaotic Evil",
     "gold": 999746,
     "exp": 0,
-    "nivel": 1,
+    "nivel": 6,
     "up": false,
-    "proficienciesBonus": 2,
+    "proficienciesBonus": 3,
     "cArmor": 9,
-    "vidaInicial": 11,
-    "vidaAtual": 11,
+    "vidaInicial": 68,
+    "vidaAtual": 68,
     "equipment": {
         "armor": null,
         "mainHand": null,
         "offHand": null,
         "focus": null,
         "ring": [],
-        "wondrousItem": null
+        "wondrousItem": null,
+        "two-handed": null,
+        "weapon": null,
+        "shield": null
     },
     "selectedProficiencies": {
         "0": [
