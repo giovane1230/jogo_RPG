@@ -104,7 +104,7 @@ function SellerPage() {
     };
 
     updateCharacter(updatedCharacter);
-    localStorage.setItem("charData", JSON.stringify(updatedCharacter)); // <- Aqui
+    localStorage.setItem("characterData", JSON.stringify(updatedCharacter)); // <- Aqui
 
     const updatedItems = sellerItems.filter(
       (sellerItem) => sellerItem.index !== item.index
@@ -127,7 +127,7 @@ function SellerPage() {
     };
 
     updateCharacter(updatedCharacter);
-    localStorage.setItem("charData", JSON.stringify(updatedCharacter)); // <- Aqui
+    localStorage.setItem("characterData", JSON.stringify(updatedCharacter)); // <- Aqui
 
     const updatedItems = [...sellerItems, item];
     setSellerItems(updatedItems);

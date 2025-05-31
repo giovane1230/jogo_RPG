@@ -15,11 +15,11 @@ const SpellSelection = () => {
   const [maxCantrips, setMaxCantrips] = useState(0);
 
   useEffect(() => {
-    const charData = JSON.parse(localStorage.getItem("charData"));
+    const characterData = JSON.parse(localStorage.getItem("characterData"));
     const charClass =
-      typeof charData?.class === "object"
-        ? charData.class.index
-        : charData?.class;
+      typeof characterData?.class === "object"
+        ? characterData.class.index
+        : characterData?.class;
 
     if (!charClass) {
       setLoading(false);
@@ -106,7 +106,7 @@ const SpellSelection = () => {
       cantrips: selectedCantrips,
     };
 
-    localStorage.setItem("charData", JSON.stringify(updatedCharacter));
+    localStorage.setItem("characterData", JSON.stringify(updatedCharacter));
     updateCharacter(updatedCharacter);
     navigate("/resumo");
   };

@@ -4,8 +4,8 @@ import ItemTooltip from "../itemsComponents/ItemTolltip";
 import useConsolidarItens from "../itemsComponents/removeDuplicatas";
 
 function CharBag() {
-  const [character, setCharacter] = useState(() => {
-    const savedData = localStorage.getItem("charData");
+  const [character, updateCharacter] = useState(() => {
+    const savedData = localStorage.getItem("characterData");
     return savedData ? JSON.parse(savedData) : null;
   });
   const [itemDetails, setItemDetails] = useState(null);

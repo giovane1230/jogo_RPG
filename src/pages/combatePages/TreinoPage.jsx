@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useCombat } from "../../context/CombateContext";
+
 import { useNavigate } from "react-router-dom";
 import SpellTooltip from "../../components/SpellsComponents/SpellsTooltip";
+import { useCharacter } from "../../context/CharacterContext";
+import { useCombat } from "../../context/useCombat";
 
 function TreinoPage() {
-  const { setPlayer, setEnemy, playerHP, setPlayerHP, player } = useCombat();
+  const { character, updateCharacter } = useCharacter();
+  const { setEnemy } = useCombat();
   const [monstros, setMonstros] = useState([]);
   const [inimigoSelecionado, setInimigoSelecionado] = useState(null);
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
@@ -25,7 +28,7 @@ function TreinoPage() {
 
     buscarMonstros();
 
-    const personagemLocal = localStorage.getItem("charData");
+    const personagemLocal = localStorage.getItem("characterData");
     if (personagemLocal) {
       try {
         const personagem = JSON.parse(personagemLocal);
@@ -51,14 +54,14 @@ function TreinoPage() {
   };
 
   const handleAvancarParaCombate = () => {
-    const personagemLocal = localStorage.getItem("charData");
+    const personagemLocal = localStorage.getItem("characterData");
     if (!personagemLocal || !inimigoSelecionado) {
       alert("Você precisa ter um personagem criado e um inimigo selecionado.");
       return;
     }
 
     const personagem = JSON.parse(personagemLocal);
-    setPlayer(personagem);
+    updateCharacter(personagem);
     setEnemy(inimigoSelecionado);
     navigate("/combate");
   };
@@ -66,9 +69,9 @@ function TreinoPage() {
   useEffect(() => {
     {
       carregando ? (
-        <p>Carregando playerHP...</p>
-      ) : playerHP === 0 ? (
-        <button onClick={() => setPlayerHP(player / 1.5)}>RECURA VIDA</button>
+        <p>Carregando character.vidaAtual...</p>
+      ) : character.vidaAtual === 0 ? (
+        <button onClick={() => updateCharacter.vidaAtual(character / 1.5)}>RECURA VIDA</button>
       ) : null;
     }
   }, []);
@@ -241,7 +244,7 @@ function TreinoPage() {
               </ul>
             )}
           <p>
-            <strong>Vida:</strong> {playerHP}/
+            <strong>Vida:</strong> {character.vidaAtual}/
             {personagemSelecionado.vidaInicial}
           </p>
           <p>
@@ -278,13 +281,13 @@ function TreinoPage() {
           )}
         </div>
       )}
-      {playerHP <= 0 && (
-        <button onClick={() => setPlayerHP(Math.floor(player.vidaInicial / 2))}>
+      {character.vidaAtual <= 0 && (
+        <button onClick={() => updateCharacter.vidaAtual(Math.floor(character.vidaInicial / 2))}>
           Se cure antes de iniciar o combate (50%)
         </button>
       )}
       <button
-        disabled={!inimigoSelecionado || playerHP <= 0}
+        disabled={!inimigoSelecionado || character.vidaAtual <= 0}
         onClick={handleAvancarParaCombate}
         style={{ marginTop: "20px" }}
       >

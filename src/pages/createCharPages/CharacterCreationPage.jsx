@@ -25,7 +25,7 @@ const CharacterCreationPage = () => {
   }, [selectedClass]);
 
   const handleAvancar = () => {
-    const dadosSalvos = JSON.parse(localStorage.getItem('charData')) || {};
+    const dadosSalvos = JSON.parse(localStorage.getItem('characterData')) || {};
 
     const novosDados = {
       ...dadosSalvos,
@@ -35,7 +35,7 @@ const CharacterCreationPage = () => {
       bag: classDetails?.bag || {},
     };
 
-    localStorage.setItem('charData', JSON.stringify(novosDados));
+    localStorage.setItem('characterData', JSON.stringify(novosDados));
     navigate('/distribuir-atributos');
   };
 

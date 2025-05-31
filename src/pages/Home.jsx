@@ -7,16 +7,16 @@ import LegendaryActionsList from "../api/LegendaryActionsList";
 
 const Home = () => {
   const salvarNoLocalStorage = () => {
-    localStorage.removeItem("charData");
+    localStorage.removeItem("characterData");
     window.location.reload();
-    localStorage.setItem("charData", JSON.stringify(personagemPronto));
+    localStorage.setItem("characterData", JSON.stringify(personagemPronto));
     alert("Personagem salvo com sucesso!");
   };
 
   const monsterId = "ankheg";
 
   const removeLocalstorage = () => {
-    localStorage.removeItem("charData");
+    localStorage.removeItem("characterData");
     localStorage.removeItem("charEquip");
   };
 

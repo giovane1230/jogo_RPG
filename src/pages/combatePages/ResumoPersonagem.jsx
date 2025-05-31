@@ -1,28 +1,28 @@
 import React from "react";
-import { useCombat } from "../../context/CombatContext";
 import { useNavigate } from "react-router-dom";
+import { useCharacter } from "../../context/CharacterContext";
 
-function ResumoPersonagem({ personagem }) {
-  const { setPlayer } = useCombat();
+function ResumoPersonagem({ character }) {
+  const { updataCharacter } = useCharacter();
   const navigate = useNavigate();
 
   const handleAvancarParaCombate = () => {
-    setPlayer(personagem); // Salva o personagem no contexto
+    updataCharacter(character); // Salva o character no contexto
     navigate("/combate"); // Redireciona para a página de combate
   };
 
   return (
     <div>
-      <h2>Resumo do Personagem</h2>
-      <p>Nome: {personagem.nome}</p>
-      <p>Raça: {personagem.raca}</p>
-      <p>Classe: {personagem.classe}</p>
-      <p>Força: {personagem.atributos.str}</p>
-      <p>Destreza: {personagem.atributos.dex}</p>
-      <p>Constituição: {personagem.atributos.con}</p>
-      <p>Inteligência: {personagem.atributos.int}</p>
-      <p>Sabedoria: {personagem.atributos.wis}</p>
-      <p>Carisma: {personagem.atributos.cha}</p>
+      <h2>Resumo do character</h2>
+      <p>Nome: {character.nome}</p>
+      <p>Raça: {character.raca}</p>
+      <p>Classe: {character.classe}</p>
+      <p>Força: {character.atributos.str}</p>
+      <p>Destreza: {character.atributos.dex}</p>
+      <p>Constituição: {character.atributos.con}</p>
+      <p>Inteligência: {character.atributos.int}</p>
+      <p>Sabedoria: {character.atributos.wis}</p>
+      <p>Carisma: {character.atributos.cha}</p>
 
       <button onClick={handleAvancarParaCombate}>Avançar para Combate</button>
     </div>

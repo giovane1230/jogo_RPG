@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useCharEquip } from "../../context/charEquipContext";
+
 
 const EquipmentSlots = () => {
-  const [character, setCharacter] = useState(() => {
-    const savedData = localStorage.getItem("charData");
+  const [character, updateCharacter, addEquipment] = useState(() => {
+    const savedData = localStorage.getItem("characterData");
     return savedData ? JSON.parse(savedData) : null;
   });
-
-  const { equipment, updateEquipment } = useCharEquip();
 
   if (!character || !character.bag) {
     return <p>Carregando personagem e itens...</p>;
   }
 
   useEffect(() => {
-    localStorage.setItem("charEquip", JSON.stringify(equipment));
-  }, [equipment]);
+    localStorage.setItem("charEquip", JSON.stringify(character.equipment));
+  }, [character]);
 
   const getItemSlot = (item) => {
     const category = (
@@ -105,7 +103,7 @@ const EquipmentSlots = () => {
   };
 
   const updateEquipStorage = (newEquipment) => {
-    updateEquipment(newEquipment); // atualiza para renderizar
+    addEquipment(newEquipment); // atualiza para renderizar
     localStorage.setItem("charEquip", JSON.stringify(newEquipment)); // persiste
   };
 
@@ -126,13 +124,13 @@ const EquipmentSlots = () => {
     const isVersatile = item.properties?.some((p) => p.index === "versatile");
     const slot = getItemSlot(item);
 
-    const currentWeapon = equipment.weapon;
-    const isShield = equipment.shield;
-    const offHand = equipment.offHand;
+    const currentWeapon = character.equipment.weapon;
+    const isShield = character.equipment.shield;
+    const offHand = character.equipment.offHand;
     const isSameWeaponEquipped =
       currentWeapon?.name === item.name || isShield?.name === item.name;
-    const usingTwoHandedWeapon = equipment["two-handed"];
-    const usingOffHand = equipment["offHand"];
+    const usingTwoHandedWeapon = character.equipment["two-handed"];
+    const usingOffHand = character.equipment["offHand"];
 
     // Impede equipar mesma arma duas vezes
     if (isSameWeaponEquipped) {
@@ -146,7 +144,7 @@ const EquipmentSlots = () => {
         return;
       }
       updateEquipStorage({
-        ...equipment,
+        ...character.equipment,
         "two-handed": item,
         weapon: null,
         shield: null,
@@ -161,7 +159,7 @@ const EquipmentSlots = () => {
         return;
       }
       updateEquipStorage({
-        ...equipment,
+        ...character.equipment,
         "two-handed": item,
         weapon: null,
         shield: null,
@@ -182,7 +180,7 @@ const EquipmentSlots = () => {
           return;
         }
         updateEquipStorage({
-          ...equipment,
+          ...character.equipment,
           "two-handed": item,
           weapon: null,
           shield: null,
@@ -192,13 +190,13 @@ const EquipmentSlots = () => {
         // Equipar como arma de uma mão
         if (!currentWeapon) {
           updateEquipStorage({
-            ...equipment,
+            ...character.equipment,
             weapon: item,
           });
           return;
         } else if (!isShield && !usingTwoHandedWeapon) {
           updateEquipStorage({
-            ...equipment,
+            ...character.equipment,
             shield: item,
           });
           return;
@@ -218,12 +216,12 @@ const EquipmentSlots = () => {
 
       if (!currentWeapon) {
         updateEquipStorage({
-          ...equipment,
+          ...character.equipment,
           weapon: item,
         });
       } else if (!isShield) {
         updateEquipStorage({
-          ...equipment,
+          ...character.equipment,
           offHand: item,
         });
       } else {
@@ -243,7 +241,7 @@ const EquipmentSlots = () => {
         return;
       }
       updateEquipStorage({
-        ...equipment,
+        ...character.equipment,
         shield: item,
       });
       return;
@@ -251,31 +249,31 @@ const EquipmentSlots = () => {
 
     // Anéis
     if (slot === "ring") {
-      if (equipment.ring.length >= 2) {
+      if (character.equipment.ring.length >= 2) {
         alert("Você só pode usar até 2 anéis.");
         return;
       }
       updateEquipStorage({
-        ...equipment,
-        ring: [...equipment.ring, item],
+        ...character.equipment,
+        ring: [...character.equipment.ring, item],
       });
       return;
     }
 
     // Outros itens (armadura, etc.)
     updateEquipStorage({
-      ...equipment,
+      ...character.equipment,
       [slot]: item,
     });
   };
 
   const unequipItem = (slot) => {
-    if (!equipment[slot]) {
+    if (!character.equipment[slot]) {
       alert("Nenhum item equipado nesse slot.");
       return;
     }
 
-    const updatedEquipment = { ...equipment };
+    const updatedEquipment = { ...character.equipment };
     updatedEquipment[slot] = slot === "ring" ? [] : null;
 
     updateEquipStorage(updatedEquipment);
@@ -316,10 +314,10 @@ const EquipmentSlots = () => {
   };
 
   // Lógica para slots de armas e escudo
-  const hasTwoHanded = !!equipment["two-handed"];
-  const hasMainWeapon = !!equipment.weapon;
-  const hasOffHand = !!equipment.offHand;
-  const hasShield = !!equipment.shield;
+  const hasTwoHanded = !!character.equipment["two-handed"];
+  const hasMainWeapon = !!character.equipment.weapon;
+  const hasOffHand = !!character.equipment.offHand;
+  const hasShield = !!character.equipment.shield;
 
   return (
     <div>
@@ -327,9 +325,9 @@ const EquipmentSlots = () => {
 
       <div>
         <h3>Armadura</h3>
-        {equipment.armor ? (
+        {character.equipment.armor ? (
           <div>
-            {equipment.armor.name}
+            {character.equipment.armor.name}
             <button onClick={() => unequipItem("armor")}>Remover</button>
           </div>
         ) : (
@@ -343,7 +341,7 @@ const EquipmentSlots = () => {
           <h3>Duas mãos</h3>
           {hasTwoHanded ? (
             <div>
-              {equipment["two-handed"].name}
+              {character.equipment["two-handed"].name}
               <button onClick={() => unequipItem("two-handed")}>Remover</button>
             </div>
           ) : (
@@ -358,7 +356,7 @@ const EquipmentSlots = () => {
             <h3>Mão Direita</h3>
             {hasMainWeapon ? (
               <div>
-                {equipment.weapon.name}
+                {character.equipment.weapon.name}
                 <button onClick={() => unequipItem("weapon")}>Remover</button>
               </div>
             ) : (
@@ -373,7 +371,7 @@ const EquipmentSlots = () => {
             <h3>Mão Esquerda</h3>
             {hasOffHand ? (
               <div>
-                {equipment.offHand.name}
+                {character.equipment.offHand.name}
                 <button onClick={() => unequipItem("offHand")}>Remover</button>
               </div>
             ) : (
@@ -388,7 +386,7 @@ const EquipmentSlots = () => {
             <h3>Escudo</h3>
             {hasShield ? (
               <div>
-                {equipment.shield.name}
+                {character.equipment.shield.name}
                 <button onClick={() => unequipItem("shield")}>Remover</button>
               </div>
             ) : (
@@ -401,7 +399,7 @@ const EquipmentSlots = () => {
       {/* Outros slots */}
       <div>
         <h3>Anéis</h3>
-        {equipment.ring.map((ring, i) => (
+        {character.equipment.ring.map((ring, i) => (
           <div key={i}>
             {ring.name}
             <button onClick={() => unequipItem("ring", i)}>Remover</button>

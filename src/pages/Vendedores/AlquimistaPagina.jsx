@@ -137,7 +137,7 @@ function AlquimistaPage() {
     };
 
     updateCharacter(updatedCharacter);
-    localStorage.setItem("charData", JSON.stringify(updatedCharacter));
+    localStorage.setItem("characterData", JSON.stringify(updatedCharacter));
 
 
     // const updatedItems = alchemistItems.filter(
@@ -176,7 +176,7 @@ const handleSell = (item) => {
   };
 
   updateCharacter(updatedCharacter);
-  localStorage.setItem("charData", JSON.stringify(updatedCharacter));
+  localStorage.setItem("characterData", JSON.stringify(updatedCharacter));
 };
 
 

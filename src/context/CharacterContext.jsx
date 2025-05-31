@@ -1,69 +1,37 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
 
-export const CharacterContext = createContext();
+import React, { createContext, useContext, useEffect, useState } from "react";
+import personagemPronto from "../api/injetarChar";
 
-export const useCharacter = () => {
-  return useContext(CharacterContext);
-};
+const CharacterContext = createContext();
 
 export const CharacterProvider = ({ children }) => {
   const [character, setCharacter] = useState(() => {
-    // Tenta carregar o personagem salvo no localStorage ao iniciar
-    const savedCharacter = localStorage.getItem("charData");
-
-    return savedCharacter
-      ? JSON.parse(savedCharacter)
-      : {
-          name: "",
-          race: {},
-          class: null,
-          attributes: {
-            str: { mod: -1, value: 8 },
-            dex: { mod: -1, value: 8 },
-            con: { mod: -1, value: 8 },
-            int: { mod: -1, value: 8 },
-            wis: { mod: -1, value: 8 },
-            cha: { mod: -1, value: 8 },
-          },
-          proficiencies: {},
-          bag: [],
-          potions: [],
-          background: "",
-          alignment: "",
-          gold: 1000,
-          exp: 0,
-          nivel: 1,
-          up: false,
-          proficienciesBonus: 2,
-          cArmor: 10,
-          vidaInicial: 1,
-          vidaAtual: 1,
-          initialSlots: {
-            armor: null,
-            mainHand: null,
-            offHand: null,
-            focus: null,
-            ring: [],
-            wondrousItem: null,
-          },
-        };
+    const local = localStorage.getItem("characterData");
+    return local ? JSON.parse(local) : personagemPronto;
   });
 
-  // Sempre que o personagem mudar, salva no localStorage
   useEffect(() => {
-    localStorage.setItem("charData", JSON.stringify(character));
+    localStorage.setItem("characterData", JSON.stringify(character));
   }, [character]);
 
   const updateCharacter = (updates) => {
-    setCharacter((prev) => ({
+    setCharacter(prev => ({ ...prev, ...updates }));
+  };
+
+  const addEquipment = (equip) => {
+    setCharacter(prev => ({
       ...prev,
-      ...updates,
+      equipment: [...prev.equipment, equip]
     }));
   };
 
+  // outros métodos...
+
   return (
-    <CharacterContext.Provider value={{ character, setCharacter, updateCharacter }}>
+    <CharacterContext.Provider value={{ character, updateCharacter, addEquipment }}>
       {children}
     </CharacterContext.Provider>
   );
 };
+
+export const useCharacter = () => useContext(CharacterContext);

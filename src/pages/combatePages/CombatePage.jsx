@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useCombat } from "../../context/CombateContext";
+
 import { useCharacter } from "../../context/CharacterContext";
 import BarraStatus from "../../components/barsComponents/BarraStatus";
 import DropComponent from "../../components/monsterComponents/dropComponent";
-import { useCharEquip } from "../../context/charEquipContext";
 import CombatPotions from "../../components/combateComponents/combatPotions";
 import xpLevels from "../../api/regras";
 import SpellTolltip from "../../components/SpellsComponents/SpellsTooltip";
@@ -19,13 +18,12 @@ import {
   ataquePorBotao,
 } from "../../components/combateComponents/turnoJogador";
 import { turnoInimigoUtil } from "../../components/combateComponents/turnoInimigoUtil";
+import { useCombat } from "../../context/useCombat";
 
 function CombatePage() {
-  const { player, enemy, playerHP, setPlayerHP, setPlayer } = useCombat();
+  const { enemy, enemyHP, setEnemyHP } = useCombat();
   const { character, setCharacter } = useCharacter();
-  const { equipment } = useCharEquip();
 
-  const [enemyHP, setEnemyHP] = useState(enemy?.hit_points || 50);
   const [mensagens, setMensagens] = useState([]);
   const [combateFinalizado, setCombateFinalizado] = useState(false);
   const [dropReady, setDropReady] = useState(false);
@@ -43,8 +41,8 @@ function CombatePage() {
     character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
   const strMod = character ? character.attributes.str.mod : 0;
   const caFinal = useMemo(
-    () => calcularCA(equipment, dexMod, character),
-    [equipment, dexMod, character]
+    () => calcularCA(character.equipment, dexMod, character),
+    [character.equipment, dexMod, character]
   );
 
   useEffect(() => {
@@ -86,7 +84,7 @@ function CombatePage() {
     }
 
     // ativa o drop (loot) para renderizar
-    if (playerHP <= 0) {
+    if (character.vidaAtual <= 0) {
       setDerrota(true);
       return;
     }
@@ -96,17 +94,15 @@ function CombatePage() {
   function handleAtaquePorBotao() {
     ataquePorBotao({
       alvo: enemy,
-      equipment,
+      equipment: character.equipment,
       setPrecisaRecarregar,
       ataqueJogador: (dano) =>
         ataqueJogador({
           combateFinalizado,
           rolarDado,
           character,
-          player,
           enemy,
           setMensagens,
-          setEnemyHP,
           enemyHP,
           setTimeout,
           turnoInimigo,
@@ -129,12 +125,9 @@ function CombatePage() {
   function turnoInimigo() {
     turnoInimigoUtil({
       enemy,
-      player,
       round,
       setRound,
-      setPlayer,
       setMensagens,
-      setPlayerHP,
       combateFinalizado,
       BuffUtils,
     });
@@ -178,7 +171,7 @@ function CombatePage() {
 
   const TrocarDeArmaBtn = () => {
     if (trocarDeArma) {
-      const hasShield = !!equipment.shield;
+      const hasShield = !!character.equipment.shield;
       if (hasShield) {
         console.log("botou escudo CA:", character.cArmor);
       } else {
@@ -202,29 +195,36 @@ function CombatePage() {
     <div>
       <h1>Combate</h1>
       <MonsterDetail monsterId={enemy.index} />
-      <button onClick={() => setPlayerHP(1)}>vida 1 player</button>
-      <button onClick={() => setPlayerHP(10000)}>vida 10000 player</button>
+      <button onClick={() => character.vidaAtual(1)}>vida 1 player</button>
+      <button onClick={() => character.vidaAtual(10000)}>
+        vida 10000 player
+      </button>
       <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
       <button onClick={() => setEnemyHP(1000)}>vida 1000 enemy</button>
 
       {/* Status */}
-      <button onClick={() => console.log("player", player.buff)}>Ver Buffs do Player</button>
-      <button onClick={() => console.log("character", character.buff)}>Ver Buffs do Personagem</button>
+      <button onClick={() => console.log("player", character.buff)}>
+        Ver Buffs do Player
+      </button>
+      <button onClick={() => console.log("character", character.buff)}>
+        Ver Buffs do Personagem
+      </button>
 
       <BarraStatus
-        label={player.name}
-        valorAtual={playerHP}
+        label={character.name}
+        valorAtual={character.vidaAtual}
         valorMaximo={character.vidaInicial || 100}
         CA={`| CA: ${caFinal}`}
         cor="blue"
       />
 
       {/* Exibe buffs ativos do player, se houver */}
-      {player.buff && Object.keys(player.buff).length > 0 && (
+      {character.buff && Object.keys(character.buff).length > 0 && (
         <ul>
-          {Object.entries(player.buff).map(([nomeBuff, detalhes]) => (
+          {Object.entries(character.buff).map(([nomeBuff, detalhes]) => (
             <li key={nomeBuff}>
-              <strong>{nomeBuff}</strong>: CD = {detalhes.CD} | TE = {detalhes.timeEffect}
+              <strong>{nomeBuff}</strong>: CD = {detalhes.CD} | TE ={" "}
+              {detalhes.timeEffect}
               {detalhes.penalidades && detalhes.penalidades.length > 0 && (
                 <ul>
                   {detalhes.penalidades.map((penalidade, index) => (
@@ -251,7 +251,7 @@ function CombatePage() {
         cor="yellow"
       />
 
-      {/* Se o combate não finalizou, mostra controles */}}
+      {/* Se o combate não finalizou, mostra controles */}
       {character.spells && (
         <p>
           <strong>Magias:</strong>{" "}
@@ -306,16 +306,16 @@ function CombatePage() {
             disabled={!precisaRecarregar}
           >
             Ataque Principal (
-            {equipment.weapon
-              ? `${equipment.weapon.status.damage_dice} ${equipment.weapon.name}`
-              : equipment["two-handed"]?.twoHandedDamage
-              ? `${equipment["two-handed"].twoHandedDamage?.damage_dice} ${equipment["two-handed"].name}`
-              : equipment["two-handed"]
-              ? `${equipment["two-handed"].status} ${equipment["two-handed"].name}`
+            {character.equipment.weapon
+              ? `${character.equipment.weapon.status.damage_dice} ${character.equipment.weapon.name}`
+              : character.equipment["two-handed"]?.twoHandedDamage
+              ? `${character.equipment["two-handed"].twoHandedDamage?.damage_dice} ${character.equipment["two-handed"].name}`
+              : character.equipment["two-handed"]
+              ? `${character.equipment["two-handed"].status} ${character.equipment["two-handed"].name}`
               : "1D4"}
             )
-            {equipment.offHand &&
-              ` e secundaria + ${equipment.offHand.status} ${equipment.offHand.name}`}
+            {character.equipment.offHand &&
+              ` e secundaria + ${character.equipment.offHand.status} ${character.equipment.offHand.name}`}
           </button>
           <button onClick={() => handleAtaquePorBotao()}>Ataque Pesado</button>
           <div>
@@ -363,7 +363,7 @@ function CombatePage() {
               } else if (m.tipo === "jogador") {
                 corDeFundo = "#d4edda"; // verde claro
                 corTexto = "#155724";
-                titulo = player.name;
+                titulo = character.name;
                 emoji = "🧙‍♂️";
               } else if (m.tipo === "inimigo") {
                 corDeFundo = "#f8d7da"; // vermelho claro

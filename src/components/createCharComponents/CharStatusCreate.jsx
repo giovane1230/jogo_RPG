@@ -4,7 +4,7 @@ import SpellSelection from "./SpellSelection";
 import { vidaClasse } from "../../api/regras";
 
 const CharStatusCreate = () => {
-  const { character, setCharacter } = useCharacter();
+  const { character, updateCharacter } = useCharacter();
   const [alignments, setAlignments] = useState([]);
 
   const [points, setPoints] = useState(27);
@@ -38,7 +38,7 @@ const CharStatusCreate = () => {
   }, []);
 
   const handleAlignmentChange = (e) => {
-    setCharacter({ ...character, alignment: e.target.value });
+    updateCharacter({ ...character, alignment: e.target.value });
   };
 
   const pointBuyCost = {
@@ -132,7 +132,7 @@ const CharStatusCreate = () => {
 
     const vidaCriada = vidaBase + modificadorConstituicao;
 
-    setCharacter((prev) => ({
+    updateCharacter((prev) => ({
       ...prev,
       attributes: baseAttributes,
       vidaAtual: vidaCriada,
@@ -147,7 +147,7 @@ const CharStatusCreate = () => {
       <input
         type="text"
         value={character.name || ""}
-        onChange={(e) => setCharacter({ ...character, name: e.target.value })}
+        onChange={(e) => updateCharacter({ ...character, name: e.target.value })}
         placeholder="Digite o nome do personagem"
         style={{ width: "200px" }}
       />
@@ -172,7 +172,7 @@ const CharStatusCreate = () => {
       <textarea
         value={character.background || ""}
         onChange={(e) =>
-          setCharacter({ ...character, background: e.target.value })
+          updateCharacter({ ...character, background: e.target.value })
         }
         placeholder="Digite o background"
         style={{ width: "50%", height: "100px" }}

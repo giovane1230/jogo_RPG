@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
-import { useCombat } from "../../context/CombateContext";
+
 import ItemTooltip from "../itemsComponents/ItemTolltip";
 
 const CombatPotions = () => {
-  const { character, setCharacter } = useCharacter();
+  const { character, updateCharacter } = useCharacter();
   const [selectedPotion, setSelectedPotion] = useState(null);
   const [potionDetails, setPotionDetails] = useState(null);
-  const { playerHP, setPlayerHP } = useCombat();
-
-  function rolarDado(lados) {
-    return Math.floor(Math.random() * lados) + 1;
-  }
 
   useEffect(() => {
     if (!selectedPotion) return;
@@ -41,9 +36,9 @@ const CombatPotions = () => {
 
       // Atualiza o HP do jogador, considerando o efeito da poção
       const cura = item?.healing || 100;
-      setPlayerHP(Math.min(playerHP + cura, character.vidaInicial));
+      updateCharacter(Math.min(character.vidaInicial + cura, character.vidaInicial));
 
-      setCharacter({ ...character, potions: updatedPotions });
+      updateCharacter({ ...character, potions: updatedPotions });
     } else {
       alert("Você não tem mais dessa poção!");
     }

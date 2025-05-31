@@ -17,8 +17,8 @@ function AtualizarBuffs(buffDetails) {
   return novosBuffs;
 }
 
-function podeUsarBuff(player, nomeDoBuff) {
-  const buff = player.buff[nomeDoBuff];
+function podeUsarBuff(character, nomeDoBuff) {
+  const buff = character.buff[nomeDoBuff];
   return !buff || buff.CD === 0; // true se não existir ou se estiver pronto
 }
 

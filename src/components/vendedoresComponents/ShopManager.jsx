@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 
 function ShopManager({ character, sellerItems, setSellerItems, updateCharacter }) {
-  const saveToLocalStorage = (charData, items) => {
-    localStorage.setItem("charData", JSON.stringify(charData));
+  const saveToLocalStorage = (characterData, items) => {
+    localStorage.setItem("characterData", JSON.stringify(characterData));
     localStorage.setItem("sellerItems", JSON.stringify(items));
   };
 

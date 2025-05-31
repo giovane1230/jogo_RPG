@@ -1,14 +1,10 @@
 import React, { useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
-import { useCharEquip } from "../../context/charEquipContext";
-import { useCombat } from "../../context/CombateContext";
 import BuffUtils from "../buffDebuffsComponents/BuffUtils";
 import conditionsData from "../buffDebuffsComponents/conditionsData";
 
 const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
-  const { character } = useCharacter();
-  const { equipment } = useCharEquip();
-  const { player, setPlayer } = useCombat();
+  const { character, updateCharacter } = useCharacter();
   const [debuffInput, setDebuffInput] = useState();
 
   function rolarDado(lados) {
@@ -32,12 +28,12 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   };
 
   const defenderComEscudo = () => {
-    if (!equipment.shield) {
+    if (!character.equipment.shield) {
       console.log("Escudo não está equipado");
       return;
     }
 
-    if (!BuffUtils.podeUsarBuff(player, "defender")) {
+    if (!BuffUtils.podeUsarBuff(character, "defender")) {
       console.log("Defender em recarga");
       return;
     }
@@ -47,7 +43,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
 
     if (sucesso) {
       const novoBuff = {
-        ...player.buff,
+        ...character.buff,
         defender: {
           CD: 5,
           timeEffect: 2, // ou 0 se quiser efeito apenas imediato
@@ -55,7 +51,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      setPlayer((prev) => ({
+      updateCharacter((prev) => ({
         ...prev,
         buff: novoBuff,
       }));
@@ -68,7 +64,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   };
 
   const esquivarAtivar = () => {
-    if (!BuffUtils.podeUsarBuff(player, "esquiva")) {
+    if (!BuffUtils.podeUsarBuff(character, "esquiva")) {
       console.log("Esquiva em recarga");
       return;
     }
@@ -78,7 +74,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
 
     if (sucesso) {
       const novoBuff = {
-        ...player.buff,
+        ...character.buff,
         esquiva: {
           CD: 2,
           timeEffect: 2, // ou 0 se quiser efeito apenas imediato
@@ -86,7 +82,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      setPlayer((prev) => ({
+      updateCharacter((prev) => ({
         ...prev,
         buff: novoBuff,
       }));
@@ -99,7 +95,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   };
 
   const esconderAtivar = () => {
-    if (!BuffUtils.podeUsarBuff(player, "sumir")) {
+    if (!BuffUtils.podeUsarBuff(character, "sumir")) {
       console.log("Sumir em recarga");
       return;
     }
@@ -109,7 +105,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
 
     if (sucesso) {
       const novoBuff = {
-        ...player.buff,
+        ...character.buff,
         sumir: {
           CD: 2,
           timeEffect: 2, // ou 0 se quiser efeito apenas imediato
@@ -117,7 +113,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      setPlayer((prev) => ({
+      updateCharacter((prev) => ({
         ...prev,
         buff: novoBuff,
       }));
@@ -130,7 +126,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   };
 
   const empurrarAtivar = () => {
-    if (!BuffUtils.podeUsarBuff(player, "empurrar")) {
+    if (!BuffUtils.podeUsarBuff(character, "empurrar")) {
       console.log("Sumir em recarga");
       return;
     }
@@ -140,7 +136,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
 
     if (sucesso) {
       const novoBuff = {
-        ...player.buff,
+        ...character.buff,
         empurrar: {
           CD: 2,
           timeEffect: 2, // ou 0 se quiser efeito apenas imediato
@@ -148,7 +144,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      setPlayer((prev) => ({
+      updateCharacter((prev) => ({
         ...prev,
         buff: novoBuff,
       }));
@@ -161,7 +157,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   };
 
   const pesquisarAtivar = () => {
-    if (!BuffUtils.podeUsarBuff(player, "pesquisar")) {
+    if (!BuffUtils.podeUsarBuff(character, "pesquisar")) {
       console.log("Pesquisar em recarga");
       return;
     }
@@ -171,7 +167,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
 
     if (sucesso) {
       const novoBuff = {
-        ...player.buff,
+        ...character.buff,
         pesquisar: {
           CD: 2,
           timeEffect: 2, // ou 0 se quiser efeito apenas imediato
@@ -179,7 +175,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      setPlayer((prev) => ({
+      updateCharacter((prev) => ({
         ...prev,
         buff: novoBuff,
       }));
@@ -197,41 +193,41 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
       <button>Criar distancia</button>
       <button
         onClick={esconderAtivar}
-        disabled={!BuffUtils.podeUsarBuff(player, "sumir")}
+        disabled={!BuffUtils.podeUsarBuff(character, "sumir")}
       >
-        {BuffUtils.podeUsarBuff(player, "sumir")
+        {BuffUtils.podeUsarBuff(character, "sumir")
           ? "Esconder-se"
           : "Esconder-se (ativado)"}
       </button>
       <button
         onClick={esquivarAtivar}
-        disabled={!BuffUtils.podeUsarBuff(player, "esquiva")}
+        disabled={!BuffUtils.podeUsarBuff(character, "esquiva")}
       >
-        {BuffUtils.podeUsarBuff(player, "esquiva")
+        {BuffUtils.podeUsarBuff(character, "esquiva")
           ? "Esquivar"
           : "Esquivar (ativado)"}
       </button>
       <button
         onClick={pesquisarAtivar}
-        disabled={!BuffUtils.podeUsarBuff(player, "pesquisar")}
+        disabled={!BuffUtils.podeUsarBuff(character, "pesquisar")}
       >
-        {BuffUtils.podeUsarBuff(player, "pesquisar")
+        {BuffUtils.podeUsarBuff(character, "pesquisar")
           ? "pesquisar"
           : "pesquisar (ativado)"}
       </button>
       <button
         onClick={empurrarAtivar}
-        disabled={!BuffUtils.podeUsarBuff(player, "empurrar")}
+        disabled={!BuffUtils.podeUsarBuff(character, "empurrar")}
       >
-        {BuffUtils.podeUsarBuff(player, "empurrar")
+        {BuffUtils.podeUsarBuff(character, "empurrar")
           ? "empurrar"
           : "empurrar (ativado)"}
       </button>
       <button
         onClick={defenderComEscudo}
-        disabled={!BuffUtils.podeUsarBuff(player, "defender")}
+        disabled={!BuffUtils.podeUsarBuff(character, "defender")}
       >
-        {!BuffUtils.podeUsarBuff(player, "defender")
+        {!BuffUtils.podeUsarBuff(character, "defender")
           ? "Defendendo"
           : "Defender (requer escudo)"}
       </button>
@@ -254,7 +250,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
             }
 
             const novoDebuff = {
-              ...player.debuff,
+              ...character.debuff,
               [debuffInput]: {
                 CD: 1,
                 timeEffect: condition.duracao,
@@ -264,7 +260,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
               },
             };
 
-            setPlayer((prev) => ({
+            character((prev) => ({
               ...prev,
               debuff: novoDebuff,
             }));
