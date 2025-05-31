@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+// Contextos e componentes utilizados
 import { useCharacter } from "../../context/CharacterContext";
+import { useCombat } from "../../context/useCombat";
 import BarraStatus from "../../components/barsComponents/BarraStatus";
 import DropComponent from "../../components/monsterComponents/dropComponent";
 import CombatPotions from "../../components/combateComponents/combatPotions";
@@ -18,13 +20,14 @@ import {
   ataquePorBotao,
 } from "../../components/combateComponents/turnoJogador";
 import { turnoInimigoUtil } from "../../components/combateComponents/turnoInimigoUtil";
-import { useCombat } from "../../context/useCombat";
+import { Navigate, useNavigate } from "react-router-dom";
 
 function CombatePage() {
+  // Estado do combate
   const { enemy, enemyHP, setEnemyHP } = useCombat();
   const { character, setCharacter } = useCharacter();
 
-  const [mensagens, setMensagens] = useState([]);
+  const [mensagens, setMensagens] = useState([]); // Logs do combate
   const [combateFinalizado, setCombateFinalizado] = useState(false);
   const [dropReady, setDropReady] = useState(false);
   const [derrota, setDerrota] = useState(false);
@@ -33,32 +36,40 @@ function CombatePage() {
   const [selectedSpell, setSelectedSpell] = useState(null);
   const [trocarDeArma, setTrocaDeArma] = useState(false);
 
-  if (!enemy)
-    return <p>Combate Interrompido, por favor saia desta página...</p>;
+  const navigate = useNavigate();
 
+  // Se não houver inimigo, interrompe o combate
+  if (!enemy) {
+    return (
+      <div>
+        <p>Combate Interrompido, por favor escolha um novo inimigo.</p>
+        <button onClick={() => navigate("/treino")}>Escolher Inimigo</button>
+      </div>
+    );
+  }
+
+  // Cálculo de modificadores e Classe de Armadura (CA)
   const dexMod = character ? character.attributes.dex.mod : 0;
-  const maxDexMod =
-    character.attributes.dex.mod > 2 ? 2 : character.attributes.dex.mod;
   const strMod = character ? character.attributes.str.mod : 0;
+
   const caFinal = useMemo(
     () => calcularCA(character.equipment, dexMod, character),
     [character.equipment, dexMod, character]
   );
 
+  // Efeito que verifica se alguém morreu
   useEffect(() => {
     if (!combateFinalizado) {
       if (enemyHP <= 0) {
-        setPlayer((prev) => ({
-          ...prev,
-          buff: {},
-        }));
+        setPlayer((prev) => ({ ...prev, buff: {} })); // Remove buffs ao derrotar inimigo
         finalizarCombate(true);
-      } else if (playerHP <= 0) {
+      } else if (character.vidaAtual <= 0) {
         finalizarCombate(false);
       }
     }
-  }, [enemyHP, playerHP, combateFinalizado]);
+  }, [enemyHP, character.vidaAtual, combateFinalizado]);
 
+  // Função que finaliza o combate
   function finalizarCombate(jogadorVenceu) {
     setCombateFinalizado(true);
 
@@ -68,11 +79,11 @@ function CombatePage() {
         { tipo: "sistema", texto: `Você derrotou ${enemy.name}!` },
       ]);
     } else {
-      // derrota: Ouro perdido (aqui 5% do max)
+      // Penalidade por derrota: perda de 5% do ouro
       const ouroPerdido = Math.floor(character.gold / 20);
       setCharacter((prev) => ({
         ...prev,
-        gold: character.gold - Math.floor(character.gold / 20),
+        gold: character.gold - ouroPerdido,
       }));
       setMensagens((prev) => [
         ...prev,
@@ -83,7 +94,7 @@ function CombatePage() {
       ]);
     }
 
-    // ativa o drop (loot) para renderizar
+    // Exibe drop se não morreu
     if (character.vidaAtual <= 0) {
       setDerrota(true);
       return;
@@ -91,6 +102,7 @@ function CombatePage() {
     setDropReady(true);
   }
 
+  // Função de ataque
   function handleAtaquePorBotao() {
     ataquePorBotao({
       alvo: enemy,
@@ -122,6 +134,7 @@ function CombatePage() {
     });
   }
 
+  // Turno do inimigo
   function turnoInimigo() {
     turnoInimigoUtil({
       enemy,
@@ -133,6 +146,7 @@ function CombatePage() {
     });
   }
 
+  // Função para recarregar arma
   const recarregarArma = () => {
     setPrecisaRecarregar(true);
     setMensagens((prev) => [
@@ -142,6 +156,7 @@ function CombatePage() {
     setTimeout(turnoInimigo, 1000);
   };
 
+  // Resultado de tentativa de fuga
   const handleEscapeResult = (fugiu) => {
     if (fugiu) {
       setMensagens((prev) => [
@@ -158,6 +173,7 @@ function CombatePage() {
     }
   };
 
+  // Quando falha em usar uma ação
   const iniciaTurnoInimigo = () => {
     setMensagens((prev) => [
       ...prev,
@@ -169,6 +185,7 @@ function CombatePage() {
     setTimeout(turnoInimigo, 1000);
   };
 
+  // Função para trocar de arma
   const TrocarDeArmaBtn = () => {
     if (trocarDeArma) {
       const hasShield = !!character.equipment.shield;
@@ -194,7 +211,11 @@ function CombatePage() {
   return (
     <div>
       <h1>Combate</h1>
+
+      {/* Detalhes do monstro */}
       <MonsterDetail monsterId={enemy.index} />
+
+      {/* Botões para debug de vida */}
       <button onClick={() => character.vidaAtual(1)}>vida 1 player</button>
       <button onClick={() => character.vidaAtual(10000)}>
         vida 10000 player
@@ -202,7 +223,7 @@ function CombatePage() {
       <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
       <button onClick={() => setEnemyHP(1000)}>vida 1000 enemy</button>
 
-      {/* Status */}
+      {/* Buffs */}
       <button onClick={() => console.log("player", character.buff)}>
         Ver Buffs do Player
       </button>
@@ -210,6 +231,7 @@ function CombatePage() {
         Ver Buffs do Personagem
       </button>
 
+      {/* Barras de status */}
       <BarraStatus
         label={character.name}
         valorAtual={character.vidaAtual}
@@ -218,7 +240,7 @@ function CombatePage() {
         cor="blue"
       />
 
-      {/* Exibe buffs ativos do player, se houver */}
+      {/* Exibe buffs ativos */}
       {character.buff && Object.keys(character.buff).length > 0 && (
         <ul>
           {Object.entries(character.buff).map(([nomeBuff, detalhes]) => (
@@ -237,6 +259,7 @@ function CombatePage() {
         </ul>
       )}
 
+      {/* Barra de vida inimigo */}
       <BarraStatus
         label={enemy.name}
         valorAtual={enemyHP}
@@ -244,6 +267,8 @@ function CombatePage() {
         CA={`| CA: ${enemy.armor_class?.[0]?.value}`}
         cor="red"
       />
+
+      {/* Barra de experiência */}
       <BarraStatus
         label="Experiência"
         valorAtual={character.exp}
@@ -283,124 +308,28 @@ function CombatePage() {
           </button>
         </p>
       )}
-      {!combateFinalizado && !trocarDeArma ? (
-        <>
-          <strong>Poção:</strong> <CombatPotions />
-          <h2>Ataques</h2>
-          <p>
-            Modificador de ataque: +
-            {Math.max(
-              character.attributes.dex.mod,
-              character.attributes.str.mod
-            )}
-            <br />
-            Proficiência: +{character.proficienciesBonus}
-          </p>
-          {!precisaRecarregar && (
-            <button onClick={recarregarArma} disabled={precisaRecarregar}>
-              Recarregar
-            </button>
-          )}
-          <button
-            onClick={() => handleAtaquePorBotao()}
-            disabled={!precisaRecarregar}
-          >
-            Ataque Principal (
-            {character.equipment.weapon
-              ? `${character.equipment.weapon.status.damage_dice} ${character.equipment.weapon.name}`
-              : character.equipment["two-handed"]?.twoHandedDamage
-              ? `${character.equipment["two-handed"].twoHandedDamage?.damage_dice} ${character.equipment["two-handed"].name}`
-              : character.equipment["two-handed"]
-              ? `${character.equipment["two-handed"].status} ${character.equipment["two-handed"].name}`
-              : "1D4"}
-            )
-            {character.equipment.offHand &&
-              ` e secundaria + ${character.equipment.offHand.status} ${character.equipment.offHand.name}`}
-          </button>
-          <button onClick={() => handleAtaquePorBotao()}>Ataque Pesado</button>
-          <div>
-            <CombatActions
-              onEscapeAttempt={handleEscapeResult}
-              iniciaTurnoInimigo={iniciaTurnoInimigo}
-            />
-            <button onClick={TrocarDeArmaBtn}> Troca de arma </button>
-            {combateFinalizado && (
-              <>
-                <p>Fugiu do combate</p>
-                <button onClick={() => console.log("fuiug")}>fuga</button>
-              </>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <button onClick={TrocarDeArmaBtn}>Confirmar troca</button>
-        </>
+
+      {!combateFinalizado && !trocarDeArma && (
+        <div>
+          <CombatActions
+            onAttack={handleAtaquePorBotao}
+            onReload={recarregarArma}
+            onEscape={handleEscapeResult}
+            onFail={iniciaTurnoInimigo}
+            trocaDeArma={TrocarDeArmaBtn}
+            precisaRecarregar={precisaRecarregar}
+          />
+        </div>
       )}
-      {trocarDeArma && <TrocarDeArma />}
-      {/* Loot / drop aparece sempre que o combate acabar */}
-      {derrota && <DropComponent CR={"derrota"} />}
-      {dropReady && <DropComponent CR={enemy.challenge_rating} />}
 
-      {/* Mensagens de combate */}
-      <div style={{ marginTop: 20 }}>
-        <h2 style={{ textAlign: "center" }}>Mensagens</h2>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {mensagens
-            .slice()
-            .reverse()
-            .map((m, i) => {
-              let corDeFundo = "#eee";
-              let corTexto = "#000";
-              let titulo = "";
-              let emoji = "";
+      {/* Potions e drop */}
+      <CombatPotions
+        setMensagens={setMensagens}
+        setTimeout={setTimeout}
+        turnoInimigo={turnoInimigo}
+      />
 
-              if (m.tipo === "sistema") {
-                corDeFundo = "#cce5ff"; // azul claro
-                corTexto = "#004085";
-                titulo = "Sistema";
-                emoji = "⚙️";
-              } else if (m.tipo === "jogador") {
-                corDeFundo = "#d4edda"; // verde claro
-                corTexto = "#155724";
-                titulo = character.name;
-                emoji = "🧙‍♂️";
-              } else if (m.tipo === "inimigo") {
-                corDeFundo = "#f8d7da"; // vermelho claro
-                corTexto = "#721c24";
-                titulo = enemy.name;
-                emoji = "👹";
-              } else if (m.tipo === "buff") {
-                corDeFundo = "#rgb(24 217 197 / 73%)"; // vermelho claro
-                corTexto = "#rgb(36 56 77)";
-                titulo = "buffs";
-                emoji = "✨";
-              }
-
-              return (
-                <li
-                  key={i}
-                  style={{
-                    backgroundColor: corDeFundo,
-                    color: corTexto,
-                    border: `1px solid ${corTexto}`,
-                    borderRadius: "8px",
-                    padding: "8px",
-                    margin: "4px 8px",
-                    textAlign: "left",
-                    fontFamily: "monospace",
-                    fontSize: "18px",
-                  }}
-                >
-                  <strong>
-                    {emoji} {titulo}:
-                  </strong>{" "}
-                  {m.texto}
-                </li>
-              );
-            })}
-        </ul>
-      </div>
+      {dropReady && <DropComponent enemy={enemy} derrota={derrota} />}
     </div>
   );
 }

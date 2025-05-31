@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export const useCombat = () => {
   // Estado do inimigo selecionado
@@ -17,6 +17,10 @@ export const useCombat = () => {
 
   // Função para iniciar o combate com inimigo
   const startCombat = (selectedEnemy, selectedPlayer) => {
+    if (!selectedEnemy) {
+      console.warn("selectedEnemy está vazio ou indefinido!");
+    }
+    console.log("Iniciando combate com:", selectedEnemy, selectedPlayer);
     setEnemy(selectedEnemy);
     setPlayerCombat(selectedPlayer);
   };
@@ -34,10 +38,10 @@ export const useCombat = () => {
   };
 
   // Função para aplicar um debuff ou buff
-  const applyStatus = (target, statusType, status) => {
-    setCombatStatus(prev => ({
+  const applyStatus = ({ target, type, status }) => {
+    setCombatStatus((prev) => ({
       ...prev,
-      [target + statusType]: [...prev[target + statusType], status],
+      [`${target}${type}`]: [...prev[`${target}${type}`], status],
     }));
   };
 
@@ -49,6 +53,6 @@ export const useCombat = () => {
     combatStatus,
     applyStatus,
     startCombat,
-    resetCombat
+    resetCombat,
   };
 };

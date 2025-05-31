@@ -7,7 +7,7 @@ import { useCombat } from "../../context/useCombat";
 
 function TreinoPage() {
   const { character, updateCharacter } = useCharacter();
-  const { setEnemy } = useCombat();
+  const { enemy, setEnemy } = useCombat();
   const [monstros, setMonstros] = useState([]);
   const [inimigoSelecionado, setInimigoSelecionado] = useState(null);
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
@@ -47,10 +47,10 @@ function TreinoPage() {
       const res = await fetch(`https://www.dnd5eapi.co${url}`);
       const data = await res.json();
       setInimigoSelecionado(data);
-      console.log(inimigoSelecionado);
     } catch (erro) {
       console.error("Erro ao buscar detalhes do inimigo:", erro);
     }
+    console.log(inimigoSelecionado);
   };
 
   const handleAvancarParaCombate = () => {
@@ -71,7 +71,9 @@ function TreinoPage() {
       carregando ? (
         <p>Carregando character.vidaAtual...</p>
       ) : character.vidaAtual === 0 ? (
-        <button onClick={() => updateCharacter.vidaAtual(character / 1.5)}>RECURA VIDA</button>
+        <button onClick={() => updateCharacter.vidaAtual(character / 1.5)}>
+          RECURA VIDA
+        </button>
       ) : null;
     }
   }, []);
@@ -96,6 +98,7 @@ function TreinoPage() {
   return (
     <div>
       <h1>Modo de Treino</h1>
+      <button onClick={() => console.log("inimigoSelecionado", inimigoSelecionado)}>enemy??</button>
       <p>Selecione um inimigo:</p>
 
       {carregando ? (
@@ -282,7 +285,11 @@ function TreinoPage() {
         </div>
       )}
       {character.vidaAtual <= 0 && (
-        <button onClick={() => updateCharacter.vidaAtual(Math.floor(character.vidaInicial / 2))}>
+        <button
+          onClick={() =>
+            updateCharacter.vidaAtual(Math.floor(character.vidaInicial / 2))
+          }
+        >
           Se cure antes de iniciar o combate (50%)
         </button>
       )}
