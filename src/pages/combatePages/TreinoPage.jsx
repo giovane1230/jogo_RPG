@@ -3,11 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SpellTooltip from "../../components/SpellsComponents/SpellsTooltip";
 import { useCharacter } from "../../context/CharacterContext";
-import { useCombat } from "../../context/useCombat";
+import { useCombat } from "../../context/CombateContext";
 
 function TreinoPage() {
   const { character, updateCharacter } = useCharacter();
-  const { enemy, setEnemy } = useCombat();
+  const { setEnemy } = useCombat();
   const [monstros, setMonstros] = useState([]);
   const [inimigoSelecionado, setInimigoSelecionado] = useState(null);
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
@@ -62,7 +62,7 @@ function TreinoPage() {
 
     const personagem = JSON.parse(personagemLocal);
     updateCharacter(personagem);
-    setEnemy(inimigoSelecionado);
+    setEnemy(inimigoSelecionado)
     navigate("/combate");
   };
 
@@ -98,7 +98,11 @@ function TreinoPage() {
   return (
     <div>
       <h1>Modo de Treino</h1>
-      <button onClick={() => console.log("inimigoSelecionado", inimigoSelecionado)}>enemy??</button>
+      <button
+        onClick={() => console.log("inimigoSelecionado", inimigoSelecionado)}
+      >
+        enemy??
+      </button>
       <p>Selecione um inimigo:</p>
 
       {carregando ? (

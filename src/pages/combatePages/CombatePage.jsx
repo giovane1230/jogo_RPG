@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 // Contextos e componentes utilizados
 import { useCharacter } from "../../context/CharacterContext";
-import { useCombat } from "../../context/useCombat";
+import { useCombat } from "../../context/CombateContext";
 import BarraStatus from "../../components/barsComponents/BarraStatus";
 import DropComponent from "../../components/monsterComponents/dropComponent";
 import CombatPotions from "../../components/combateComponents/combatPotions";
@@ -20,12 +20,12 @@ import {
   ataquePorBotao,
 } from "../../components/combateComponents/turnoJogador";
 import { turnoInimigoUtil } from "../../components/combateComponents/turnoInimigoUtil";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function CombatePage() {
   // Estado do combate
-  const { enemy, enemyHP, setEnemyHP } = useCombat();
-  const { character, setCharacter } = useCharacter();
+  const { character, setCharacter, updateCharacter } = useCharacter();
+  const { enemy, updateEnemyHP, enemyHP } = useCombat();
 
   const [mensagens, setMensagens] = useState([]); // Logs do combate
   const [combateFinalizado, setCombateFinalizado] = useState(false);
@@ -43,6 +43,7 @@ function CombatePage() {
     return (
       <div>
         <p>Combate Interrompido, por favor escolha um novo inimigo.</p>
+        <button onClick={() => console.log(enemy)}>CONSOLE</button>
         <button onClick={() => navigate("/treino")}>Escolher Inimigo</button>
       </div>
     );
@@ -60,14 +61,14 @@ function CombatePage() {
   // Efeito que verifica se alguém morreu
   useEffect(() => {
     if (!combateFinalizado) {
-      if (enemyHP <= 0) {
-        setPlayer((prev) => ({ ...prev, buff: {} })); // Remove buffs ao derrotar inimigo
+      if (enemy.hit_points <= 0) {
+        setCharacter((prev) => ({ ...prev, buff: {} })); // Remove buffs ao derrotar inimigo
         finalizarCombate(true);
       } else if (character.vidaAtual <= 0) {
         finalizarCombate(false);
       }
     }
-  }, [enemyHP, character.vidaAtual, combateFinalizado]);
+  }, [enemy.hit_points, character.vidaAtual, combateFinalizado]);
 
   // Função que finaliza o combate
   function finalizarCombate(jogadorVenceu) {
@@ -216,17 +217,18 @@ function CombatePage() {
       <MonsterDetail monsterId={enemy.index} />
 
       {/* Botões para debug de vida */}
-      <button onClick={() => character.vidaAtual(1)}>vida 1 player</button>
-      <button onClick={() => character.vidaAtual(10000)}>
-        vida 10000 player
+      <button onClick={() => updateCharacter({ vidaAtual: 1 })}>
+        Jogador 1 HP
       </button>
-      <button onClick={() => setEnemyHP(1)}>vida 1 enemy</button>
-      <button onClick={() => setEnemyHP(1000)}>vida 1000 enemy</button>
+      <button onClick={() => updateCharacter({ vidaAtual: 100000 })}>
+        Jogador 100000 HP
+      </button>
+      <button onClick={() => updateEnemyHP(1)}>enemy 1 HP</button>
+      <button onClick={() => updateEnemyHP(100000)}>
+        enemy 100000 HP
+      </button>
+      <button onClick={() => console.log(enemyHP)}>enemy console</button>
 
-      {/* Buffs */}
-      <button onClick={() => console.log("player", character.buff)}>
-        Ver Buffs do Player
-      </button>
       <button onClick={() => console.log("character", character.buff)}>
         Ver Buffs do Personagem
       </button>
@@ -262,7 +264,7 @@ function CombatePage() {
       {/* Barra de vida inimigo */}
       <BarraStatus
         label={enemy.name}
-        valorAtual={enemyHP}
+        valorAtual={enemy.hit_points}
         valorMaximo={enemy.hit_points || 50}
         CA={`| CA: ${enemy.armor_class?.[0]?.value}`}
         cor="red"
@@ -277,7 +279,7 @@ function CombatePage() {
       />
 
       {/* Se o combate não finalizou, mostra controles */}
-      {character.spells && (
+      {character.spells.length > 0 && (
         <p>
           <strong>Magias:</strong>{" "}
           <select
