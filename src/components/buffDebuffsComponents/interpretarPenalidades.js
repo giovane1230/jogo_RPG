@@ -19,7 +19,7 @@ export function interpretarPenalidades(entity) {
     ignorarAlvo: false,
   };
 
-  const buffs = entity.buff || {};
+  const buffs = entity?.buff || {};
   console.log("Buffs encontrados:", buffs);
 
   for (const key in buffs) {

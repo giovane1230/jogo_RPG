@@ -13,8 +13,8 @@ export function turnoInimigoUtil({
   combateFinalizado,
   BuffUtils,
 }) {
-  // 0) Checa se inimigo tem ações e se o combate já acabou; caso sim, retorna sem fazer nada
-  if (!enemy.actions?.length || combateFinalizado) return;
+  // 0) Checa se inimigo tem ações, se o combate já acabou ou se player está indefinido; caso sim, retorna sem fazer nada
+  if (!enemy.actions?.length || combateFinalizado || !player) return;
 
   // 1) Incrementa o contador de rounds
   setRound((r) => r + 1);

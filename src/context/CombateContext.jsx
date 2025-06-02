@@ -24,11 +24,11 @@ export function CombatProvider({ children }) {
   };
 
   // 5) Função para mudar apenas o HP atual (sem alterar o objeto enemy.original_hit_points)
-  const updateEnemyHP = (novoHP) => {
-    // Garante que não ficará abaixo de zero
-    const hpValido = Math.max(0, novoHP);
-    setEnemyHP(hpValido);
-  };
+  // const updateEnemyHP = (novoHP) => {
+  //   // Garante que não ficará abaixo de zero
+  //   const hpValido = Math.max(0, novoHP);
+  //   setEnemyHP(hpValido);
+  // };
 
   return (
     <CombatContext.Provider
@@ -37,7 +37,7 @@ export function CombatProvider({ children }) {
         setEnemy, // Para trocar o inimigo inteiro (ex: carregar outro monstro)
         updateEnemy, // Para mexer em campos pontuais de "enemy" (ex: mudar AC, nome, etc.)
         enemyHP, // HP atual que os componentes podem exibir
-        setEnemyHP: updateEnemyHP, // Para atualizar só a vida atual
+        setEnemyHP, // Para atualizar só a vida atual
       }}
     >
       {children}

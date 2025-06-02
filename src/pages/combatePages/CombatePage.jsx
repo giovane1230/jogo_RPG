@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 function CombatePage() {
   // Estado do combate
   const { character, setCharacter, updateCharacter } = useCharacter();
-  const { enemy, updateEnemyHP, enemyHP } = useCombat();
+  const { enemy, setEnemyHP, enemyHP } = useCombat();
 
   const [mensagens, setMensagens] = useState([]); // Logs do combate
   const [combateFinalizado, setCombateFinalizado] = useState(false);
@@ -223,11 +223,10 @@ function CombatePage() {
       <button onClick={() => updateCharacter({ vidaAtual: 100000 })}>
         Jogador 100000 HP
       </button>
-      <button onClick={() => updateEnemyHP(1)}>enemy 1 HP</button>
-      <button onClick={() => updateEnemyHP(100000)}>
-        enemy 100000 HP
-      </button>
-      <button onClick={() => console.log(enemyHP)}>enemy console</button>
+      <button onClick={() => setEnemyHP(1)}>enemy 1 HP</button>
+      <button onClick={() => setEnemyHP(100000)}>enemy 100000 HP</button>
+      <button onClick={() => console.log(enemy)}>enemy console</button>
+      <button onClick={() => console.log(character)}>char console</button>
 
       <button onClick={() => console.log("character", character.buff)}>
         Ver Buffs do Personagem
@@ -264,7 +263,7 @@ function CombatePage() {
       {/* Barra de vida inimigo */}
       <BarraStatus
         label={enemy.name}
-        valorAtual={enemy.hit_points}
+        valorAtual={enemy.vida}
         valorMaximo={enemy.hit_points || 50}
         CA={`| CA: ${enemy.armor_class?.[0]?.value}`}
         cor="red"
@@ -311,6 +310,8 @@ function CombatePage() {
         </p>
       )}
 
+      <button onClick={handleAtaquePorBotao}>Atacar!</button>
+
       {!combateFinalizado && !trocarDeArma && (
         <div>
           <CombatActions
@@ -332,6 +333,24 @@ function CombatePage() {
       />
 
       {dropReady && <DropComponent enemy={enemy} derrota={derrota} />}
+      <div>
+        {mensagens
+          .slice()
+          .reverse()
+          .map((msg, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: msg.tipo === "sistema" ? "#aac5ff" : "#d9adad",
+                fontWeight: msg.tipo === "jogador" ? "bold" : "normal",
+                fontSize: "20px",
+                marginBottom: "10px",
+              }}
+            >
+              {msg.texto}
+            </div>
+          ))}
+      </div>
     </div>
   );
 }

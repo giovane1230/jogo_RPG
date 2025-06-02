@@ -73,7 +73,9 @@ export function ataqueJogador({
 
   if (sucesso) {
     aplicarDano(enemy, { dano: danoTotal, tipo: dano.tipo }, setMensagens);
-    setEnemyHP(enemy.vida);
+    if (typeof setEnemyHP === "function") {
+      setEnemyHP(enemy.vida);
+    }
   }
   // Força o turno a seguir se inimigo ainda está vivo.
   if (enemy.vida > 0) {
@@ -188,7 +190,7 @@ export function ataquePorBotao({
   // Verifica e executa ataque offHand.
   if (equipment.offHand) {
     const diceExprOff = equipment.offHand.status.damage_dice || "1d4";
-    const tipoOff = equipment.offHand.status.damage_type.index || "Sem tipo";
+    const tipoOff = equipment.offHand.status.damage_type?.index || undefined;
     const offLados = parseInt(diceExprOff.split("d")[1], 10) || 6;
 
     // Rola o dano para offHand.
