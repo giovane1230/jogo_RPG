@@ -14,6 +14,7 @@ export function ataqueJogador({
   setMensagens,
   setEnemyHP,
   enemyHP,
+  setEnemy,
   setTimeout,
   turnoInimigo,
   dano, // { dano: número, tipo: string }
@@ -66,19 +67,24 @@ export function ataqueJogador({
       texto: sucesso
         ? `Você ${
             critico ? "CRÍTICO" : "acertou"
-          } 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}`
+          } 🎲${acerto}+${bonusTotal} = ${
+            acerto + bonusTotal
+          }, causando ${danoTotal} de dano!
+`
         : `Você errou 🎲${acerto}+${bonusTotal} = ${acerto + bonusTotal}🛡️`,
     },
   ]);
 
   if (sucesso) {
-    aplicarDano(enemy, { dano: danoTotal, tipo: dano.tipo }, setMensagens);
-    if (typeof setEnemyHP === "function") {
-      setEnemyHP(enemy.vida);
-    }
+    const novaVida = aplicarDano(
+      enemy,
+      { dano: danoTotal, tipo: dano.tipo },
+      setMensagens
+    );
+    setEnemy((prev) => ({ ...prev, vidaAtual: novaVida }));
   }
   // Força o turno a seguir se inimigo ainda está vivo.
-  if (enemy.vida > 0) {
+  if (enemy.vidaAtual > 0) {
     setTimeout(turnoInimigo, 1000);
   }
 }
@@ -131,9 +137,10 @@ export function ataqueJogadorOffHand({
   if (sucesso) {
     const danoTotalOff = critico ? dano.dano * 2 : dano.dano;
     aplicarDano(enemy, { dano: danoTotalOff, tipo: dano.tipo }, setMensagens);
-    setEnemyHP(enemy.vida);
+    if (typeof setEnemyHP === "function") {
+      setEnemyHP(enemy.vidaAtual);
+    }
   }
-
 }
 
 /**

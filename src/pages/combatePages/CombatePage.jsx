@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 function CombatePage() {
   // Estado do combate
   const { character, setCharacter, updateCharacter } = useCharacter();
-  const { enemy, setEnemyHP, enemyHP } = useCombat();
+  const { enemy, setEnemyHP, enemyHP, setEnemy } = useCombat();
 
   const [mensagens, setMensagens] = useState([]); // Logs do combate
   const [combateFinalizado, setCombateFinalizado] = useState(false);
@@ -114,6 +114,7 @@ function CombatePage() {
           combateFinalizado,
           rolarDado,
           character,
+          setEnemy,
           enemy,
           setMensagens,
           enemyHP,
@@ -138,6 +139,8 @@ function CombatePage() {
   // Turno do inimigo
   function turnoInimigo() {
     turnoInimigoUtil({
+      player: character,
+      setPlayer: setCharacter,
       enemy,
       round,
       setRound,
@@ -223,8 +226,8 @@ function CombatePage() {
       <button onClick={() => updateCharacter({ vidaAtual: 100000 })}>
         Jogador 100000 HP
       </button>
-      <button onClick={() => setEnemyHP(1)}>enemy 1 HP</button>
-      <button onClick={() => setEnemyHP(100000)}>enemy 100000 HP</button>
+      <button onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 1 }))}>enemy 1 HP</button>
+      <button onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 100000 }))}>enemy 100000 HP</button>
       <button onClick={() => console.log(enemy)}>enemy console</button>
       <button onClick={() => console.log(character)}>char console</button>
 
@@ -263,7 +266,7 @@ function CombatePage() {
       {/* Barra de vida inimigo */}
       <BarraStatus
         label={enemy.name}
-        valorAtual={enemy.vida}
+        valorAtual={enemy.vidaAtual}
         valorMaximo={enemy.hit_points || 50}
         CA={`| CA: ${enemy.armor_class?.[0]?.value}`}
         cor="red"

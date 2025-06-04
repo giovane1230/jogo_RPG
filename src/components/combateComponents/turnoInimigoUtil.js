@@ -1,4 +1,5 @@
 import conditionsData from "../buffDebuffsComponents/conditionsData";
+import { aplicarDano } from "./aplicarDano";
 import { parseAction } from "./parseAction";
 import { rolarDado, rolarDadoPersonalizado } from "./rolarDados";
 
@@ -14,13 +15,14 @@ export function turnoInimigoUtil({
   BuffUtils,
 }) {
   // 0) Checa se inimigo tem ações, se o combate já acabou ou se player está indefinido; caso sim, retorna sem fazer nada
-  if (!enemy.actions?.length || combateFinalizado || !player) return;
+  if (!enemy.actions?.length || combateFinalizado) return;
 
+  console.log("chegou");
   // 1) Incrementa o contador de rounds
   setRound((r) => r + 1);
 
   // 2) Atualiza os buffs do player no início do turno
-  const buffsAtualizados = BuffUtils.AtualizarBuffs(player.buff);
+  const buffsAtualizados = BuffUtils?.AtualizarBuffs(player.buff);
   setPlayer((prev) => ({ ...prev, buff: buffsAtualizados }));
 
   // 3) Se o player estiver sob o efeito do buff 'empurrar/atordoado', pula o turno do inimigo e exibe mensagens
@@ -234,19 +236,25 @@ export function turnoInimigoUtil({
     else {
       mensagens.push({
         tipo: "inimigo",
-        texto: `${enemy.name} usou ${acao.name}: ${acao.desc}`,
+        texto: `${enemy.name} usou ${acao.name}, mas não causou dano direto.`,
       });
     }
   }
 
-  // 8) Aplica o dano acumulado no HP do player, evitando que fique abaixo de zero
+  // 8) Aplica o dano acumulado ao player e atualiza o HP
   if (totalDano > 0) {
-    setPlayerHP((hp) => Math.max(0, hp - totalDano));
+    const novaVida = aplicarDano(
+      player,
+      { dano: totalDano, tipo: "INIMGIO DANO" },
+      setMensagens
+    );
+    setPlayer((prev) => ({ ...prev, vidaAtual: novaVida }));
   }
 
-  // 9) Mensagem indicando o fim do round
-  mensagens.push({ tipo: "sistema", texto: `--- Fim do ${round}° Round ---` });
-
-  // 10) Atualiza as mensagens de evento no estado
-  setMensagens((prev) => [...prev, ...mensagens]);
+  // 9) Exibe as mensagens acumuladas, incluindo encerramento do turno
+  setMensagens((prev) => [
+    ...prev,
+    ...mensagens,
+    { tipo: "sistema", texto: `--- Fim do ${round}° Round ---` },
+  ]);
 }
