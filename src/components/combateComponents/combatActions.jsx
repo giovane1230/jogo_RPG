@@ -47,9 +47,11 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
       const novoBuff = {
         ...character.buff,
         defender: {
-          CD: 5,
-          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
-          desc: "CA + CON MOD.",
+          nome: "Defender",
+          descricao: "Aumenta a chance de defesa",
+          CD: 2,
+          timeEffect: 2,
+          salvamento: "Força ou cons",
         },
       };
 
@@ -75,9 +77,11 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
       const novoBuff = {
         ...character.buff,
         esquiva: {
+          nome: "Esquivar",
+          descricao: "Esquiva dos dois proximos ataques.",
           CD: 2,
-          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
-          desc: "Esquiva do proximo ataque.",
+          timeEffect: 2,
+          salvamento: "Dextreza",
         },
       };
 
@@ -103,9 +107,11 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
       const novoBuff = {
         ...character.buff,
         sumir: {
+          nome: "Sumir",
+          descricao: "Fica invisivel e causa ataque de oportunidade (critico)",
           CD: 2,
-          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
-          desc: "Some e causa dano de furtividade.",
+          timeEffect: 2,
+          salvamento: "Dextreza",
         },
       };
 
@@ -131,9 +137,11 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
       const novoBuff = {
         ...character.buff,
         empurrar: {
+          nome: "Empurrar",
+          descricao: "Atordoa prevemente e cria distancia",
           CD: 2,
-          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
-          desc: "Atordoa o inimigo",
+          timeEffect: 2,
+          salvamento: "Força",
         },
       };
 
@@ -160,8 +168,10 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         ...character.buff,
         pesquisar: {
           CD: 2,
-          timeEffect: 2, // ou 0 se quiser efeito apenas imediato
-          desc: "Foca no inimigo, mod acerto dobrado",
+          timeEffect: 2,
+          nome: "Pesquisar",
+          descricao: "Aumenta a chance de acerto",
+          salvamento: "Conhecimento",
         },
       };
 
@@ -242,15 +252,11 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
                 CD: 1,
                 timeEffect: condition.duracao,
                 desc: condition.descricao,
-                penalidades: condition.penalidades,
                 salvamento: condition.salvamento,
               },
             };
 
-            character((prev) => ({
-              ...prev,
-              debuff: novoDebuff,
-            }));
+            updateCharacter({ buff: novoDebuff });
 
             setDebuffInput("");
           }}

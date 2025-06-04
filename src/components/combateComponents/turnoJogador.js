@@ -1,4 +1,4 @@
-import { interpretarPenalidades } from "../buffDebuffsComponents/interpretarPenalidades";
+// import { interpretarPenalidades } from "../buffDebuffsComponents/interpretarPenalidades";
 import { aplicarDano } from "./aplicarDano";
 import { rolarDado } from "./rolarDados";
 
@@ -21,24 +21,12 @@ export function ataqueJogador({
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  const penalidades = interpretarPenalidades(player);
-
-  // const buffs = player.buff || {};
-  // console.log("Buffs encontrados:", buffs);
-
   // let acerto = rolarDado(20, "normal");
   let acerto = 19;
-  if (penalidades.temDesvantagem && penalidades.vantagemAtaque) {
-    // Se tiver ambos, anulam
-    acerto = rolarDado(20, "normal");
-  } else if (penalidades.temDesvantagem) {
-    const r1 = rolarDado(20, "desvantagem1");
-    const r2 = rolarDado(20, "desvantagem2");
-    acerto = Math.min(r1, r2);
-  } else if (penalidades.vantagemAtaque) {
-    const r1 = rolarDado(20, "vantagem1");
-    const r2 = rolarDado(20, "vantagem2");
-    acerto = Math.max(r1, r2);
+
+  if (character.buff && character.buff.sumir) {
+    acerto = 20;
+    console.log("SUMIUUUUUUUUUUU", acerto);
   }
 
   // Calcula o maior modificador de ataque: Destreza ou Força.
@@ -57,7 +45,7 @@ export function ataqueJogador({
   const critico = acerto === 20;
 
   // Se for crítico, dobra o dano.
-  const danoTotal = critico ? dano.dano * 2 : dano.dano;
+  const danoTotal = acerto === 20 ? dano.dano * 2 : dano.dano;
 
   // Atualiza mensagens no log.
   setMensagens((prev) => [
