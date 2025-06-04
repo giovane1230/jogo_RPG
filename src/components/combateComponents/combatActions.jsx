@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import BuffUtils from "../buffDebuffsComponents/BuffUtils";
 import conditionsData from "../buffDebuffsComponents/conditionsData";
-import { ataqueJogador, ataquePorBotao } from "./turnoJogador";
 
 const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   const { character, updateCharacter } = useCharacter();
@@ -23,8 +22,10 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
 
     if (sucesso) {
       console.log("fugiu???????????", result);
+      BuffUtils;
     } else {
       console.log("você sofreu ataque de oportunidade");
+      iniciaTurnoInimigo(!sucesso);
     }
   };
 
@@ -52,10 +53,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      updateCharacter((prev) => ({
-        ...prev,
-        buff: novoBuff,
-      }));
+      updateCharacter({ buff: novoBuff });
 
       console.log("Sucesso");
     } else {
@@ -83,10 +81,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      updateCharacter((prev) => ({
-        ...prev,
-        buff: novoBuff,
-      }));
+      updateCharacter({ buff: novoBuff });
 
       console.log("Sucesso");
     } else {
@@ -114,10 +109,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      updateCharacter((prev) => ({
-        ...prev,
-        buff: novoBuff,
-      }));
+      updateCharacter({ buff: novoBuff });
 
       console.log("Sucesso");
     } else {
@@ -145,10 +137,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      updateCharacter((prev) => ({
-        ...prev,
-        buff: novoBuff,
-      }));
+      updateCharacter({ buff: novoBuff });
 
       console.log("Sucesso");
     } else {
@@ -176,10 +165,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
         },
       };
 
-      updateCharacter((prev) => ({
-        ...prev,
-        buff: novoBuff,
-      }));
+      updateCharacter({ buff: novoBuff });
 
       console.log("Sucesso");
     } else {

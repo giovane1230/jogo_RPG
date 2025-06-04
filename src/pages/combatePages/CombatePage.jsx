@@ -318,12 +318,8 @@ function CombatePage() {
       {!combateFinalizado && !trocarDeArma && (
         <div>
           <CombatActions
-            onAttack={handleAtaquePorBotao}
-            onReload={recarregarArma}
-            onEscape={handleEscapeResult}
-            onFail={iniciaTurnoInimigo}
-            trocaDeArma={TrocarDeArmaBtn}
-            precisaRecarregar={precisaRecarregar}
+              iniciaTurnoInimigo={iniciaTurnoInimigo}
+              onEscapeAttempt={false}
           />
         </div>
       )}

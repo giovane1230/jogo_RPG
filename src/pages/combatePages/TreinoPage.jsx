@@ -241,7 +241,7 @@ function TreinoPage() {
                       <strong>{nomeBuff}</strong>: CD = {detalhes.CD}, TE ={" "}
                       {detalhes.timeEffect}, {detalhes.desc}
                       <ul>
-                        {detalhes.penalidades.map((penalidade, index) => (
+                        {detalhes.penalidades?.map((penalidade, index) => (
                           <li key={index}>{penalidade}</li>
                         ))}
                       </ul>
