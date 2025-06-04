@@ -36,7 +36,12 @@ export function ataqueJogador({
   );
 
   // Bônus total inclui o modificador e o bônus de proficiência.
-  const bonusTotal = modAtk + character.proficienciesBonus;
+  let bonusTotal = modAtk + character.proficienciesBonus;
+
+  if (character.buff && character.buff.pesquisar) {
+    bonusTotal += modAtk;
+    console.log("PESQUISOU O INIMIGO", bonusTotal);
+  }
 
   // Verifica se o ataque foi bem-sucedido comparando com a CA do inimigo.
   const sucesso = acerto + bonusTotal >= enemy.armor_class[0].value;
@@ -91,7 +96,13 @@ export function ataqueJogadorOffHand({
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  const acerto = rolarDado(20, "ataqueJogadorOffHand"); // Rola d20 para acerto.
+  // const acerto = rolarDado(20, "ataqueJogadorOffHand");
+  let acerto = 19;
+
+  if (character.buff && character.buff.sumir) {
+    acerto = 20;
+    console.log("SUMIUUUUUUUUUUU", acerto);
+  }
 
   // Calcula o modificador de ataque.
   const modAtk = Math.max(
@@ -99,7 +110,12 @@ export function ataqueJogadorOffHand({
     character.attributes.str.mod
   );
 
-  const bonusTotal = modAtk; // Sem bônus de proficiência.
+  let bonusTotal = modAtk; // Sem bônus de proficiência.
+
+  if (character.buff && character.buff.pesquisar) {
+    bonusTotal += modAtk;
+    console.log("PESQUISOU O INIMIGO", bonusTotal);
+  }
 
   // Verifica sucesso.
   const sucesso = acerto + bonusTotal > enemy.armor_class[0].value;
@@ -147,7 +163,7 @@ export function ataquePorBotao({
   // Define arma principal ou de duas mãos.
   const arma = equipment.weapon || equipment["two-handed"];
 
-  console.log(arma || "desarmador"); // Debug.
+  console.log(arma || "desarmado"); // Debug.
 
   let armaTipo;
 
