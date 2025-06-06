@@ -152,10 +152,10 @@ const EquipmentSlots = () => {
 
     // Munição (arma de mão única arremessável) ou duas mãos
     if (isAmmunition || isTwoHanded) {
-      if (currentWeapon || offHand) {
-        alert("Você precisa das duas mãos livres para usar esta arma.");
-        return;
-      }
+      // if (currentWeapon || offHand) {
+      //   alert("Você precisa das duas mãos livres para usar esta arma.");
+      //   return;
+      // }
       // Limpa ambas as mãos e equipa "two-handed"
       setMultipleEquipment({
         "two-handed": item,
@@ -172,12 +172,12 @@ const EquipmentSlots = () => {
         `${item.name} é versátil. Deseja equipar com DUAS mãos?`
       );
       if (usarDuasMaos) {
-        if (currentWeapon || offHand) {
-          alert(
-            "Você precisa das duas mãos livres para usar esta arma em modo duas mãos."
-          );
-          return;
-        }
+        // if (currentWeapon || offHand) {
+        //   alert(
+        //     "Você precisa das duas mãos livres para usar esta arma em modo duas mãos."
+        //   );
+        //   return;
+        // }
         setMultipleEquipment({
           "two-handed": item,
           weapon: null,
