@@ -61,14 +61,16 @@ function CombatePage() {
   // Efeito que verifica se alguém morreu
   useEffect(() => {
     if (!combateFinalizado) {
-      if (enemy.hit_points <= 0) {
-        setCharacter((prev) => ({ ...prev, buff: {} })); // Remove buffs ao derrotar inimigo
+      if (enemy.vidaAtual <= 0) {
+        setCombateFinalizado(true); // evita chamadas múltiplas
+        setCharacter((prev) => ({ ...prev, buff: {} }));
         finalizarCombate(true);
       } else if (character.vidaAtual <= 0) {
+        setCombateFinalizado(true);
         finalizarCombate(false);
       }
     }
-  }, [enemy.hit_points, character.vidaAtual, combateFinalizado]);
+  }, [enemy.vidaAtual, character.vidaAtual, combateFinalizado]);
 
   // Função que finaliza o combate
   function finalizarCombate(jogadorVenceu) {
@@ -203,6 +205,17 @@ function CombatePage() {
     setTrocaDeArma(true);
   };
 
+  function getArmaEquipada(equipamentos) {
+    return (
+      equipamentos.mainHand ||
+      equipamentos["two-handed"] ||
+      equipamentos.offHand ||
+      null
+    );
+  }
+
+  const arma = getArmaEquipada(character.equipment);
+
   return (
     <div>
       <h1>Combate</h1>
@@ -321,16 +334,25 @@ function CombatePage() {
 
       {!combateFinalizado && !trocarDeArma && (
         <div>
-          <button onClick={handleAtaquePorBotao}>Atacar</button>
+          <button onClick={handleAtaquePorBotao}>
+            {arma
+              ? `Atacar com ${arma.name} (${
+                  (arma.twoHandedDamage || arma.status)?.damage_dice
+                } ${(arma.twoHandedDamage || arma.status)?.damage_type.name})`
+              : "Atacar com Punho (1d4) "}
+          </button>
+
           <CombatActions
             iniciaTurnoInimigo={iniciaTurnoInimigo}
             onEscapeAttempt={false}
           />
         </div>
       )}
-      <button onClick={TrocarDeArmaBtn}>
-        {trocarDeArma ? "Confirmar Troca" : "Trocar de Arma"}
-      </button>
+      {!combateFinalizado && (
+        <button onClick={TrocarDeArmaBtn}>
+          {trocarDeArma ? "Confirmar Troca" : "Trocar de Arma"}
+        </button>
+      )}
 
       {trocarDeArma && (
         <TrocarDeArma
@@ -340,7 +362,9 @@ function CombatePage() {
         />
       )}
 
-      {dropReady && <DropComponent enemy={enemy} derrota={derrota} />}
+      {dropReady && (
+        <DropComponent CR={derrota ? "derrota" : enemy.challenge_rating} />
+      )}
       <div>
         {mensagens
           .slice()

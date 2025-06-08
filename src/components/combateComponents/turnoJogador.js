@@ -68,18 +68,20 @@ export function ataqueJogador({
     },
   ]);
 
+  // Força o turno a seguir se inimigo ainda está vivo.
   if (sucesso) {
     const novaVida = aplicarDano(
       enemy,
       { dano: danoTotal, tipo: dano.tipo },
       setMensagens
     );
+
     setEnemy((prev) => ({ ...prev, vidaAtual: novaVida }));
-  }
-  // Força o turno a seguir se inimigo ainda está vivo.
-  if (enemy.vidaAtual > 0) {
-    setTimeout(turnoInimigo, 1000);
-  }
+
+    if (novaVida > 0) {
+      setTimeout(turnoInimigo, 1000);
+    }
+  } else setTimeout(turnoInimigo, 1000);
 }
 
 /**
