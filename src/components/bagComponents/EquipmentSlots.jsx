@@ -175,7 +175,7 @@ const EquipmentSlots = () => {
         // if (currentWeapon || offHand) {
         //   alert(
         //     "Você precisa das duas mãos livres para usar esta arma em modo duas mãos."
-        //   ); folga
+        //   ); 
         //   return;
         // }
         setMultipleEquipment({

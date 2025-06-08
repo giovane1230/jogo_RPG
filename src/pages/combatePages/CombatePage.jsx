@@ -228,7 +228,7 @@ function CombatePage() {
       </button>
       <button onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 1 }))}>enemy 1 HP</button>
       <button onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 100000 }))}>enemy 100000 HP</button>
-      <button onClick={() => console.log(enemy)}>enemy console</button>
+      <button onClick={() => console.log(enemy, enemy.vidaAtual)}>enemy console</button>
       <button onClick={() => console.log(character)}>char console</button>
 
       <button onClick={() => console.log("character", character.buff)}>
