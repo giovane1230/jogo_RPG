@@ -192,19 +192,10 @@ function CombatePage() {
   // Função para trocar de arma
   const TrocarDeArmaBtn = () => {
     if (trocarDeArma) {
-      const hasShield = !!character.equipment.shield;
-      if (hasShield) {
-        console.log("botou escudo CA:", character.cArmor);
-      } else {
-        console.log("tirou o escudo CA:", character.cArmor);
-      }
       setTrocaDeArma(false);
       setMensagens((prev) => [
         ...prev,
-        {
-          tipo: "jogador",
-          texto: `Trocou de arma`,
-        },
+        { tipo: "jogador", texto: "Você trocou de arma." },
       ]);
       setTimeout(turnoInimigo, 1000);
       return;
@@ -226,9 +217,17 @@ function CombatePage() {
       <button onClick={() => updateCharacter({ vidaAtual: 100000 })}>
         Jogador 100000 HP
       </button>
-      <button onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 1 }))}>enemy 1 HP</button>
-      <button onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 100000 }))}>enemy 100000 HP</button>
-      <button onClick={() => console.log(enemy, enemy.vidaAtual)}>enemy console</button>
+      <button onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 1 }))}>
+        enemy 1 HP
+      </button>
+      <button
+        onClick={() => setEnemy((prev) => ({ ...prev, vidaAtual: 100000 }))}
+      >
+        enemy 100000 HP
+      </button>
+      <button onClick={() => console.log(enemy, enemy.vidaAtual)}>
+        enemy console
+      </button>
       <button onClick={() => console.log(character)}>char console</button>
 
       <button onClick={() => console.log("character", character.buff)}>
@@ -313,23 +312,33 @@ function CombatePage() {
         </p>
       )}
 
-      <button onClick={handleAtaquePorBotao}>Atacar!</button>
-
-      {!combateFinalizado && !trocarDeArma && (
-        <div>
-          <CombatActions
-              iniciaTurnoInimigo={iniciaTurnoInimigo}
-              onEscapeAttempt={false}
-          />
-        </div>
-      )}
-
       {/* Potions e drop */}
       <CombatPotions
         setMensagens={setMensagens}
         setTimeout={setTimeout}
         turnoInimigo={turnoInimigo}
       />
+
+      {!combateFinalizado && !trocarDeArma && (
+        <div>
+          <button onClick={handleAtaquePorBotao}>Atacar</button>
+          <CombatActions
+            iniciaTurnoInimigo={iniciaTurnoInimigo}
+            onEscapeAttempt={false}
+          />
+        </div>
+      )}
+      <button onClick={TrocarDeArmaBtn}>
+        {trocarDeArma ? "Confirmar Troca" : "Trocar de Arma"}
+      </button>
+
+      {trocarDeArma && (
+        <TrocarDeArma
+          character={character}
+          setCharacter={setCharacter}
+          onClose={() => setTrocaDeArma(false)}
+        />
+      )}
 
       {dropReady && <DropComponent enemy={enemy} derrota={derrota} />}
       <div>
