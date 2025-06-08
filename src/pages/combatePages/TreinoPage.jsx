@@ -62,7 +62,11 @@ function TreinoPage() {
 
     const personagem = JSON.parse(personagemLocal);
     updateCharacter(personagem);
-    setEnemy(inimigoSelecionado)
+    setEnemy(inimigoSelecionado);
+    setEnemy({
+      ...inimigoSelecionado,
+      vidaAtual: inimigoSelecionado.hit_points,
+    });
     navigate("/combate");
   };
 
