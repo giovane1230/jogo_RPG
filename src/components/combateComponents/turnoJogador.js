@@ -17,7 +17,7 @@ export function ataqueJogador({
   setEnemy,
   setTimeout,
   turnoInimigo,
-  dano, // { dano: número, tipo: string }
+  dano, // { dano: número, tipo: string } pass
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
