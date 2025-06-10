@@ -38,8 +38,9 @@ export function turnoInimigoUtil({
   // 4) Seleciona uma ação aleatória do inimigo e faz o parsing dessa ação
   let raw = enemy.actions[Math.floor(Math.random() * enemy.actions.length)];
   let atk = parseAction(raw);
-
+  const atkType = atk.damage[0]?.damage_type.index
   console.log("Ataque do inimigo:", atk);
+  console.log("Ataque do inimigo TIPO:", atkType);
 
   // 5) Verifica se a ação selecionada tem dano, DC ou multiattack, caso não, busca um fallback de ataque básico
   if (!atk.damage.length && !atk.dc && !atk.multiattack_type) {
@@ -241,11 +242,12 @@ export function turnoInimigoUtil({
     }
   }
 
+  console.log();
   // 8) Aplica o dano acumulado ao player e atualiza o HP
   if (totalDano > 0) {
     const novaVida = aplicarDano(
       player,
-      { dano: totalDano, tipo: "INIMGIO DANO" },
+      { dano: totalDano, tipo: atkType },
       setMensagens
     );
     setPlayer((prev) => ({ ...prev, vidaAtual: novaVida }));
