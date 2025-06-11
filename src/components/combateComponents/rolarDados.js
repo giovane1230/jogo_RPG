@@ -24,3 +24,19 @@ export function rolarDado(lados, qual) {
   console.log("ROLL", result, "Lados", lados, qual);
   return result;
 }
+
+export function rolarDadoAtaque(lados, modo = "normal") {
+  const rolar = () => Math.floor(Math.random() * lados) + 1;
+
+  const d1 = rolar();
+  const d2 = rolar();
+
+  switch (modo) {
+    case "vantagem":
+      return Math.max(d1, d2);
+    case "desvantagem":
+      return Math.min(d1, d2);
+    default:
+      return d1;
+  }
+}

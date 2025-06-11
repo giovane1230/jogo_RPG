@@ -1,6 +1,6 @@
 // import { interpretarPenalidades } from "../buffDebuffsComponents/interpretarPenalidades";
 import { aplicarDano } from "./aplicarDano";
-import { rolarDado } from "./rolarDados";
+import { rolarDado, rolarDadoAtaque } from "./rolarDados";
 
 /**
  * Função responsável pelo ataque principal do jogador.
@@ -21,8 +21,20 @@ export function ataqueJogador({
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  // let acerto = rolarDado(20, "normal");
-  let acerto = 19;
+  let modoRolagem = "normal";
+
+  const temVantagem = character.buff?.vantagemAtaque;
+  const temDesvantagem = character.buff?.desvantagemAtaque;
+
+  if (temVantagem && !temDesvantagem) {
+    modoRolagem = "vantagem";
+  } else if (!temVantagem && temDesvantagem) {
+    modoRolagem = "desvantagem";
+  }
+
+  let acerto = rolarDado(20, modoRolagem);
+
+  // let acerto = 19;
 
   if (character.buff && character.buff.sumir) {
     acerto = 20;
