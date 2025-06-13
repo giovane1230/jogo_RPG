@@ -19,7 +19,7 @@ export function ataqueJogador({
   turnoInimigo,
   dano, // { dano: número, tipo: string } pass
 }) {
-  if (combateFinalizado) return; // Se o combate terminou, não faz nada. fiz nada hoej triste demais
+  if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
   let modoRolagem = "normal";
 
