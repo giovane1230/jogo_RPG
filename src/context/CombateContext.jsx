@@ -27,7 +27,7 @@ export function CombatProvider({ children }) {
   // const updateEnemyHP = (novoHP) => {
   //   // Garante que não ficará abaixo de zero
   //   const hpValido = Math.max(0, novoHP);
-  //   setEnemyHP(hpValido);
+  //   setEnemyHP(hpValido); testando editar no telefone
   // };
 
   return (
