@@ -1,6 +1,7 @@
 // import { interpretarPenalidades } from "../buffDebuffsComponents/interpretarPenalidades";
 import { aplicarDano } from "./aplicarDano";
 import { rolarDado, rolarDadoAtaque } from "./rolarDados";
+import conditionsData from "../buffDebuffsComponents/conditionsData";
 
 /**
  * Função responsável pelo ataque principal do jogador.
@@ -21,10 +22,40 @@ export function ataqueJogador({
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  let modoRolagem = "normal";
+  // 1. Verifica condições que impedem agir
+  const condicoes = character.buff || {};
+  if (
+    condicoes.paralyzed ||
+    condicoes.stunned ||
+    condicoes.incapacitated ||
+    condicoes.unconscious ||
+    condicoes.petrified
+  ) {
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "buff",
+        texto: "Você está impossibilitado de agir devido a uma condição!",
+      },
+      {
+        tipo: "sistema",
+        texto: `--- Fim do turno ---`,
+      },
+    ]);
+    setTimeout(turnoInimigo, 1000);
+    return;
+  }
 
+  // 2. Aplica penalidades de desvantagem
+  let modoRolagem = "normal";
   const temVantagem = character.buff?.vantagemAtaque;
-  const temDesvantagem = character.buff?.desvantagemAtaque;
+  const temDesvantagem =
+    character.buff?.desvantagemAtaque ||
+    condicoes.frightened ||
+    condicoes.poisoned ||
+    condicoes.blinded ||
+    condicoes.restrained ||
+    condicoes.prone;
 
   if (temVantagem && !temDesvantagem) {
     modoRolagem = "vantagem";
@@ -32,7 +63,48 @@ export function ataqueJogador({
     modoRolagem = "desvantagem";
   }
 
-  let acerto = rolarDado(20, modoRolagem);
+  // 3. Aplica outras condições
+  // Exemplo: frightened - não pode se aproximar do inimigo (você pode bloquear ataques corpo-a-corpo)
+  if (condicoes.frightened) {
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "buff",
+        texto: "Você está amedrontado! Desvantagem em ataques e testes enquanto a fonte do medo estiver visível.",
+      },
+    ]);
+  }
+  if (condicoes.poisoned) {
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "buff",
+        texto: "Você está envenenado! Desvantagem em ataques e testes.",
+      },
+    ]);
+  }
+  if (condicoes.blinded) {
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "buff",
+        texto: "Você está cego! Desvantagem em ataques.",
+      },
+    ]);
+  }
+  if (condicoes.charmed) {
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "buff",
+        texto: "Você está enfeitiçado! Não pode atacar o encantador.",
+      },
+    ]);
+    setTimeout(turnoInimigo, 1000);
+    return;
+  }
+
+  let acerto = rolarDadoAtaque(20, modoRolagem);
 
   // let acerto = 19;
 
@@ -110,8 +182,8 @@ export function ataqueJogadorOffHand({
 }) {
   if (combateFinalizado) return; // Se o combate terminou, não faz nada.
 
-  // const acerto = rolarDado(20, "ataqueJogadorOffHand");
-  let acerto = 19;
+  let acerto = rolarDadoAtaque(20, "ataqueJogadorOffHand");
+  // let acerto = 19;
 
   if (character.buff && character.buff.sumir) {
     acerto = 20;
