@@ -344,6 +344,7 @@ function CombatePage() {
 
           <CombatActions
             iniciaTurnoInimigo={iniciaTurnoInimigo}
+            setMensagens={setMensagens}
             onEscapeAttempt={false}
           />
         </div>

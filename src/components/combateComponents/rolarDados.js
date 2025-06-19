@@ -32,10 +32,16 @@ export function rolarDadoAtaque(lados, modo = "normal") {
   const d2 = rolar();
 
   switch (modo) {
-    case "vantagem":
-      return Math.max(d1, d2);
-    case "desvantagem":
-      return Math.min(d1, d2);
+    case "vantagem":{
+      const max = Math.max(d1, d2);
+      console.log(d1, d2, max, "MAX")
+      return max;
+    }
+    case "desvantagem": {
+      const min = Math.min(d1, d2);
+      console.log(d1, d2, min, "MIN")
+      return min;
+    }
     default:
       return d1;
   }

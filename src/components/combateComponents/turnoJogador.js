@@ -36,11 +36,7 @@ export function ataqueJogador({
       {
         tipo: "buff",
         texto: "Você está impossibilitado de agir devido a uma condição!",
-      },
-      {
-        tipo: "sistema",
-        texto: `--- Fim do turno ---`,
-      },
+      }
     ]);
     setTimeout(turnoInimigo, 1000);
     return;
@@ -48,14 +44,15 @@ export function ataqueJogador({
 
   // 2. Aplica penalidades de desvantagem
   let modoRolagem = "normal";
-  const temVantagem = character.buff?.vantagemAtaque;
+  const temVantagem = character.buff?.prone;
   const temDesvantagem =
     character.buff?.desvantagemAtaque ||
     condicoes.frightened ||
     condicoes.poisoned ||
     condicoes.blinded ||
     condicoes.restrained ||
-    condicoes.prone;
+    condicoes.prone ||
+    condicoes.exhaustion;
 
   if (temVantagem && !temDesvantagem) {
     modoRolagem = "vantagem";

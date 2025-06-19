@@ -3,7 +3,7 @@ import { useCharacter } from "../../context/CharacterContext";
 import BuffUtils from "../buffDebuffsComponents/BuffUtils";
 import conditionsData from "../buffDebuffsComponents/conditionsData";
 
-const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
+const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) => {
   const { character, updateCharacter } = useCharacter();
   const [debuffInput, setDebuffInput] = useState();
 
@@ -12,6 +12,24 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo }) => {
   }
 
   const fugirBtn = () => {
+    // 1. Verifica condições que impedem fugir
+    const condicoes = character.buff || {};
+    if (
+      condicoes.paralyzed ||
+      condicoes.stunned ||
+      condicoes.incapacitated ||
+      condicoes.unconscious ||
+      condicoes.petrified
+    ) {
+      setMensagens((prev) => [
+        ...prev,
+        {
+          tipo: "buff",
+          texto: "Você está impossibilitado de fugir devido a uma condição!",
+        }
+      ]);
+      return;
+    }
     const result = rolarDado(20) + character.attributes.dex.mod;
 
     const sucesso = result >= 10;

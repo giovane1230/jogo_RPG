@@ -64,7 +64,7 @@ const conditionsData = {
   },
   grappled: {
     nome: "Agarrado",
-    // descricao: "Movimento 0, sem outras penalidades.",
+    descricao: "Movimento 0, sem outras penalidades.",
     duracao: 7,
     salvamento: "forca",
     // penalidades: ["semMovimento"],
