@@ -1,17 +1,26 @@
 export const fetchItems = async (loja) => {
-  const STORAGE_KEY = loja;
+  let STORAGE_KEY = loja;
 
   const storedItems = localStorage.getItem(STORAGE_KEY);
   if (storedItems) {
     return JSON.parse(storedItems);
   }
+  let url = "";
+  if (STORAGE_KEY === "sellerItems") {
+    url = "https://www.dnd5eapi.co/api/equipment";
+  }
+    if (STORAGE_KEY === "itensMagicos") {
+    url = "https://www.dnd5eapi.co/api/magic-items";
+  }
 
   try {
-    const response = await fetch("https://www.dnd5eapi.co/api/equipment");
+    const response = await fetch(url);
     const data = await response.json();
 
     // Sorteia 20 itens aleatórios
-    const shuffledItems = data.results.sort(() => Math.random() - 0.5).slice(0, 20);
+    const shuffledItems = data.results
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 20);
 
     const itemsWithDetails = await Promise.all(
       shuffledItems.map(async (item) => {
@@ -24,7 +33,8 @@ export const fetchItems = async (loja) => {
           price: itemData.cost?.quantity || 0,
           url: item.url,
           type: itemData.equipment_category?.name?.toLowerCase() || "unknown",
-          category: itemData.weapon_category || itemData.armor_category || "Misc",
+          category:
+            itemData.weapon_category || itemData.armor_category || "Misc",
           status: itemData?.damage || itemData.armor_class?.base || "Misc",
           bonusDex: itemData.armor_class?.dex_bonus ?? null,
           properties: itemData.properties || null,

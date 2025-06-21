@@ -236,7 +236,7 @@ function VendedorMagicos() {
         <ul>
           {itensConsolidadosSeller.map((equip) => (
             <li key={equip.index}>
-              <ItemTooltip item={equip}>
+              <ItemTooltip item={equip} isMagic={!!equip.rarity}>
                 <span>
                   {equip.name} x{equip.quantity}
                 </span>
