@@ -95,7 +95,7 @@ const conditionsData = {
     descricao: "Desvantagem em ataques. Vantagem em ataques contra.",
     duracao: 7,
     salvamento: "destreza",
-    // penalidades: ["desvantagemDistancia", "inimigoVantagemMelee"],
+    // penalidades: ["desvantagemDistancia", "inimigoVantagem"],
   },
   unconscious: {
     nome: "Inconsciente",

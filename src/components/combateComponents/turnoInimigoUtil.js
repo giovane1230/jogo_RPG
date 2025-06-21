@@ -21,9 +21,25 @@ export function turnoInimigoUtil({
   // 0) Checa se inimigo tem ações, se o combate já acabou ou se player está indefinido; caso sim, retorna sem fazer nada
   if (!enemy.actions?.length || combateFinalizado) return;
 
-  console.log("chegou");
   // 1) Incrementa o contador de rounds
   setRound((r) => r + 1);
+  const condicoes = player.buff || {};
+  if (condicoes.poisoned) {
+    const dano = Math.max(1, Math.floor(player.vidaInicial * 0.01));
+    const novaVida = aplicarDano(
+      player,
+      { dano, tipo: "veneno" },
+      setMensagens
+    );
+    setMensagens((prev) => [
+      ...prev,
+      {
+        tipo: "VENENO",
+        texto: `${player.name} sofreu (1% da vida maxima) ${dano} de dano da vida máxima!`,
+      },
+    ]);
+    setPlayer((prev) => ({ ...prev, vidaAtual: novaVida }));
+  }
 
   // 2) Atualiza os buffs do player no início do turno
   const buffsAtualizados = BuffUtils?.AtualizarBuffs(player.buff);
@@ -70,9 +86,9 @@ export function turnoInimigoUtil({
     const acao = parseAction(rawA);
 
     // Determina vantagem/desvantagem do inimigo com base nas condições do player
-    const condicoes = player.buff || {};
     let modoRolagem = "normal";
-    const ImigoTemVantagem =
+    const inimigoTemDesvantagem = condicoes.invisible;
+    const inimigoTemVantagem =
       condicoes.frightened ||
       condicoes.poisoned ||
       condicoes.blinded ||
@@ -81,8 +97,10 @@ export function turnoInimigoUtil({
       condicoes.paralyzed ||
       condicoes.exhaustion;
 
-    if (ImigoTemVantagem) {
+    if (inimigoTemVantagem && !inimigoTemDesvantagem) {
       modoRolagem = "vantagem";
+    } else if (inimigoTemDesvantagem && !inimigoTemVantagem) {
+      modoRolagem = "desvantagem";
     }
 
     // Usa rolarDadoAtaque ao invés de rolarDado

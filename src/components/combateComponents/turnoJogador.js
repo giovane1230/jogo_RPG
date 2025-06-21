@@ -44,7 +44,7 @@ export function ataqueJogador({
 
   // 2. Aplica penalidades de desvantagem
   let modoRolagem = "normal";
-  const temVantagem = character.buff?.prone;
+  const temVantagem = character.buff?.invisible;
   const temDesvantagem =
     character.buff?.desvantagemAtaque ||
     condicoes.stunned ||
