@@ -76,7 +76,7 @@ export function ataqueJogador({
       ...prev,
       {
         tipo: "buff",
-        texto: "Você está envenenado! Desvantagem em ataques e testes.",
+        texto: "Você está envenenado! Desvantagem em ataques e dano ao longo do tempo.",
       },
     ]);
   }

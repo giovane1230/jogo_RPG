@@ -3,7 +3,11 @@ import { useCharacter } from "../../context/CharacterContext";
 import BuffUtils from "../buffDebuffsComponents/BuffUtils";
 import conditionsData from "../buffDebuffsComponents/conditionsData";
 
-const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) => {
+const CombatActions = ({
+  onEscapeAttempt,
+  iniciaTurnoInimigo,
+  setMensagens,
+}) => {
   const { character, updateCharacter } = useCharacter();
   const [debuffInput, setDebuffInput] = useState();
 
@@ -11,7 +15,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
     return Math.floor(Math.random() * lados) + 1;
   }
 
-  const fugirBtn = () => {
+  const naoPodeAgir = () => {
     // 1. Verifica condições que impedem fugir
     const condicoes = character.buff || {};
     if (
@@ -25,11 +29,17 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
         ...prev,
         {
           tipo: "buff",
-          texto: "Você está impossibilitado de fugir devido a uma condição!",
-        }
+          texto: "Você está impossibilitado de agir devido a uma condição!",
+        },
       ]);
-      return;
+      return true;
     }
+    return false;
+  };
+
+  const fugirBtn = () => {
+    if (naoPodeAgir()) return;
+
     const result = rolarDado(20) + character.attributes.dex.mod;
 
     const sucesso = result >= 10;
@@ -39,7 +49,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
     }
 
     if (sucesso) {
-      console.log("fugiu???????????", result);
+      console.log("FUGIU!!!!!!!!!", result);
       BuffUtils;
     } else {
       console.log("você sofreu ataque de oportunidade");
@@ -48,6 +58,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
   };
 
   const defenderComEscudo = () => {
+    if (naoPodeAgir()) return;
     if (!character.equipment.shield) {
       console.log("Escudo não está equipado");
       return;
@@ -83,6 +94,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
   };
 
   const esquivarAtivar = () => {
+    if (naoPodeAgir()) return;
     if (!BuffUtils.podeUsarBuff(character, "esquiva")) {
       console.log("Esquiva em recarga");
       return;
@@ -113,6 +125,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
   };
 
   const esconderAtivar = () => {
+    if (naoPodeAgir()) return;
     if (!BuffUtils.podeUsarBuff(character, "sumir")) {
       console.log("Sumir em recarga");
       return;
@@ -143,6 +156,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
   };
 
   const empurrarAtivar = () => {
+    if (naoPodeAgir()) return;
     if (!BuffUtils.podeUsarBuff(character, "empurrar")) {
       console.log("Sumir em recarga");
       return;
@@ -173,6 +187,7 @@ const CombatActions = ({ onEscapeAttempt, iniciaTurnoInimigo, setMensagens }) =>
   };
 
   const pesquisarAtivar = () => {
+    if (naoPodeAgir()) return;
     if (!BuffUtils.podeUsarBuff(character, "pesquisar")) {
       console.log("Pesquisar em recarga");
       return;

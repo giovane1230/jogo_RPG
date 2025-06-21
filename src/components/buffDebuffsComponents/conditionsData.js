@@ -92,7 +92,7 @@ const conditionsData = {
   },
   prone: {
     nome: "Caído",
-    descricao: "Desvantagem em ataques à distância. Vantagem em ataques corpo-a-corpo contra.",
+    descricao: "Desvantagem em ataques. Vantagem em ataques contra.",
     duracao: 7,
     salvamento: "destreza",
     // penalidades: ["desvantagemDistancia", "inimigoVantagemMelee"],
