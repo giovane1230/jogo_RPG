@@ -10,6 +10,7 @@ function Sidebar({ fecharMenu, aberto }) {
     { label: "Ferreiro" },
     { label: "Mercador", to: "/mercador" },
     { label: "Alquimista", to: "/alquimista" },
+    { label: "Magicos", to: "/magicos" },
     { label: "Teste Proeficiencia", to: "/teste" },
     { label: "Saída da Cidade" },
     { label: "Histórico de Combate" },
@@ -19,21 +20,20 @@ function Sidebar({ fecharMenu, aberto }) {
   ];
 
   return (
-<div className={`sidebar ${aberto ? "aberto" : "fechado"}`}>
-  <ul>
-    {menu.map((item, i) =>
-      item.to ? (
-        <Link to={item.to} key={i}>
-          <li>{item.label}</li>
-        </Link>
-      ) : (
-        <li key={i}>{item.label}</li>
-      )
-    )}
-  </ul>
-</div>
+    <div className={`sidebar ${aberto ? "aberto" : "fechado"}`}>
+      <ul>
+        {menu.map((item, i) =>
+          item.to ? (
+            <Link to={item.to} key={i}>
+              <li>{item.label}</li>
+            </Link>
+          ) : (
+            <li key={i}>{item.label}</li>
+          )
+        )}
+      </ul>
+    </div>
   );
 }
-
 
 export default Sidebar;

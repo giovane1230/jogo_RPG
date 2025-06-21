@@ -4,9 +4,9 @@ import { fetchItems } from "../../api/fetchItems";
 import ItemTooltip from "../../components/itemsComponents/ItemTolltip";
 import useConsolidarItens from "../../components/itemsComponents/removeDuplicatas";
 
-function SellerPage() {
+function VendedorMagicos() {
   const { character, updateCharacter } = useCharacter();
-  const [sellerItems, setSellerItems] = useState([]);
+  const [itensMagicos, setItensMagicos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [itemDetails, setItemDetails] = useState(null);
@@ -14,7 +14,7 @@ function SellerPage() {
   const [inputIndex, setInputIndex] = useState(""); // Estado para o campo de busca
 
   const itensConsolidados = useConsolidarItens(character.bag || []);
-  const itensConsolidadosSeller = useConsolidarItens(sellerItems || []);
+  const itensConsolidadosSeller = useConsolidarItens(itensMagicos || []);
 
   useEffect(() => {
     const lastUpdate = localStorage.getItem("lastUpdate");
@@ -41,16 +41,16 @@ function SellerPage() {
 
   useEffect(() => {
     // Verificar se os itens já estão armazenados no localStorage
-    const storedItems = JSON.parse(localStorage.getItem("sellerItems"));
+    const storedItems = JSON.parse(localStorage.getItem("itensMagicos"));
     const lastUpdate = localStorage.getItem("MercadorlastUpdate");
 
     // Se não houver itens ou se a hora for diferente da última atualização (1 hora atrás) = 3600000
     if (!storedItems || !lastUpdate || Date.now() - lastUpdate > 3600000) {
       setLoading(true);
-      fetchItems("sellerItems")
+      fetchItems("itensMagicos")
         .then((items) => {
-          setSellerItems(items);
-          localStorage.setItem("sellerItems", JSON.stringify(items));
+          setItensMagicos(items);
+          localStorage.setItem("itensMagicos", JSON.stringify(items));
           localStorage.setItem("lastUpdate", Date.now());
           setLoading(false);
         })
@@ -59,7 +59,7 @@ function SellerPage() {
           setLoading(false);
         });
     } else {
-      setSellerItems(storedItems);
+      setItensMagicos(storedItems);
       setLoading(false);
     }
   }, []);
@@ -105,11 +105,11 @@ function SellerPage() {
 
     updateCharacter(updatedCharacter);
 
-    const updatedItems = sellerItems.filter(
+    const updatedItems = itensMagicos.filter(
       (sellerItem) => sellerItem.index !== item.index
     );
-    setSellerItems(updatedItems);
-    localStorage.setItem("sellerItems", JSON.stringify(updatedItems)); // <- Aqui também
+    setItensMagicos(updatedItems);
+    localStorage.setItem("itensMagicos", JSON.stringify(updatedItems)); // <- Aqui também
   };
 
   const handleSell = (item) => {
@@ -127,9 +127,9 @@ function SellerPage() {
 
     updateCharacter(updatedCharacter);
 
-    const updatedItems = [...sellerItems, item];
-    setSellerItems(updatedItems);
-    localStorage.setItem("sellerItems", JSON.stringify(updatedItems)); // <- Aqui também
+    const updatedItems = [...itensMagicos, item];
+    setItensMagicos(updatedItems);
+    localStorage.setItem("itensMagicos", JSON.stringify(updatedItems)); // <- Aqui também
   };
 
   if (loading) {
@@ -138,7 +138,7 @@ function SellerPage() {
 
   const testConsole = () => {
     localStorage.removeItem("lastUpdate");
-    localStorage.removeItem("sellerItems");
+    localStorage.removeItem("itensMagicos");
     updateCharacter({
       gold: 1000000,
     });
@@ -175,7 +175,7 @@ function SellerPage() {
         stealthDisadvantage: itemData.stealth_disadvantage ? "Yes" : "No",
       };
 
-      setSellerItems([...sellerItems, newItem]);
+      setItensMagicos([...itensMagicos, newItem]);
       setInputIndex("");
     } catch (err) {
       console.error("Erro ao buscar item pelo index:", err);
@@ -184,7 +184,7 @@ function SellerPage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Loja do Mercador</h1>
+      <h1>Loja de Itens Magicos</h1>
 
       <div style={{ marginBottom: "10px" }}>
         <strong>Última atualização:</strong>{" "}
@@ -209,9 +209,6 @@ function SellerPage() {
       />
       <button onClick={itemInjetado}>Injetar</button>
       <button onClick={testConsole}>GANHA DINHEIRO</button>
-      <button onClick={() => console.log(itensConsolidados)}>
-        CONSOLIDADEOSO
-      </button>
       <div style={{ marginBottom: "20px" }}>
         <h2>Sua Mochila:</h2>
         {character.bag.length > 0 ? (
@@ -235,7 +232,7 @@ function SellerPage() {
       </div>
 
       <h2>Itens à Venda:</h2>
-      {Array.isArray(sellerItems) && (
+      {Array.isArray(itensMagicos) && (
         <ul>
           {itensConsolidadosSeller.map((equip) => (
             <li key={equip.index}>
@@ -256,4 +253,4 @@ function SellerPage() {
   );
 }
 
-export default SellerPage;
+export default VendedorMagicos;

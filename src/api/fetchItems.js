@@ -1,5 +1,5 @@
-export const fetchItems = async () => {
-  const STORAGE_KEY = "sellerItems";
+export const fetchItems = async (loja) => {
+  const STORAGE_KEY = loja;
 
   const storedItems = localStorage.getItem(STORAGE_KEY);
   if (storedItems) {

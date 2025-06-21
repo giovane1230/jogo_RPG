@@ -21,6 +21,7 @@ import AlquimistaPagina from "./pages/Vendedores/AlquimistaPagina";
 import NotFound from "./pages/404";
 import TestProeficiencia from "./pages/charPages/TestProeficiencia";
 import TraitsPage from "./pages/dataBasePages/TraitsPage";
+import VendedorMagicos from "./pages/Vendedores/VendedorMagicos";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
         <Route path="treino" element={<TreinoPage />} />
         <Route path="combate" element={<CombatePage />} />
         <Route path="alquimista" element={<AlquimistaPagina />} />
+        <Route path="magicos" element={<VendedorMagicos />} />
         <Route path="teste" element={<TestProeficiencia />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/tracos" element={<TraitsPage />} />
