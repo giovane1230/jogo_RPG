@@ -18,7 +18,7 @@ const conditionsData = {
     descricao: "Incapaz de agir ou se mover. Falha testes de FOR/DEX. Ataques corpo-a-corpo têm vantagem e causam crítico.",
     duracao: 7,
     salvamento: "constituicao",
-    // penalidades: ["semAção", "semMovimento", "criticoAdjacente", "inimigoVantagem"],
+    // penalidades: ["semAção", "criticoAdjacente", "inimigoVantagem"],
   },
   charmed: {
     nome: "Enfeitiçado",
@@ -32,7 +32,7 @@ const conditionsData = {
     descricao: "Incapaz de agir, falha testes de resistência, ataques contra têm vantagem.",
     duracao: 7,
     salvamento: "constituicao",
-    // penalidades: ["semAção", "semMovimento", "inimigoVantagem"],
+    // penalidades: ["semAção", "inimigoVantagem"],
   },
   restrained: {
     nome: "Contido",
@@ -88,7 +88,7 @@ const conditionsData = {
     descricao: "Transformado em pedra. Incapaz de agir. Imune a dano.",
     duracao: 7,
     salvamento: "constituicao",
-    // penalidades: ["semAção", "semMovimento", "imune"],
+    // penalidades: ["semAção", "imune"],
   },
   prone: {
     nome: "Caído",

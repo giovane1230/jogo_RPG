@@ -36,7 +36,7 @@ export function ataqueJogador({
       {
         tipo: "buff",
         texto: "Você está impossibilitado de agir devido a uma condição!",
-      }
+      },
     ]);
     setTimeout(turnoInimigo, 1000);
     return;
@@ -47,12 +47,10 @@ export function ataqueJogador({
   const temVantagem = character.buff?.prone;
   const temDesvantagem =
     character.buff?.desvantagemAtaque ||
-    condicoes.frightened ||
-    condicoes.poisoned ||
-    condicoes.blinded ||
+    condicoes.stunned ||
     condicoes.restrained ||
     condicoes.prone ||
-    condicoes.exhaustion;
+    condicoes.restrained;
 
   if (temVantagem && !temDesvantagem) {
     modoRolagem = "vantagem";
@@ -61,13 +59,13 @@ export function ataqueJogador({
   }
 
   // 3. Aplica outras condições
-  // Exemplo: frightened - não pode se aproximar do inimigo (você pode bloquear ataques corpo-a-corpo)
   if (condicoes.frightened) {
     setMensagens((prev) => [
       ...prev,
       {
         tipo: "buff",
-        texto: "Você está amedrontado! Desvantagem em ataques e testes enquanto a fonte do medo estiver visível.",
+        texto:
+          "Você está amedrontado! Desvantagem em ataques e testes enquanto a fonte do medo estiver visível.",
       },
     ]);
   }
@@ -76,7 +74,8 @@ export function ataqueJogador({
       ...prev,
       {
         tipo: "buff",
-        texto: "Você está envenenado! Desvantagem em ataques e dano ao longo do tempo.",
+        texto:
+          "Você está envenenado! Desvantagem em ataques e dano ao longo do tempo.",
       },
     ]);
   }

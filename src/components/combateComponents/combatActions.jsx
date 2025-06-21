@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useCharacter } from "../../context/CharacterContext";
 import BuffUtils from "../buffDebuffsComponents/BuffUtils";
 import conditionsData from "../buffDebuffsComponents/conditionsData";
+import { naoPodeAgir } from "../buffDebuffsComponents/interpretarPenalidades";
+
 
 const CombatActions = ({
   onEscapeAttempt,
@@ -15,30 +17,8 @@ const CombatActions = ({
     return Math.floor(Math.random() * lados) + 1;
   }
 
-  const naoPodeAgir = () => {
-    // 1. Verifica condições que impedem fugir
-    const condicoes = character.buff || {};
-    if (
-      condicoes.paralyzed ||
-      condicoes.stunned ||
-      condicoes.incapacitated ||
-      condicoes.unconscious ||
-      condicoes.petrified
-    ) {
-      setMensagens((prev) => [
-        ...prev,
-        {
-          tipo: "buff",
-          texto: "Você está impossibilitado de agir devido a uma condição!",
-        },
-      ]);
-      return true;
-    }
-    return false;
-  };
-
   const fugirBtn = () => {
-    if (naoPodeAgir()) return;
+    if (naoPodeAgir(character, setMensagens)) return;
 
     const result = rolarDado(20) + character.attributes.dex.mod;
 
@@ -58,7 +38,7 @@ const CombatActions = ({
   };
 
   const defenderComEscudo = () => {
-    if (naoPodeAgir()) return;
+    if (naoPodeAgir(character, setMensagens)) return;
     if (!character.equipment.shield) {
       console.log("Escudo não está equipado");
       return;
@@ -94,7 +74,7 @@ const CombatActions = ({
   };
 
   const esquivarAtivar = () => {
-    if (naoPodeAgir()) return;
+    if (naoPodeAgir(character, setMensagens)) return;
     if (!BuffUtils.podeUsarBuff(character, "esquiva")) {
       console.log("Esquiva em recarga");
       return;
@@ -125,7 +105,7 @@ const CombatActions = ({
   };
 
   const esconderAtivar = () => {
-    if (naoPodeAgir()) return;
+    if (naoPodeAgir(character, setMensagens)) return;
     if (!BuffUtils.podeUsarBuff(character, "sumir")) {
       console.log("Sumir em recarga");
       return;
@@ -156,9 +136,8 @@ const CombatActions = ({
   };
 
   const empurrarAtivar = () => {
-    if (naoPodeAgir()) return;
+    if (naoPodeAgir(character, setMensagens)) return;
     if (!BuffUtils.podeUsarBuff(character, "empurrar")) {
-      console.log("Sumir em recarga");
       return;
     }
 
@@ -166,15 +145,16 @@ const CombatActions = ({
     const sucesso = tentativa === 1;
 
     if (sucesso) {
-      const novoBuff = {
-        ...character.buff,
-        empurrar: {
-          nome: "Empurrar",
-          descricao: "Atordoa prevemente e cria distancia",
-          CD: 2,
-          timeEffect: 2,
-          salvamento: "Força",
-        },
+      // Remove a condição "grappled" se existir
+      const novoBuff = { ...character.buff };
+      delete novoBuff.grappled;
+
+      novoBuff.empurrar = {
+        nome: "Empurrar",
+        descricao: "Atordoa prevemente e cria distancia",
+        CD: 2,
+        timeEffect: 2,
+        salvamento: "Força",
       };
 
       updateCharacter({ buff: novoBuff });
@@ -187,7 +167,7 @@ const CombatActions = ({
   };
 
   const pesquisarAtivar = () => {
-    if (naoPodeAgir()) return;
+    if (naoPodeAgir(character, setMensagens)) return;
     if (!BuffUtils.podeUsarBuff(character, "pesquisar")) {
       console.log("Pesquisar em recarga");
       return;

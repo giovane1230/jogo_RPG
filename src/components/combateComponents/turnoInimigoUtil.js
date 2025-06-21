@@ -1,7 +1,11 @@
 import conditionsData from "../buffDebuffsComponents/conditionsData";
 import { aplicarDano } from "./aplicarDano";
 import { parseAction } from "./parseAction";
-import { rolarDado, rolarDadoPersonalizado } from "./rolarDados";
+import {
+  rolarDado,
+  rolarDadoPersonalizado,
+  rolarDadoAtaque,
+} from "./rolarDados";
 
 export function turnoInimigoUtil({
   enemy,
@@ -25,7 +29,7 @@ export function turnoInimigoUtil({
   const buffsAtualizados = BuffUtils?.AtualizarBuffs(player.buff);
   setPlayer((prev) => ({ ...prev, buff: buffsAtualizados }));
 
-  // 3) Se o player estiver sob o efeito do buff 'empurrar/atordoado', pula o turno do inimigo e exibe mensagens
+  // 3) Se o player estiver sob o efeito do buff 'empurrar', pula o turno do inimigo e exibe mensagens
   if (player.buff.empurrar?.timeEffect > 0) {
     setMensagens((prev) => [
       ...prev,
@@ -65,8 +69,24 @@ export function turnoInimigoUtil({
   for (const rawA of acoesParaExecutar) {
     const acao = parseAction(rawA);
 
-    // 7.1) Rola o dado para acerto do inimigo e calcula se é crítico
-    const roll = rolarDado(20, "acerto inimigo");
+    // Determina vantagem/desvantagem do inimigo com base nas condições do player
+    const condicoes = player.buff || {};
+    let modoRolagem = "normal";
+    const ImigoTemVantagem =
+      condicoes.frightened ||
+      condicoes.poisoned ||
+      condicoes.blinded ||
+      condicoes.restrained ||
+      condicoes.prone ||
+      condicoes.paralyzed ||
+      condicoes.exhaustion;
+
+    if (ImigoTemVantagem) {
+      modoRolagem = "vantagem";
+    }
+
+    // Usa rolarDadoAtaque ao invés de rolarDado
+    const roll = rolarDadoAtaque(20, modoRolagem);
     const crit = roll === 20;
 
     const bonusAtk = acao.attack_bonus ?? 0;
