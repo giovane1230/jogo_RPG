@@ -35,6 +35,7 @@ function CombatePage() {
   const [precisaRecarregar, setPrecisaRecarregar] = useState(true);
   const [selectedSpell, setSelectedSpell] = useState(null);
   const [trocarDeArma, setTrocaDeArma] = useState(false);
+  const [motivoFinalizacao, setMotivoFinalizacao] = useState("");
 
   const navigate = useNavigate();
 
@@ -73,8 +74,17 @@ function CombatePage() {
   }, [enemy.vidaAtual, character.vidaAtual, combateFinalizado]);
 
   // Função que finaliza o combate
-  function finalizarCombate(jogadorVenceu) {
+  function finalizarCombate(jogadorVenceu, motivo = "") {
     setCombateFinalizado(true);
+    setMotivoFinalizacao(motivo);
+
+    if (motivo === "fuga") {
+      setMensagens((prev) => [
+        ...prev,
+        { tipo: "sistema", texto: "Você fugiu do combate." },
+      ]);
+      return;
+    }
 
     if (jogadorVenceu) {
       setMensagens((prev) => [
@@ -173,7 +183,11 @@ function CombatePage() {
     } else {
       setMensagens((prev) => [
         ...prev,
-        { tipo: "sistema", texto: "Falhou na fuga, sofreu ataque!" },
+        {
+          tipo: "sistema",
+          texto:
+            "Tentou usar uma ação mas falhou e sofreu um ataque de oportunidade",
+        },
       ]);
       setTimeout(turnoInimigo, 1000);
     }
@@ -325,15 +339,14 @@ function CombatePage() {
         </p>
       )}
 
-      {/* Potions e drop */}
-      <CombatPotions
-        setMensagens={setMensagens}
-        setTimeout={setTimeout}
-        turnoInimigo={turnoInimigo}
-      />
-
       {!combateFinalizado && !trocarDeArma && (
         <div>
+          {/* Potions e drop */}
+          <CombatPotions
+            setMensagens={setMensagens}
+            setTimeout={setTimeout}
+            turnoInimigo={turnoInimigo}
+          />
           <button onClick={handleAtaquePorBotao}>
             {arma
               ? `Atacar com ${arma.name} (${
@@ -346,6 +359,7 @@ function CombatePage() {
             iniciaTurnoInimigo={iniciaTurnoInimigo}
             setMensagens={setMensagens}
             onEscapeAttempt={false}
+            finalizarCombate={finalizarCombate}
           />
         </div>
       )}
@@ -362,8 +376,7 @@ function CombatePage() {
           onClose={() => setTrocaDeArma(false)}
         />
       )}
-
-      {dropReady && (
+      {dropReady && motivoFinalizacao !== "fuga" && (
         <DropComponent CR={derrota ? "derrota" : enemy.challenge_rating} />
       )}
       <div>
@@ -384,6 +397,9 @@ function CombatePage() {
             </div>
           ))}
       </div>
+      {combateFinalizado && motivoFinalizacao === "fuga" && (
+        <button onClick={() => navigate("/treino")}>Sair</button>
+      )}
     </div>
   );
 }

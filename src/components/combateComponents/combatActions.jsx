@@ -4,11 +4,11 @@ import BuffUtils from "../buffDebuffsComponents/BuffUtils";
 import conditionsData from "../buffDebuffsComponents/conditionsData";
 import { naoPodeAgir } from "../buffDebuffsComponents/interpretarPenalidades";
 
-
 const CombatActions = ({
   onEscapeAttempt,
   iniciaTurnoInimigo,
   setMensagens,
+  finalizarCombate,
 }) => {
   const { character, updateCharacter } = useCharacter();
   const [debuffInput, setDebuffInput] = useState();
@@ -21,19 +21,28 @@ const CombatActions = ({
     if (naoPodeAgir(character, setMensagens)) return;
 
     const result = rolarDado(20) + character.attributes.dex.mod;
-
     const sucesso = result >= 10;
 
-    if (onEscapeAttempt) {
-      onEscapeAttempt(sucesso); // envia true ou false para o pai
-    }
-
     if (sucesso) {
-      console.log("FUGIU!!!!!!!!!", result);
-      BuffUtils;
+      setMensagens((prev) => [
+        ...prev,
+        {
+          tipo: "sistema",
+          texto: "Você conseguiu fugir do combate!",
+        },
+      ]);
+      if (onEscapeAttempt) onEscapeAttempt(true);
+      if (finalizarCombate) finalizarCombate(false, "fuga"); // <-- Motivo fuga
     } else {
-      console.log("você sofreu ataque de oportunidade");
-      iniciaTurnoInimigo(!sucesso);
+      setMensagens((prev) => [
+        ...prev,
+        {
+          tipo: "sistema",
+          texto: "Você falhou em fugir e sofreu um ataque de oportunidade!",
+        },
+      ]);
+      if (onEscapeAttempt) onEscapeAttempt(false);
+      else iniciaTurnoInimigo(false);
     }
   };
 
